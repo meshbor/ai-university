@@ -246,9 +246,12 @@ const COURSES = [
               {n:"0002", t:"Размещение элементов", href:"courses/css-grid/lessons/0002-razmeshchenie-elementov.html"} ],
     refs:[ {t:"Справочник Grid", href:"courses/css-grid/reference/grid-spravochnik.html"} ] },
   { id:"chtenie", emoji:"📖", title:"Чтение (сын)", sub:"Учим сына читать · ведёт родитель",
-    primary:{label:"Открыть последний урок", href:"courses/chtenie/lessons/0002-begushchiy-palchik.html"},
+    primary:{label:"Открыть последний урок", href:"courses/chtenie/lessons/0005-bukvy-bez-tyani-i-prevrashcheniya.html"},
     lessons:[ {n:"0001", t:"Звук, а не имя", href:"courses/chtenie/lessons/0001-zvuk-ne-imya.html"},
-              {n:"0002", t:"Бегущий пальчик", href:"courses/chtenie/lessons/0002-begushchiy-palchik.html"} ],
+              {n:"0002", t:"Бегущий пальчик", href:"courses/chtenie/lessons/0002-begushchiy-palchik.html"},
+              {n:"0003", t:"Из слогов — слово", href:"courses/chtenie/lessons/0003-iz-slogov-slovo.html"},
+              {n:"0004", t:"Слог с хвостиком", href:"courses/chtenie/lessons/0004-zakrytye-slogi.html"},
+              {n:"0005", t:"Буквы без тяни и превращения", href:"courses/chtenie/lessons/0005-bukvy-bez-tyani-i-prevrashcheniya.html"} ],
     refs:[ {t:"Памятка родителю", href:"courses/chtenie/reference/pamyatka-roditelyu.html"},
            {t:"Слоговая таблица", href:"courses/chtenie/reference/slogovaya-tablica.html"} ] },
 ];
@@ -356,6 +359,11 @@ function currentStreak(){
   const today=dstr(new Date()); const y=new Date(); y.setDate(y.getDate()-1);
   if(store.meta.lastActive===today||store.meta.lastActive===dstr(y)) return store.meta.streak||0;
   return 0;
+}
+// одноразовая миграция: 3 урока «Чтение» пройдены с ребёнком (июнь 2026)
+if((store.meta.progressVer||0)<1){
+  ["chtenie/0001","chtenie/0002","chtenie/0003"].forEach(k=>{store.lessons[k]=true;});
+  store.meta.progressVer=1; touchStreak(); save();
 }
 
 // ---- tabs ----

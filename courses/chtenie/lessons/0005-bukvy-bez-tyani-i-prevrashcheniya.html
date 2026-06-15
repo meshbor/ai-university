@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 5 · Буквы, которые нельзя тянуть, и превращения слов</title>
+<style>
+  :root{
+    --ink:#1f2430; --muted:#5b6472; --accent:#b5402a; --good:#2f7d4f; --magic:#5a3aa0;
+    --line:#e3e0d8; --paper:#fbf9f4; --card:#ffffff; --vowel:#b5402a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--paper); color:var(--ink);
+    font:18px/1.55 "Georgia","Times New Roman",serif; padding:40px 20px}
+  .wrap{max-width:760px; margin:0 auto}
+  header{border-bottom:3px double var(--line); padding-bottom:14px; margin-bottom:18px}
+  .kicker{font:600 13px/1.2 system-ui,sans-serif; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); margin:0 0 6px}
+  h1{font-size:32px; line-height:1.12; margin:0 0 6px}
+  .meta{color:var(--muted); font-style:italic; margin:0}
+  .goal{background:var(--card); border:1px solid var(--line); border-left:6px solid var(--good);
+    border-radius:8px; padding:14px 16px; margin:16px 0}
+  .goal b{color:var(--good)}
+  h2{font-size:21px; margin:18px 0 6px; padding-top:0; border-top:0}
+  .step{display:flex; gap:14px; align-items:flex-start; margin:10px 0}
+  .num{flex:0 0 34px; height:34px; border-radius:50%; background:var(--accent); color:#fff;
+    font:700 17px/34px system-ui,sans-serif; text-align:center}
+  .num.m{background:var(--magic)}
+  .step .body{flex:1}
+  p{margin:0 0 10px}
+  .say{font-weight:700; color:var(--accent)}
+  .big{font-size:28px; font-weight:700; letter-spacing:.04em}
+  .v{color:var(--vowel)}
+  .tip{background:#f3f0e7; border-radius:8px; padding:11px 14px; font-size:16px; margin:10px 0}
+  .tip b{color:var(--accent)}
+  .clock{display:inline-block; font:600 13px/1 system-ui,sans-serif; color:var(--muted);
+    border:1px solid var(--line); border-radius:999px; padding:4px 9px; margin-left:8px; vertical-align:middle}
+  .words{display:flex; flex-wrap:wrap; gap:10px; margin:8px 0}
+  .word{background:#fff; border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-size:22px; font-weight:700}
+  .word small{display:block; font:italic 13px/1.2 "Georgia",serif; color:var(--muted); font-weight:400}
+  .magic-box{background:#f4f1fb; border:1px solid #d9cef0; border-left:6px solid var(--magic);
+    border-radius:8px; padding:13px 16px; margin:12px 0}
+  .magic-box b{color:var(--magic)}
+  .chain{font-size:24px; font-weight:700; letter-spacing:.06em; line-height:1.9}
+  .chain .arrow{color:var(--magic); padding:0 6px}
+  .source{background:var(--card); border:1px solid var(--line); border-radius:8px; padding:13px 16px; margin:18px 0}
+  .source h3{margin:0 0 6px; font-size:17px}
+  .ask{margin-top:20px; padding:13px 16px; border:1px dashed var(--accent); border-radius:8px; background:#fbf3f0}
+  a{color:var(--accent)}
+
+  .cards{page-break-before:always}
+  .grid{display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:12px; margin-top:12px}
+  .pc{border:3px solid var(--ink); border-radius:14px; aspect-ratio:1/1;
+    display:flex; align-items:center; justify-content:center; background:#fff}
+  .pc span{font:800 80px/1 "Georgia",serif}
+  .pc .v{color:var(--vowel)}
+
+  @media print{
+    body{background:#fff; padding:0; font-size:12pt}
+    a{color:inherit; text-decoration:none}
+    h2{page-break-after:avoid}
+    .goal,.step,.source,.tip,.pc,.magic-box{page-break-inside:avoid}
+    .num{ -webkit-print-color-adjust:exact; print-color-adjust:exact }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="kicker">Курс чтения · Урок 5</p>
+    <h1>Буквы, которые нельзя тянуть — и превращения слов</h1>
+    <p class="meta">Для родителя · 6–8 минут · он уже опережает план — можно смелее</p>
+  </header>
+
+  <div class="goal">
+    <b>Цель урока:</b> (1) научиться читать буквы, которые <b>нельзя тянуть</b>
+    (<span class="big">К Т П Д Б</span>), и прочитать с ними настоящие слова —
+    <span class="big">КОТ · ДОМ · МАК</span>; (2) играть в <b>превращения слов</b>
+    (его любимый «фокус» с перестановкой), уже осознанно.
+  </div>
+
+  <h2>Шаг 1. Новая хитрость: короткий звук <span class="clock">1–2 мин</span></h2>
+  <div class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <p>Звуки М, С, Л можно тянуть. А вот <b>К, Т, П, Д, Б нельзя</b> — они короткие, как
+      щелчок: <span class="say">[к!] [т!] [п!] [д!] [б!]</span>. Покажи: «их не споёшь, они
+      выстреливают». Главное правило: <i>сказал короткий звук — и <b>сразу прыгай к гласной</b>,
+      не застревай</i>: <span class="say">К→О = КО</span>, <span class="say">Т→О = ТО</span>.</p>
+      <p>Потренируйте слоги: <span class="big">КО · ТО · ПО · ДО · КУ · ТА</span>. Веди пальчик
+      быстро от согласной к гласной — «перепрыгни», без паузы.</p>
+      <div class="tip"><b>Если читает «кэ-о»</b>: это снова «имя буквы». Напомни — «звук
+      короткий: к!, и сразу о». Пауза уйдёт, когда палец движется быстро.</div>
+    </div>
+  </div>
+
+  <h2>Шаг 2. Настоящие слова <span class="clock">2 мин</span></h2>
+  <div class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <p>Собирайте из букв и читайте, спрашивая смысл:</p>
+      <div class="words">
+        <span class="word">КОТ<small>мяу</small></span>
+        <span class="word">ДОМ<small>где живём</small></span>
+        <span class="word">МАК<small>цветок</small></span>
+        <span class="word">КИТ<small>огромный в море</small></span>
+        <span class="word">СУП<small>едим ложкой</small></span>
+        <span class="word">ЛУК<small>растёт на грядке</small></span>
+        <span class="word">ДУБ<small>большое дерево</small></span>
+        <span class="word">БЫК<small>му-у!</small></span>
+      </div>
+    </div>
+  </div>
+
+  <h2>Шаг 3. ФОКУС: превращаем слова <span class="clock">2 мин</span></h2>
+  <div class="step">
+    <div class="num m">★</div>
+    <div class="body">
+      <p>Это то, что он сам начал делать. Сделаем из этого игру «волшебник».</p>
+      <div class="magic-box">
+        <b>Перестановка (как НОС → СОН):</b> сложи <span class="big">КОТ</span>, дай прочитать.
+        Потом «взмах волшебной палочкой» — переставь буквы в <span class="big">ТОК</span>.
+        Прочитал? Объясни смысл: «ток — это в розетке». Ещё пара: <b>НОС ↔ СОН</b>.
+      </div>
+      <div class="magic-box">
+        <b>Меняем одну букву — цепочка слов:</b> меняем по одной букве, каждый раз новое слово.
+        Пусть он сам находит, какую букву заменить:
+        <div class="chain">
+          ДОМ <span class="arrow">→</span> СОМ <span class="arrow">→</span> СОН
+          <span class="arrow">→</span> СОК <span class="arrow">→</span> СУК
+          <span class="arrow">→</span> СУП
+        </div>
+      </div>
+      <div class="tip"><b>Почему это мощно:</b> чтобы превратить слово, надо услышать каждый
+      звук отдельно — это и есть главный навык чтения и письма. И ему это просто весело.</div>
+    </div>
+  </div>
+
+  <h2>Шаг 4. С движением <span class="clock">1 мин</span></h2>
+  <div class="step">
+    <div class="num">4</div>
+    <div class="body">
+      <p>Большие буквы на полу — выложите слово и пройдите по нему, читая. Потом ты называешь
+      новое слово из цепочки — он бежит и <b>заменяет одну букву</b> ногами/руками. Чтение в движении.</p>
+    </div>
+  </div>
+
+  <div class="goal" style="border-left-color:var(--accent)">
+    <b style="color:var(--accent)">Урок удался, если:</b> читает КОТ/ДОМ/КИТ слитно и сам
+    проворачивает хотя бы одно превращение (перестановку или замену буквы). После этого ему
+    открыты почти все простые слова — дальше будут слова из 2 слогов с этими буквами
+    (КО-ТЫ, ПА-ПА, ЛА-ПА, КУ-БИ-КИ) и первые короткие фразы.
+  </div>
+
+  <div class="source">
+    <h3>📖 Первоисточник</h3>
+    <p>Порядок согласных и принцип «короткий взрывной звук + гласная» — из «Букваря»
+    Н. Жуковой. Игры на замену/перестановку звуков развивают фонематический слух —
+    см. <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+  </div>
+
+  <div class="ask">
+    <b>Я — твой соавтор курса.</b> Расскажи, пошли ли «нетянущиеся» буквы и понравились ли
+    превращения. Если да — следующим сделаю слова из двух слогов (ПА-ПА, ЛА-ПА, КО-ТЫ) +
+    обещанный мини-урок-игру на внимание и память.
+  </div>
+
+  <!-- ================= PRINTABLE CARDS ================= -->
+  <section class="cards" id="cards">
+    <h2>Буквы для печати</h2>
+    <p class="meta">Дай вырезать. Этого набора хватает на все слова и цепочки урока.</p>
+    <div class="grid">
+      <div class="pc"><span>К</span></div>
+      <div class="pc"><span>Т</span></div>
+      <div class="pc"><span>П</span></div>
+      <div class="pc"><span>Д</span></div>
+      <div class="pc"><span>Б</span></div>
+      <div class="pc"><span>М</span></div>
+      <div class="pc"><span>С</span></div>
+      <div class="pc"><span>Н</span></div>
+      <div class="pc"><span>Л</span></div>
+      <div class="pc"><span class="v">А</span></div>
+      <div class="pc"><span class="v">О</span></div>
+      <div class="pc"><span class="v">У</span></div>
+      <div class="pc"><span class="v">Ы</span></div>
+      <div class="pc"><span class="v">И</span></div>
+      <div class="pc"><span>Х</span></div>
+      <div class="pc"><span class="v">О</span></div>
+    </div>
+  </section>
+</div>
+</body>
+</html>

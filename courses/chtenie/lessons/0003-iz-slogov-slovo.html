@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 3 · Из слогов — слово</title>
+<style>
+  :root{
+    --ink:#1f2430; --muted:#5b6472; --accent:#b5402a; --good:#2f7d4f;
+    --line:#e3e0d8; --paper:#fbf9f4; --card:#ffffff; --vowel:#b5402a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--paper); color:var(--ink);
+    font:18px/1.55 "Georgia","Times New Roman",serif; padding:40px 20px}
+  .wrap{max-width:760px; margin:0 auto}
+  header{border-bottom:3px double var(--line); padding-bottom:14px; margin-bottom:18px}
+  .kicker{font:600 13px/1.2 system-ui,sans-serif; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); margin:0 0 6px}
+  h1{font-size:32px; line-height:1.12; margin:0 0 6px}
+  .meta{color:var(--muted); font-style:italic; margin:0}
+  .goal{background:var(--card); border:1px solid var(--line); border-left:6px solid var(--good);
+    border-radius:8px; padding:14px 16px; margin:16px 0}
+  .goal b{color:var(--good)}
+  h2{font-size:21px; margin:18px 0 6px; padding-top:0; border-top:0}
+  .step{display:flex; gap:14px; align-items:flex-start; margin:10px 0}
+  .num{flex:0 0 34px; height:34px; border-radius:50%; background:var(--accent); color:#fff;
+    font:700 17px/34px system-ui,sans-serif; text-align:center}
+  .step .body{flex:1}
+  p{margin:0 0 10px}
+  .say{font-weight:700; color:var(--accent)}
+  .big{font-size:28px; font-weight:700; letter-spacing:.04em}
+  .v{color:var(--vowel)}
+  .tip{background:#f3f0e7; border-radius:8px; padding:11px 14px; font-size:16px; margin:10px 0}
+  .tip b{color:var(--accent)}
+  .clock{display:inline-block; font:600 13px/1 system-ui,sans-serif; color:var(--muted);
+    border:1px solid var(--line); border-radius:999px; padding:4px 9px; margin-left:8px; vertical-align:middle}
+  .words{display:flex; flex-wrap:wrap; gap:10px; margin:8px 0}
+  .word{background:#fff; border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-size:22px; font-weight:700}
+  .word small{display:block; font:italic 13px/1.2 "Georgia",serif; color:var(--muted); font-weight:400}
+  .source{background:var(--card); border:1px solid var(--line); border-radius:8px; padding:13px 16px; margin:18px 0}
+  .source h3{margin:0 0 6px; font-size:17px}
+  .ask{margin-top:20px; padding:13px 16px; border:1px dashed var(--accent); border-radius:8px; background:#fbf3f0}
+  a{color:var(--accent)}
+
+  .cards{page-break-before:always}
+  .grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-top:12px}
+  .pc{border:3px solid var(--ink); border-radius:14px; aspect-ratio:3/2;
+    display:flex; align-items:center; justify-content:center; background:#fff}
+  .pc span{font:800 72px/1 "Georgia",serif}
+  .pc .v{color:var(--vowel)}
+
+  @media print{
+    body{background:#fff; padding:0; font-size:12pt}
+    a{color:inherit; text-decoration:none}
+    h2{page-break-after:avoid}
+    .goal,.step,.source,.tip,.pc{page-break-inside:avoid}
+    .num{ -webkit-print-color-adjust:exact; print-color-adjust:exact }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="kicker">Курс чтения · Урок 3</p>
+    <h1>Из слогов — слово</h1>
+    <p class="meta">Для родителя · 5–7 минут · утром · после Урока 2</p>
+  </header>
+
+  <div class="goal">
+    <b>Цель урока (одна!):</b> ребёнок прочитает <b>настоящее слово</b> из двух слогов —
+    <span class="big">МА-МА</span>, <span class="big">ЛУ-НА</span> — и поймёт, <i>что это
+    за слово</i>. Главный скачок: от слога к смыслу.
+  </div>
+
+  <h2>Шаг 1. Разогрев слогами <span class="clock">1 мин</span></h2>
+  <div class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <p>Быстро прочитайте «бегущим пальчиком» 4 слога: <span class="big">МА · ЛУ · НО · СЫ</span>.
+      Это разминка, не задерживайтесь.</p>
+    </div>
+  </div>
+
+  <h2>Шаг 2. Складываем слово руками <span class="clock">2 мин</span></h2>
+  <div class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <p>Возьми две карточки-слога <span class="big">МА</span> и <span class="big">МА</span>,
+      положи их с промежутком. Ребёнок читает первый: «МА», потом второй: «МА». Теперь
+      <b>сдвинь карточки вплотную</b> и скажи: <i>«а теперь быстро, вместе!»</i> →
+      <span class="say">МА-МА → МАМА</span>. Спроси: <i>«кто это? — МАМА!»</i></p>
+      <div class="tip"><b>Ключ:</b> прочитал по слогам → сдвинул карточки → произнёс
+      быстрее, слитно → узнал слово. Он любит двигать карточки — это и есть «сборка слова».</div>
+    </div>
+  </div>
+
+  <h2>Шаг 3. Читаем слова со смыслом <span class="clock">2 мин</span></h2>
+  <div class="step">
+    <div class="num">3</div>
+    <div class="body">
+      <p>Собирайте по очереди. После каждого — спрашивай, что это, покажи картинку или
+      изобрази:</p>
+      <div class="words">
+        <span class="word">МА-МА<small>мама</small></span>
+        <span class="word">ЛУ-НА<small>луна на небе</small></span>
+        <span class="word">ЛА-МА<small>лама — животное</small></span>
+        <span class="word">МЫ-ЛО<small>мыло моет руки</small></span>
+        <span class="word">СА-МА<small>«я сама!»</small></span>
+        <span class="word">НО-СЫ<small>носы</small></span>
+      </div>
+      <div class="tip"><b>Звук Л/Р не поправляем</b> — хвалим за то, что узнал слово.
+      Смысл важнее чистого произношения (это работа логопеда).</div>
+    </div>
+  </div>
+
+  <h2>Шаг 4. Игра с движением <span class="clock">1–2 мин</span></h2>
+  <div class="step">
+    <div class="num">4</div>
+    <div class="body">
+      <p>Положи на пол два «острова» — слог-карточки. Ребёнок <b>прыгает на первый</b> и
+      читает его, <b>прыгает на второй</b> — читает, приземлился — кричит всё слово целиком.
+      «Слово-классики». Потом он сам переставит острова и загадает слово тебе.</p>
+    </div>
+  </div>
+
+  <div class="goal" style="border-left-color:var(--accent)">
+    <b style="color:var(--accent)">Урок удался, если:</b> прочитав два слога, ребёнок сам
+    «схлопывает» их в слово и говорит, что оно значит. Тогда готовы к
+    <a href="0004-zakrytye-slogi.html">Уроку 4</a> — первые слова из трёх букв (НОС, СОМ).
+  </div>
+
+  <div class="source">
+    <h3>📖 Первоисточник</h3>
+    <p>Переход «слог → слово» по Жуковой: сначала простые слова из открытых слогов
+    (МА-МА, СА-МА), затем сложнее. См. <a href="../RESOURCES.md">RESOURCES.md</a> и
+    <a href="../reference/slogovaya-tablica.html">слоговую таблицу</a> для новых слогов.</p>
+  </div>
+
+  <div class="ask">
+    <b>Я — твой соавтор курса.</b> Напиши, какие слова «схлопнулись» легко, а где была
+    пауза между слогами. Если слова даются влёт — в следующий раз добавлю слова из 3 слогов
+    и коротенькие предложения.
+  </div>
+
+  <!-- ================= PRINTABLE CARDS ================= -->
+  <section class="cards" id="cards">
+    <h2>Карточки-слоги для печати</h2>
+    <p class="meta">Распечатай и дай ему вырезать. Из них собираются слова урока (и не только).</p>
+    <div class="grid">
+      <div class="pc"><span>МА</span></div>
+      <div class="pc"><span>МА</span></div>
+      <div class="pc"><span>ЛУ</span></div>
+      <div class="pc"><span>НА</span></div>
+      <div class="pc"><span>ЛА</span></div>
+      <div class="pc"><span>МЫ</span></div>
+      <div class="pc"><span>ЛО</span></div>
+      <div class="pc"><span>СА</span></div>
+      <div class="pc"><span>НО</span></div>
+      <div class="pc"><span>СЫ</span></div>
+      <div class="pc"><span>СО</span></div>
+      <div class="pc"><span>МО</span></div>
+    </div>
+  </section>
+</div>
+</body>
+</html>

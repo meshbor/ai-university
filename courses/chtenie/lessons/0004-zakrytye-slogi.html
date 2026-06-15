@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 4 · Слог с хвостиком: первые слова из трёх букв</title>
+<style>
+  :root{
+    --ink:#1f2430; --muted:#5b6472; --accent:#b5402a; --good:#2f7d4f;
+    --line:#e3e0d8; --paper:#fbf9f4; --card:#ffffff; --vowel:#b5402a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--paper); color:var(--ink);
+    font:18px/1.55 "Georgia","Times New Roman",serif; padding:40px 20px}
+  .wrap{max-width:760px; margin:0 auto}
+  header{border-bottom:3px double var(--line); padding-bottom:14px; margin-bottom:18px}
+  .kicker{font:600 13px/1.2 system-ui,sans-serif; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); margin:0 0 6px}
+  h1{font-size:32px; line-height:1.12; margin:0 0 6px}
+  .meta{color:var(--muted); font-style:italic; margin:0}
+  .goal{background:var(--card); border:1px solid var(--line); border-left:6px solid var(--good);
+    border-radius:8px; padding:14px 16px; margin:16px 0}
+  .goal b{color:var(--good)}
+  h2{font-size:21px; margin:18px 0 6px; padding-top:0; border-top:0}
+  .step{display:flex; gap:14px; align-items:flex-start; margin:10px 0}
+  .num{flex:0 0 34px; height:34px; border-radius:50%; background:var(--accent); color:#fff;
+    font:700 17px/34px system-ui,sans-serif; text-align:center}
+  .step .body{flex:1}
+  p{margin:0 0 10px}
+  .say{font-weight:700; color:var(--accent)}
+  .big{font-size:28px; font-weight:700; letter-spacing:.04em}
+  .v{color:var(--vowel)}
+  .tip{background:#f3f0e7; border-radius:8px; padding:11px 14px; font-size:16px; margin:10px 0}
+  .tip b{color:var(--accent)}
+  .clock{display:inline-block; font:600 13px/1 system-ui,sans-serif; color:var(--muted);
+    border:1px solid var(--line); border-radius:999px; padding:4px 9px; margin-left:8px; vertical-align:middle}
+  .words{display:flex; flex-wrap:wrap; gap:10px; margin:8px 0}
+  .word{background:#fff; border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-size:22px; font-weight:700}
+  .word small{display:block; font:italic 13px/1.2 "Georgia",serif; color:var(--muted); font-weight:400}
+  .source{background:var(--card); border:1px solid var(--line); border-radius:8px; padding:13px 16px; margin:18px 0}
+  .source h3{margin:0 0 6px; font-size:17px}
+  .ask{margin-top:20px; padding:13px 16px; border:1px dashed var(--accent); border-radius:8px; background:#fbf3f0}
+  a{color:var(--accent)}
+
+  .cards{page-break-before:always}
+  .grid{display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:12px; margin-top:12px}
+  .pc{border:3px solid var(--ink); border-radius:14px; aspect-ratio:1/1;
+    display:flex; align-items:center; justify-content:center; background:#fff}
+  .pc span{font:800 80px/1 "Georgia",serif}
+  .pc .v{color:var(--vowel)}
+
+  @media print{
+    body{background:#fff; padding:0; font-size:12pt}
+    a{color:inherit; text-decoration:none}
+    h2{page-break-after:avoid}
+    .goal,.step,.source,.tip,.pc{page-break-inside:avoid}
+    .num{ -webkit-print-color-adjust:exact; print-color-adjust:exact }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="kicker">Курс чтения · Урок 4</p>
+    <h1>Слог с хвостиком: первые слова из трёх букв</h1>
+    <p class="meta">Для родителя · 5–7 минут · утром · после Урока 3</p>
+  </header>
+
+  <div class="goal">
+    <b>Цель урока (одна!):</b> прочитать слово из трёх букв, добавив к слогу согласный-«хвостик»:
+    <span class="big">СО + Н = СОН</span>, <span class="big">НО + С = НОС</span>. Это первые
+    «взрослые» слова — закрытый слог.
+  </div>
+
+  <h2>Шаг 1. Разогрев слогами <span class="clock">1 мин</span></h2>
+  <div class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <p>Прочитайте «бегущим пальчиком» открытые слоги: <span class="big">СО · НО · МО · СЫ</span>.
+      Это то, что он уже умеет — пусть почувствует себя уверенно.</p>
+    </div>
+  </div>
+
+  <h2>Шаг 2. Приклеиваем «хвостик» <span class="clock">2 мин</span></h2>
+  <div class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <p>Возьми слог <span class="big">СО</span> и отдельную букву <span class="big">Н</span>.
+      Прочитайте слог: «СО». Теперь <b>придвинь «хвостик» Н</b> и скажи: <i>«добавляем
+      хвостик»</i> → веди пальчик по всем трём, тяни что можешь: <span class="say">«со-о-о-Н»</span>
+      → <span class="say">СОН</span>. Спроси: <i>«что делает ночью? — спит, видит СОН!»</i></p>
+      <div class="tip"><b>Идея проста:</b> уже знакомый слог + одна буква в конце.
+      Не «три отдельные буквы», а «слог и хвостик» — так не разваливается на побуквенное.</div>
+    </div>
+  </div>
+
+  <h2>Шаг 3. Читаем слова со смыслом <span class="clock">2 мин</span></h2>
+  <div class="step">
+    <div class="num">3</div>
+    <div class="body">
+      <div class="words">
+        <span class="word">СОН<small>что видим, когда спим</small></span>
+        <span class="word">СОМ<small>рыба с усами</small></span>
+        <span class="word">НОС<small>чем нюхаем</small></span>
+        <span class="word">СЫН<small>это он сам!</small></span>
+        <span class="word">МОХ<small>мягкий, в лесу</small></span>
+        <span class="word">УМ<small>чем думаем</small></span>
+      </div>
+      <p>После каждого слова — короткий вопрос «что это / где такое?», чтобы слово стало
+      смыслом, а не набором букв.</p>
+    </div>
+  </div>
+
+  <h2>Шаг 4. Собери слово из букв <span class="clock">1–2 мин</span></h2>
+  <div class="step">
+    <div class="num">4</div>
+    <div class="body">
+      <p>Дай ему вырезанные буквы (он это любит). Диктуй слово — он <b>выкладывает его из
+      букв</b> слева направо и читает. Начни с НОС, СОН, СОМ. Можно на полу большими
+      буквами и шагать по ним, читая. Руки + движение вместе — его сильные стороны.</p>
+      <div class="tip"><b>Если застрял на «хвостике»</b>: вернись на шаг — прочитайте
+      сначала только слог (СО), и лишь потом добавляйте последнюю букву. Не тороплю.</div>
+    </div>
+  </div>
+
+  <div class="goal" style="border-left-color:var(--accent)">
+    <b style="color:var(--accent)">Урок удался, если:</b> ребёнок читает НОС, СОН, СОМ как
+    цельные слова, а не «н-о-с». Это серьёзная веха — он уже читает настоящие слова!
+    Дальше пойдут слова с буквами, которые нельзя тянуть (К, Т, П, Д): КОТ, ДОМ, МАК.
+  </div>
+
+  <div class="source">
+    <h3>📖 Первоисточник</h3>
+    <p>По Жуковой закрытые слоги (АМ, УС, ОН) и короткие слова идут сразу после открытых.
+    Подробнее — <a href="../RESOURCES.md">RESOURCES.md</a>, термины — в
+    <a href="../GLOSSARY.md">словаре курса</a> («закрытый слог»).</p>
+  </div>
+
+  <div class="ask">
+    <b>Я — твой соавтор курса.</b> Расскажи, как зашли слова из трёх букв и «хвостик».
+    Если легко — следующим уроком добавлю взрывные согласные (КОТ, ДОМ, МАК) и отдельный
+    мини-урок-игру на внимание и память, который ты просил(а).
+  </div>
+
+  <!-- ================= PRINTABLE CARDS ================= -->
+  <section class="cards" id="cards">
+    <h2>Буквы и слоги для печати</h2>
+    <p class="meta">Слоги-основы и буквы-«хвостики». Дай вырезать и собирать слова урока.</p>
+    <div class="grid">
+      <div class="pc"><span>С<span class="v">О</span></span></div>
+      <div class="pc"><span>Н<span class="v">О</span></span></div>
+      <div class="pc"><span>М<span class="v">О</span></span></div>
+      <div class="pc"><span>С<span class="v">Ы</span></span></div>
+      <div class="pc"><span>Н</span></div>
+      <div class="pc"><span>С</span></div>
+      <div class="pc"><span>М</span></div>
+      <div class="pc"><span>Х</span></div>
+      <div class="pc"><span class="v">У</span></div>
+      <div class="pc"><span class="v">О</span></div>
+      <div class="pc"><span class="v">А</span></div>
+      <div class="pc"><span>Л</span></div>
+    </div>
+  </section>
+</div>
+</body>
+</html>
