@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI University · лист навыков</title>
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
 <style>
   *{box-sizing:border-box}
   html,body{margin:0}
@@ -51,6 +52,28 @@
     --shadow:0 0 0 1px rgba(201,162,39,.2), 0 8px 32px rgba(0,0,0,.55);
     --frame:1px solid var(--line);
   }
+  body[data-theme="knight"]{
+    --page-bg:transparent;
+    --bg:linear-gradient(180deg, rgba(42,36,30,.7), rgba(22,18,14,.85));
+    --panel:rgba(48,40,32,.6); --panel2:rgba(58,48,38,.5);
+    --ink:#f0e6d6; --muted:#a89880; --line:#6a5a48;
+    --accent:#d4a84b; --accent2:#8b6914; --xp:#e8c060; --xp2:#a07828; --on:#e8c060;
+    --font:"Segoe UI",system-ui,-apple-system,sans-serif;
+    --radius:12px; --glow:0 0 6px rgba(212,168,75,.35); --tt:none;
+    --shadow:0 0 0 1px rgba(212,168,75,.18), 0 8px 32px rgba(0,0,0,.5);
+    --frame:1px solid var(--line);
+  }
+  body[data-theme="samurai"]{
+    --page-bg:transparent;
+    --bg:linear-gradient(180deg, rgba(52,28,28,.65), rgba(28,14,14,.82));
+    --panel:rgba(58,32,32,.58); --panel2:rgba(72,38,38,.48);
+    --ink:#ffe8e0; --muted:#c09088; --line:#7a4848;
+    --accent:#e85a4f; --accent2:#c43830; --xp:#ff7060; --xp2:#d04038; --on:#ff7060;
+    --font:"Segoe UI",system-ui,-apple-system,sans-serif;
+    --radius:12px; --glow:0 0 6px rgba(232,90,79,.35); --tt:none;
+    --shadow:0 0 0 1px rgba(232,90,79,.2), 0 8px 32px rgba(0,0,0,.5);
+    --frame:1px solid var(--line);
+  }
 
   body{font-family:var(--font);background:var(--page-bg);min-height:100vh;color:var(--ink);
     max-width:1280px;margin:0 auto;padding:0 16px 80px;transition:background .3s}
@@ -69,6 +92,17 @@
   body[data-theme="wot"] .hangar{display:block}
   body[data-theme="wot"] .screen,
   body[data-theme="wot"] .hero-panel{backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+
+  .knight-bg,.dojo{position:fixed;inset:0;z-index:-1;display:none;pointer-events:none;
+    background:#14100c center/cover no-repeat}
+  .knight-bg{background-image:linear-gradient(rgba(20,16,12,.35),rgba(10,8,6,.6)),url("assets/knight-hall.png")}
+  .dojo{background-image:linear-gradient(rgba(40,18,18,.35),rgba(18,8,8,.58)),url("assets/samurai-dojo.png")}
+  body[data-theme="knight"] .knight-bg{display:block}
+  body[data-theme="samurai"] .dojo{display:block}
+  body[data-theme="knight"] .screen,
+  body[data-theme="knight"] .hero-panel,
+  body[data-theme="samurai"] .screen,
+  body[data-theme="samurai"] .hero-panel{backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
 
   /* ============ TOOLBAR (always readable) ============ */
   .toolbar{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;
@@ -120,6 +154,10 @@
   .avatar{width:100%;aspect-ratio:4/3;min-height:240px;border:var(--frame);border-radius:14px;background:var(--panel2);
     overflow:hidden;position:relative;margin-bottom:14px}
   .avatar .face-img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .35s, transform .35s}
+  .avatar model-viewer{width:100%;height:100%;display:none;background:transparent;--poster-color:transparent}
+  .avatar.avatar-3d{background:radial-gradient(ellipse at 50% 80%, var(--panel2), transparent 70%)}
+  .avatar.avatar-3d model-viewer{display:block}
+  .avatar.avatar-3d .face-img{display:none}
   .avatar.flash .face-img{animation:portraitPop .45s ease}
   @keyframes portraitPop{0%{opacity:.6;transform:scale(1.03)}100%{opacity:1;transform:scale(1)}}
   .avatar .vnum{position:absolute;left:10px;bottom:10px;font-size:13px;letter-spacing:.1em;
@@ -210,6 +248,8 @@
 
   <div class="cockpit"></div>
   <div class="hangar"></div>
+  <div class="knight-bg"></div>
+  <div class="dojo"></div>
 
   <div class="toolbar">
     <div class="logo">🎓 AI University</div>
@@ -219,6 +259,8 @@
       <button class="tbtn" data-theme-btn="fallout">📟 Pip-Boy</button>
       <button class="tbtn" data-theme-btn="space">🚀 Космос</button>
       <button class="tbtn" data-theme-btn="wot">🛡️ Танки</button>
+      <button class="tbtn" data-theme-btn="knight">⚔️ Рыцарь</button>
+      <button class="tbtn" data-theme-btn="samurai">🗡️ Самурай</button>
     </div>
   </div>
 
@@ -238,6 +280,10 @@
       <aside class="hero-panel" id="heroPanel">
         <div class="avatar" id="avatarBox">
           <img class="face-img" id="avatarImg" alt="портрет персонажа">
+          <model-viewer id="avatar3d" alt="3D персонаж"
+            camera-controls disable-zoom auto-rotate rotation-per-second="14deg"
+            interaction-prompt="none" shadow-intensity="1" touch-action="pan-y"
+            camera-orbit="0deg 78deg 2.4m" min-camera-orbit="auto auto 1.8m" max-camera-orbit="auto auto 3.2m"></model-viewer>
           <div class="vtier" id="vTier">T1</div>
           <div class="vnum">LVL <span id="vLevel">1</span></div>
         </div>
@@ -350,6 +396,34 @@ const THEMES = {
     tabs:{special:"Экипаж", skills:"Курсы"},
     ranks:["Рекрут","Рядовой","Сержант","Мл. лейтенант","Лейтенант","Капитан","Майор","Полковник","Генерал","Маршал"],
   },
+  knight:{
+    brand:"ЗАМОК · AI UNIVERSITY", who:"Рыцарь: Baruh · Орден 2026",
+    tabs:{special:"Доблесть", skills:"Курсы"},
+    ranks:["Оруженосец","Паж","Рыцарь","Баронет","Барон","Виконт","Граф","Герцог","Принц","Король"],
+  },
+  samurai:{
+    brand:"ДОДЗЁ · AI UNIVERSITY", who:"Самурай: Baruh · Путь 2026",
+    tabs:{special:"Бусидо", skills:"Курсы"},
+    ranks:["Ученик","Дзёдзё","Самурай","Кэнси","Даймё","Сёгун","Мастер клинка","Легенда","Ками","Император"],
+  },
+};
+
+const MODEL_THEMES=new Set(["knight","samurai"]);
+const MODELS={
+  knight: {1:"assets/knight-t1.glb", 2:"assets/knight-t2.glb", 3:"assets/knight-t3.glb"},
+  samurai:{1:"assets/samurai-t1.glb",2:"assets/samurai-t2.glb",3:"assets/samurai-t3.glb"},
+};
+const MODEL_TIER={
+  knight: {
+    1:{scale:"0.88 0.88 0.88", exposure:"0.85", orbit:"0deg 80deg 2.6m"},
+    2:{scale:"1 1 1",          exposure:"1",    orbit:"0deg 78deg 2.4m"},
+    3:{scale:"1.12 1.12 1.12", exposure:"1.15", orbit:"0deg 76deg 2.2m"},
+  },
+  samurai:{
+    1:{scale:"0.92 0.92 0.92", exposure:"1",    orbit:"0deg 80deg 2.5m"},
+    2:{scale:"1.02 1.02 1.02", exposure:"1.08", orbit:"0deg 78deg 2.3m"},
+    3:{scale:"1.14 1.14 1.14", exposure:"1.2",  orbit:"0deg 75deg 2.1m"},
+  },
 };
 
 // Портреты по архетипу и тиру (T1=ур.1–3, T2=ур.4–6, T3=ур.7+). Отсутствующий тир → ниже.
@@ -364,13 +438,15 @@ const PORTRAITS={
 const ARCH_LABELS={
   smart:"Умник в очках 🤓", strong:"Силач 💪",
   fast:"Быстрый разведчик 🚀", gun:"Боевой крейсер 🔫", cargo:"Грузовой транспорт 📦",
-  tank:"Т-34 🛡️",
+  tank:"Т-34 🛡️", knight:"Рыцарь ⚔️", samurai:"Самурай 🗡️",
 };
 const TIER_NAMES={
   light:  ["Стажёр","Специалист","Мастер"],
   fallout:["Убежище","Пустошь","Братство"],
   space:  ["Модуль","Усилен","Флагман"],
   wot:    ["Сток","Топ","Асс"],
+  knight: ["Оруженосец","Рыцарь","Паладин"],
+  samurai:["Ученик","Ронин","Кэнси"],
 };
 
 function levelTier(level){
@@ -378,7 +454,12 @@ function levelTier(level){
   if(level>=4) return 2;
   return 1;
 }
-function portraitSrc(arch, tier){
+function portraitSrc(theme, arch, tier){
+  if(MODEL_THEMES.has(theme)){
+    const map=MODELS[theme]||{};
+    for(let t=tier;t>=1;t--) if(map[t]) return map[t];
+    return map[1]||"";
+  }
   const map=PORTRAITS[arch]||{};
   for(let t=tier;t>=1;t--) if(map[t]) return map[t];
   return map[1]||"";
@@ -392,6 +473,8 @@ function dominant(){
 }
 function resolveArch(theme, L){
   if(theme==="wot") return "tank";
+  if(theme==="knight") return "knight";
+  if(theme==="samurai") return "samurai";
   if(theme==="space"){
     if(L){ if(L.includes("A")) return "fast";
            if(L.includes("S")) return "gun";
@@ -405,9 +488,25 @@ function pickPortrait(theme, level){
   const tier=levelTier(level), arch=resolveArch(theme, dominant());
   const tierName=(TIER_NAMES[theme]||TIER_NAMES.light)[tier-1];
   return {
-    src:portraitSrc(arch, tier), arch, tier,
+    src:portraitSrc(theme, arch, tier), arch, tier, is3d:MODEL_THEMES.has(theme),
     label:`${tierName} · ${ARCH_LABELS[arch]}`,
   };
+}
+function applyPortrait(theme, p){
+  const img=document.getElementById("avatarImg");
+  const mv=document.getElementById("avatar3d");
+  const box=document.getElementById("avatarBox");
+  if(p.is3d){
+    box.classList.add("avatar-3d");
+    const cfg=(MODEL_TIER[theme]||{})[p.tier]||{};
+    if(mv.getAttribute("src")!==p.src) mv.setAttribute("src",p.src);
+    if(cfg.scale) mv.setAttribute("scale",cfg.scale);
+    if(cfg.exposure) mv.setAttribute("exposure",cfg.exposure);
+    if(cfg.orbit) mv.setAttribute("camera-orbit",cfg.orbit);
+  }else{
+    box.classList.remove("avatar-3d");
+    if(img.getAttribute("src")!==p.src) img.src=p.src;
+  }
 }
 
 const XP_PER_LESSON=100, XP_PER_LEVEL=300, KEY="aiuni_pipboy_v1", THEME_KEY="aiuni_theme";
@@ -572,13 +671,12 @@ function refresh(){
   document.getElementById("stLessons").textContent=totalDone;
   document.getElementById("stTotal").textContent=totalLessons;
   const p=pickPortrait(theme, level);
-  const img=document.getElementById("avatarImg");
   const box=document.getElementById("avatarBox");
-  const portraitChanged=img.getAttribute("src")!==p.src
+  const portraitChanged=box.dataset.src!==p.src
     || box.dataset.tier!==String(p.tier) || box.dataset.level!==String(level);
   if(portraitChanged){
-    img.src=p.src;
-    box.dataset.tier=p.tier; box.dataset.level=level;
+    applyPortrait(theme, p);
+    box.dataset.src=p.src; box.dataset.tier=p.tier; box.dataset.level=level;
     box.classList.remove("flash"); void box.offsetWidth; box.classList.add("flash");
   }
   document.getElementById("archetype").textContent=p.label;
