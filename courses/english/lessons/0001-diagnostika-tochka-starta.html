@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Урок 0001 — Диагностика: точка старта</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #666;
+    --accent: #8b2500;
+    --rule: #ddd;
+    --bg: #fffff8;
+    --ok: #2e6b30;
+    --bad: #a33;
+    --ok-bg: #e8f0e3;
+    --bad-bg: #f7e6e2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    background: var(--bg);
+    color: var(--ink);
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+    line-height: 1.65;
+    font-size: 1.05rem;
+  }
+  h1 { font-size: 1.9rem; font-weight: normal; font-style: italic; margin-bottom: .2rem; }
+  .subtitle { color: var(--muted); font-style: italic; margin-top: 0; }
+  h2 { font-size: 1.35rem; font-weight: normal; font-style: italic; margin-top: 2.8rem; border-bottom: 1px solid var(--rule); padding-bottom: .3rem; }
+  .meta { font-size: .9rem; color: var(--muted); margin: 1rem 0 2rem; }
+  .passage {
+    background: #f7f4e9;
+    border-left: 3px solid var(--accent);
+    padding: 1rem 1.3rem;
+    margin: 1.3rem 0;
+    font-size: 1rem;
+  }
+  .passage p { margin: .6rem 0; }
+  .q { margin: 1.6rem 0; }
+  .q .stem { font-weight: bold; margin-bottom: .5rem; }
+  .q label {
+    display: block;
+    padding: .4rem .7rem;
+    margin: .25rem 0;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: .98rem;
+  }
+  .q label:hover { background: #f3f0e4; }
+  .q.ok label.chosen { background: var(--ok-bg); border-color: var(--ok); }
+  .q.bad label.chosen { background: var(--bad-bg); border-color: var(--bad); }
+  .gap { margin: 1rem 0; font-size: 1.02rem; }
+  .gap select {
+    font-family: inherit;
+    font-size: 1rem;
+    padding: .15rem .3rem;
+    background: #fff;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+  }
+  .gap.ok select { background: var(--ok-bg); border-color: var(--ok); }
+  .gap.bad select { background: var(--bad-bg); border-color: var(--bad); }
+  .feedback { font-size: .88rem; margin-top: .3rem; display: none; }
+  .ok .feedback.good { display: block; color: var(--ok); }
+  .bad .feedback.fix { display: block; color: var(--bad); }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-style: italic;
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    padding: .6rem 1.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 1.5rem;
+  }
+  button:hover { background: var(--accent); }
+  #result {
+    display: none;
+    margin-top: 1.5rem;
+    padding: 1rem 1.3rem;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: #f7f4e9;
+  }
+  #result .score { font-size: 1.4rem; font-style: italic; }
+  .note { font-size: .9rem; color: var(--muted); border-left: 3px solid var(--rule); padding-left: 1rem; margin: 1.5rem 0; }
+  a { color: var(--accent); }
+  code { font-family: Consolas, Menlo, monospace; font-size: .9em; background: #f0ede2; padding: .05em .3em; border-radius: 3px; }
+  ol li { margin: .5rem 0; }
+  .en { font-style: normal; }
+</style>
+</head>
+<body>
+
+<h1>Урок 0001 — Диагностика: точка старта</h1>
+<p class="subtitle">Где вы сейчас на самом деле — чтобы каждый следующий урок попадал точно в цель.</p>
+<p class="meta">≈ 12 минут · чтение + грамматика + мини-письмо · <a href="../reference/cefr-urovni.html">справочник по уровням CEFR</a></p>
+
+<p>Ваша миссия — <strong>читать техническую документацию без напряжения и уверенно писать рабочие тексты</strong>. Давний пробный IELTS ≈ 4 — это ориентировочно уровень B1 (<a href="https://www.ielts.org/about-ielts/ielts-in-cefr-scale">официальная шкала IELTS ↔ CEFR</a>), но навыки заржавели, и единственный честный способ узнать точку старта — проверить. Этим и займёмся.</p>
+
+<h2>Часть 1 · Чтение технического текста</h2>
+<p>Прочитайте текст <em>один раз, не возвращаясь назад</em> — как читали бы документацию по работе. Затем ответьте на вопросы по памяти. Это и есть проверка реального чтения, а не поиска ответов в тексте.</p>
+
+<div class="passage en" lang="en">
+<p>Caching is a technique that stores copies of data in a fast storage layer so that future requests can be served more quickly. When an application receives a request, it first checks the cache. If the data is there — a situation known as a <strong>cache hit</strong> — the application returns it immediately.</p>
+<p>If the data is not in the cache — a <strong>cache miss</strong> — the application fetches it from the slower main database, returns it to the user, and usually saves a copy in the cache for next time.</p>
+<p>Caches have limited space, so old or rarely used entries must be removed. This process is called <strong>eviction</strong>. A common strategy is <strong>LRU</strong> (Least Recently Used), which removes the entry that was used least recently.</p>
+</div>
+
+<div class="q" data-answer="0" id="q1">
+  <div class="stem en" lang="en">1. What is a “cache hit”?</div>
+  <label><input type="radio" name="q1" value="0"> The requested data is found in the cache</label>
+  <label><input type="radio" name="q1" value="1"> The requested data is missing from the cache</label>
+  <label><input type="radio" name="q1" value="2"> The requested data is deleted from the cache</label>
+  <div class="feedback good">Верно. Hit — данные нашлись в кэше.</div>
+  <div class="feedback fix">Не то. Перечитайте первый абзац: “If the data is there…”</div>
+</div>
+
+<div class="q" data-answer="1" id="q2">
+  <div class="stem en" lang="en">2. What usually happens after a cache miss?</div>
+  <label><input type="radio" name="q2" value="0"> The application removes old entries from the database</label>
+  <label><input type="radio" name="q2" value="1"> The application saves a fresh copy in the cache</label>
+  <label><input type="radio" name="q2" value="2"> The application returns an error message to the user</label>
+  <div class="feedback good">Верно. После промаха данные достают из БД и кладут копию в кэш.</div>
+  <div class="feedback fix">Не то. Второй абзац: “…and usually saves a copy in the cache for next time.”</div>
+</div>
+
+<div class="q" data-answer="0" id="q3">
+  <div class="stem en" lang="en">3. Which entry does the LRU strategy remove?</div>
+  <label><input type="radio" name="q3" value="0"> The entry that was used least recently</label>
+  <label><input type="radio" name="q3" value="1"> The entry that was created most recently</label>
+  <label><input type="radio" name="q3" value="2"> The entry that takes the most space</label>
+  <div class="feedback good">Верно. Least Recently Used — дольше всех не использовалась.</div>
+  <div class="feedback fix">Не то. LRU = Least Recently Used — та, что дольше всех не использовалась.</div>
+</div>
+
+<h2>Часть 2 · Грамматика и устойчивые сочетания</h2>
+<p>Шесть предложений из типичной рабочей переписки. Выберите вариант, который звучит правильно. Здесь спрятаны самые частые «ржавые» места: артикли, предлоги, времена.</p>
+
+<div class="gap" data-answer="depends" id="g1">
+  <span class="en" lang="en">1. The result
+  <select><option value="">—</option><option value="depend">depend</option><option value="depends">depends</option><option value="is depending">is depending</option></select>
+  on the input size.</span>
+  <div class="feedback good">Верно: he/she/it → depends; и это устойчивое сочетание depends <em>on</em>.</div>
+  <div class="feedback fix">Нет. Подлежащее “the result” — третье лицо, ед. число.</div>
+</div>
+
+<div class="gap" data-answer="since" id="g2">
+  <span class="en" lang="en">2. I have worked with this codebase
+  <select><option value="">—</option><option value="from">from</option><option value="during">during</option><option value="since">since</option></select>
+  2019.</span>
+  <div class="feedback good">Верно: have worked + since + точка во времени.</div>
+  <div class="feedback fix">Нет. С Present Perfect и точкой отсчёта (2019) идёт “since”.</div>
+</div>
+
+<div class="gap" data-answer="fixed" id="g3">
+  <span class="en" lang="en">3. We
+  <select><option value="">—</option><option value="have fixed">have fixed</option><option value="fixed">fixed</option><option value="fix">fix</option></select>
+  the bug yesterday.</span>
+  <div class="feedback good">Верно: “yesterday” — законченное время, значит Past Simple.</div>
+  <div class="feedback fix">Нет. Слово “yesterday” требует Past Simple, не Present Perfect.</div>
+</div>
+
+<div class="gap" data-answer="an" id="g4">
+  <span class="en" lang="en">4. The server returned
+  <select><option value="">—</option><option value="a">a</option><option value="an">an</option><option value="the">the</option></select>
+  unexpected error.</span>
+  <div class="feedback good">Верно: “unexpected” начинается с гласного звука → an.</div>
+  <div class="feedback fix">Нет. Ошибка упоминается впервые и слово начинается с гласного звука.</div>
+</div>
+
+<div class="gap" data-answer="of" id="g5">
+  <span class="en" lang="en">5. This library consists
+  <select><option value="">—</option><option value="from">from</option><option value="in">in</option><option value="of">of</option></select>
+  three modules.</span>
+  <div class="feedback good">Верно: устойчивое сочетание — consists <em>of</em>.</div>
+  <div class="feedback fix">Нет. По-русски «состоит из», но по-английски — consists <em>of</em>.</div>
+</div>
+
+<div class="gap" data-answer="any" id="g6">
+  <span class="en" lang="en">6. Let me know if you have
+  <select><option value="">—</option><option value="some">some</option><option value="any">any</option><option value="much">much</option></select>
+  questions.</span>
+  <div class="feedback good">Верно: в условных и вопросительных контекстах — any.</div>
+  <div class="feedback fix">Нет. В “if”-предложениях обычно “any”. Это стандартная фраза переписки.</div>
+</div>
+
+<button id="check">Проверить ответы</button>
+
+<div id="result">
+  <div class="score"></div>
+  <div class="verdict"></div>
+</div>
+
+<h2>Часть 3 · Мини-письмо (внешняя проверка)</h2>
+<p>Последний шаг диагностики — письмо, ваш приоритетный навык. Статичная страница не оценит свободный текст, поэтому используем бесплатный инструмент Кембриджа, который ставит оценку по шкале CEFR.</p>
+<ol>
+  <li>Откройте <a href="https://writeandimprove.com/" target="_blank">Write &amp; Improve</a> (регистрация не нужна — кнопка “Start writing”).</li>
+  <li>Создайте свою задачу (“My own task”) и напишите <strong>4–6 предложений по-английски</strong> на тему: <em class="en" lang="en">“What I do at work and why I need English.”</em> Без черновика на русском и без переводчика — пишите как получится, это диагностика, а не экзамен.</li>
+  <li>Нажмите “Check” и посмотрите, какой уровень CEFR покажет система.</li>
+</ol>
+
+<p class="note"><strong>Когда закончите</strong> — напишите в чат свой результат: счёт из частей 1–2 (страница покажет его ниже кнопки) и уровень из Write &amp; Improve. По этим двум цифрам я откалибрую все следующие уроки.</p>
+
+<h2>Что почитать</h2>
+<p>Главный источник на старте — <a href="https://learnenglish.britishcouncil.org/skills/reading/b1-reading" target="_blank">British Council LearnEnglish: B1 Reading</a> (а рядом — <a href="https://learnenglish.britishcouncil.org/skills/writing/b1-writing" target="_blank">B1 Writing</a>). Это бесплатные уроки от самой авторитетной организации в обучении английскому, размеченные точно по уровням CEFR. Посмотрите один любой текст уровня B1 — просто чтобы почувствовать, легко вам или сложно.</p>
+
+<p class="note">Я ваш преподаватель: если что-то в уроке непонятно — любое слово, правило или вопрос «а почему так?» — просто спросите меня в чате. Разберём вместе.</p>
+
+<script>
+document.getElementById('check').addEventListener('click', function () {
+  var total = 0, correct = 0;
+
+  document.querySelectorAll('.q').forEach(function (q) {
+    var chosen = q.querySelector('input:checked');
+    q.classList.remove('ok', 'bad');
+    q.querySelectorAll('label').forEach(function (l) { l.classList.remove('chosen'); });
+    if (!chosen) return;
+    total++;
+    chosen.parentElement.classList.add('chosen');
+    if (chosen.value === q.dataset.answer) { q.classList.add('ok'); correct++; }
+    else { q.classList.add('bad'); }
+  });
+
+  document.querySelectorAll('.gap').forEach(function (g) {
+    var sel = g.querySelector('select');
+    g.classList.remove('ok', 'bad');
+    if (!sel.value) return;
+    total++;
+    if (sel.value === g.dataset.answer) { g.classList.add('ok'); correct++; }
+    else { g.classList.add('bad'); }
+  });
+
+  var unanswered = 9 - total;
+  var res = document.getElementById('result');
+  res.style.display = 'block';
+  res.querySelector('.score').textContent = 'Результат: ' + correct + ' из 9';
+
+  var verdict;
+  if (unanswered > 0) {
+    verdict = 'Осталось без ответа: ' + unanswered + '. Ответьте на все вопросы и проверьте снова.';
+  } else if (correct <= 4) {
+    verdict = 'База заржавела сильнее, чем казалось — это нормально и быстро лечится. Начнём со спокойного B1: короткие тексты и самые частотные конструкции переписки.';
+  } else if (correct <= 7) {
+    verdict = 'Уверенный B1: чтение живо, но в грамматике есть конкретные дыры — видно по подсветке выше. Следующие уроки закроем именно их.';
+  } else {
+    verdict = 'Отлично — вы ближе к B2, чем думали. Возьмём более плотные технические тексты и сразу серьёзные письменные задачи.';
+  }
+  res.querySelector('.verdict').textContent = verdict;
+});
+</script>
+
+</body>
+</html>

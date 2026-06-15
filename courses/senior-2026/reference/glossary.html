@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Глоссарий · senior-2026</title>
+<style>
+  :root{--ink:#1a1a1a;--muted:#666;--line:#e2e2e2;--accent:#7a4f9e;--accent2:#2e6e8e;--bg:#fbfbf9}
+  *{box-sizing:border-box}
+  body{font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:var(--bg);
+    max-width:840px;margin:0 auto;padding:48px 24px 96px;line-height:1.5;font-size:18px}
+  h1{font-size:32px;margin:0 0 6px}
+  .sub{color:var(--muted);font-style:italic;margin:0 0 24px}
+  h2{font-size:21px;margin:34px 0 6px;border-bottom:2px solid var(--line);padding-bottom:6px}
+  dt{font-weight:bold;margin:16px 0 2px}
+  dt .en{font-weight:normal;color:var(--accent2);font-style:italic;font-size:16px}
+  dd{margin:0 0 4px;color:#2a2a2a}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;background:#f4f2ef;
+    padding:1px 6px;border-radius:4px}
+  .note{color:var(--muted);font-size:15px}
+  a{color:var(--accent2)}
+  @media print{body{font-size:11.5pt;background:#fff}dt,dd{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<h1>Глоссарий</h1>
+<p class="sub">Единый словарь терминов курса. Английский термин оставляем рядом — в индустрии говорят на нём.
+  Дополняется по мере уроков.</p>
+
+<h2>Клиент-сервер и HTTP</h2>
+<dl>
+  <dt>Клиент / Сервер <span class="en">client / server</span></dt>
+  <dd>Клиент (браузер, мобайл) шлёт запрос; сервер обрабатывает и шлёт ответ. Основа всего веба.</dd>
+
+  <dt>HTTP-метод <span class="en">HTTP method</span></dt>
+  <dd><code>GET</code> (получить), <code>POST</code> (создать), <code>PUT/PATCH</code> (изменить), <code>DELETE</code> (удалить).</dd>
+
+  <dt>Статус-код <span class="en">status code</span></dt>
+  <dd>Число в ответе: 2xx — успех, 3xx — редирект, 4xx — ошибка клиента (401 — не авторизован, 404 — не найдено), 5xx — ошибка сервера.</dd>
+
+  <dt>Заголовки <span class="en">headers</span></dt>
+  <dd>Метаданные запроса/ответа: тип контента, авторизация, кэш, cookie.</dd>
+
+  <dt>Cookie / Сессия / Токен <span class="en">cookie / session / token</span></dt>
+  <dd>Способы «запомнить», что ты залогинен. Cookie хранится в браузере; сессия — на сервере; JWT-токен — самодостаточный подписанный пропуск.</dd>
+
+  <dt>CORS <span class="en">Cross-Origin Resource Sharing</span></dt>
+  <dd>Правила браузера: может ли страница с одного домена ходить в API на другом. <code>credentials: 'include'</code> — слать ли cookie.</dd>
+</dl>
+
+<h2>API и контракт</h2>
+<dl>
+  <dt>REST <span class="en">REST</span></dt>
+  <dd>Стиль API: ресурсы по URL, действия — HTTP-методами. Например <code>GET /api/v1/notes</code>.</dd>
+
+  <dt>Контракт API <span class="en">API contract</span></dt>
+  <dd>Договор о форме запроса и ответа. В lab/yamal ответ единый: <code>{ data, status, message }</code>.</dd>
+
+  <dt>Идемпотентность <span class="en">idempotency</span></dt>
+  <dd>Повтор одного и того же запроса не меняет результат. <code>GET</code>/<code>PUT</code> идемпотентны, наивный <code>POST</code> — нет.</dd>
+
+  <dt>Пагинация <span class="en">pagination</span></dt>
+  <dd>Отдавать данные порциями (страницами), а не всё сразу. Бывает offset- и cursor-based.</dd>
+
+  <dt>Валидация <span class="en">validation</span></dt>
+  <dd>Проверка входных данных до бизнес-логики (например, заголовок не короче 3 символов).</dd>
+</dl>
+
+<h2>Слои бэкенда</h2>
+<dl>
+  <dt>Хендлер / Контроллер <span class="en">handler / controller</span></dt>
+  <dd>Принимает HTTP-запрос, достаёт параметры, зовёт бизнес-логику, формирует ответ.</dd>
+
+  <dt>Сервис / Бизнес-логика <span class="en">service / business logic</span></dt>
+  <dd>«Что делать» по правилам предметной области. Не знает про HTTP и про SQL напрямую.</dd>
+
+  <dt>Стор / Репозиторий <span class="en">store / repository</span></dt>
+  <dd>Доступ к данным (БД). Прячет SQL за методами вроде <code>ListNotes()</code>.</dd>
+
+  <dt>Middleware <span class="en">middleware</span></dt>
+  <dd>Прослойка вокруг запроса: аутентификация, логирование, <code>request_id</code>. Срабатывает до/после хендлера.</dd>
+</dl>
+
+<h2>Базы данных</h2>
+<dl>
+  <dt>Нормализация <span class="en">normalization</span></dt>
+  <dd>Раскладывание данных по таблицам без дублей. Денормализация — намеренные дубли ради скорости чтения.</dd>
+
+  <dt>Индекс <span class="en">index</span></dt>
+  <dd>Структура для быстрого поиска по столбцу. Ускоряет чтение, замедляет запись и ест место.</dd>
+
+  <dt>Транзакция <span class="en">transaction</span></dt>
+  <dd>Группа операций «всё или ничего» (ACID). Уровни изоляции определяют, что видят параллельные транзакции.</dd>
+
+  <dt>Проблема N+1 <span class="en">N+1 problem</span></dt>
+  <dd>1 запрос за списком + по запросу на каждый элемент = лавина запросов. Лечится джойном/батчингом.</dd>
+</dl>
+
+<h2>Системный дизайн</h2>
+<dl>
+  <dt>Масштабирование <span class="en">scaling</span></dt>
+  <dd>Вертикальное — мощнее сервер; горизонтальное — больше серверов. Senior думает про горизонтальное.</dd>
+
+  <dt>Балансировщик нагрузки <span class="en">load balancer</span></dt>
+  <dd>Распределяет запросы между несколькими серверами.</dd>
+
+  <dt>Очередь сообщений <span class="en">message queue</span></dt>
+  <dd>Асинхронная передача задач между сервисами. В yamal — <b>RabbitMQ</b>; gateway шлёт по routing key, сервис отвечает.</dd>
+
+  <dt>Кэш <span class="en">cache</span></dt>
+  <dd>Быстрое хранилище частых данных (Redis, HTTP-кэш, CDN), чтобы не дёргать БД каждый раз.</dd>
+
+  <dt>Согласованность <span class="en">consistency</span></dt>
+  <dd>Насколько все узлы видят одинаковые данные. Бывает строгая и в конечном счёте (eventual).</dd>
+
+  <dt>Наблюдаемость <span class="en">observability</span></dt>
+  <dd>Логи + метрики + трейсинг. Позволяет понять, что происходит в системе под нагрузкой.</dd>
+
+  <dt>Circuit breaker <span class="en">circuit breaker</span></dt>
+  <dd>«Предохранитель»: если сервис падает, перестаём его дёргать, чтобы не уронить всё каскадом.</dd>
+
+  <dt>Gateway <span class="en">API gateway</span></dt>
+  <dd>Единая точка входа: принимает HTTP, аутентифицирует, маршрутизирует в нужный сервис. Так устроен yamal.</dd>
+</dl>
+
+<p class="sub" style="margin-top:36px">Связанные:
+<a href="dorozhnaya-karta-2026.html">дорожная карта</a> ·
+<a href="raspisanie-dnya.html">расписание</a> ·
+<a href="progress-tracker.html">трекер прогресса</a></p>
+
+</body>
+</html>

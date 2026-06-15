@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 0001 · Путь запроса: от логина до списка заметок</title>
+<style>
+  :root{--ink:#1a1a1a;--muted:#666;--line:#e2e2e2;--accent:#7a4f9e;--accent2:#2e6e8e;
+    --bg:#fbfbf9;--card:#fff;--ok:#2e7d32;--bad:#c0392b;--code:#f4f2ef}
+  *{box-sizing:border-box}
+  body{font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:var(--bg);
+    max-width:780px;margin:0 auto;padding:44px 22px 110px;line-height:1.55;font-size:18px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 4px}
+  .meta{color:var(--muted);font-style:italic;margin:0 0 24px;font-size:16px}
+  h2{font-size:22px;margin:34px 0 8px;border-bottom:2px solid var(--line);padding-bottom:6px}
+  h3{font-size:18px;margin:18px 0 4px}
+  code,.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;background:var(--code);
+    padding:1px 6px;border-radius:4px}
+  pre{background:#2b2b2b;color:#eaeaea;padding:14px 16px;border-radius:8px;overflow:auto;font-size:13.5px;line-height:1.5}
+  pre code{background:none;color:inherit;padding:0}
+  .win{background:#f3eff8;border-left:5px solid var(--accent);border-radius:8px;padding:12px 16px;margin:16px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:18px 0}
+  .q{margin:14px 0;padding-bottom:12px;border-bottom:1px solid #f0f0f0}
+  .q:last-child{border-bottom:none}
+  .q p{margin:0 0 8px;font-weight:bold}
+  .opt{display:block;padding:8px 12px;margin:6px 0;border:1px solid var(--line);border-radius:8px;cursor:pointer;
+    font-size:16px;background:#fff;transition:.15s}
+  .opt:hover{background:#faf7fd}
+  .opt.correct{border-color:var(--ok);background:#f0f8f0}
+  .opt.wrong{border-color:var(--bad);background:#fcf0ef}
+  .opt input{margin-right:8px}
+  .fb{font-size:15px;margin-top:6px;min-height:20px}
+  .fb.ok{color:var(--ok)} .fb.no{color:var(--bad)}
+  .order-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+  .order-row select{font-family:inherit;font-size:15px;padding:5px 8px;border:1px solid var(--line);border-radius:6px}
+  .order-row span{font-size:16px}
+  button{font-family:inherit;font-size:15px;background:var(--accent);color:#fff;border:none;
+    border-radius:8px;padding:9px 16px;cursor:pointer}
+  button.ghost{background:#fff;color:var(--accent2);border:1px solid var(--line)}
+  button:hover{filter:brightness(1.05)}
+  input.txt{font-family:ui-monospace,monospace;font-size:15px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;width:120px}
+  label.ck{display:flex;gap:10px;align-items:flex-start;padding:6px 0;cursor:pointer;font-size:16px}
+  label.ck input{margin-top:5px;width:18px;height:18px;accent-color:var(--accent)}
+  .res{font-size:15px;margin-top:8px;font-weight:bold}
+  textarea{width:100%;min-height:70px;font-family:inherit;font-size:15px;padding:10px;border:1px solid var(--line);border-radius:8px}
+  .report{background:#1f2733;color:#e8eef5;border-radius:10px;padding:18px 20px;margin-top:14px;font-size:14px}
+  .report b{color:#9ecbff}
+  a{color:var(--accent2)}
+  .small{font-size:15px;color:var(--muted)}
+  @media print{body{background:#fff}}
+</style>
+</head>
+<body>
+
+<h1>Урок 0001 · Путь запроса: от логина до списка заметок</h1>
+<p class="meta">Курс «Senior 2026» · Фаза 0 · ~15 мин теории + практика на <code>fullstack-lab</code></p>
+
+<div class="win">
+  <b>Сегодняшняя победа.</b> К концу урока ты сможешь нарисовать и объяснить полный путь запроса —
+  от клика «Войти» до списка заметок на экране — и понимать, что означает каждый статус-код.
+  Это фундамент всей архитектуры клиент-сервер, твоей главной оси.
+</div>
+
+<h2>1. Теория (коротко)</h2>
+
+<h3>Запрос и ответ</h3>
+<p>Веб — это диалог. <b>Клиент</b> (браузер) шлёт <b>запрос</b>, <b>сервер</b> обрабатывает и шлёт
+<b>ответ</b>. Каждый запрос — это: метод + адрес + заголовки + (иногда) тело. Каждый ответ — это:
+статус-код + заголовки + тело.</p>
+
+<h3>Четыре статус-кода, которые надо знать наизусть</h3>
+<ul>
+  <li><code>200</code> — OK, всё хорошо, вот данные.</li>
+  <li><code>401</code> — не авторизован: ты не доказал, кто ты (нет/невалиден токен).</li>
+  <li><code>404</code> — ресурс не найден.</li>
+  <li><code>500</code> — сервер сам сломался (ошибка в коде сервера).</li>
+</ul>
+<p class="small">Правило: 4xx — «виноват клиент» (неправильный запрос), 5xx — «виноват сервер».</p>
+
+<h3>Как сервер «помнит», что ты залогинен</h3>
+<p>При логине сервер проверяет пароль и выдаёт <b>JWT-токен</b> — подписанный «пропуск». В lab он
+кладётся в <b>cookie</b> (<code>Set-Cookie: access_token=...</code>). Дальше браузер автоматически
+шлёт эту cookie с каждым запросом. Нет cookie → <b>middleware</b> аутентификации возвращает <code>401</code>.</p>
+
+<h3>Контракт ответа в lab (и в реальном yamal)</h3>
+<p>Любой ответ имеет единую форму: <code>{ data, status, message }</code>. Данные всегда в поле
+<code>data</code>. Это и есть «контракт API» — договор между фронтом и бэком.</p>
+
+<h2>2. Проверь себя (автопроверка)</h2>
+
+<div class="card" id="quiz">
+  <div class="q" data-correct="a">
+    <p>1. Какой статус вернёт <code>GET /api/v1/notes</code> без cookie?</p>
+    <label class="opt"><input type="radio" name="q1" value="a">401 — ты не авторизован</label>
+    <label class="opt"><input type="radio" name="q1" value="b">200 — отдаю все данные</label>
+    <label class="opt"><input type="radio" name="q1" value="c">404 — ресурса тут нету</label>
+    <label class="opt"><input type="radio" name="q1" value="d">500 — сервер весь сломан</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="b">
+    <p>2. Что сервер кладёт в <code>Set-Cookie</code> при логине?</p>
+    <label class="opt"><input type="radio" name="q2" value="a">Полный список всех заметок</label>
+    <label class="opt"><input type="radio" name="q2" value="b">Подписанный токен входа</label>
+    <label class="opt"><input type="radio" name="q2" value="c">Открытый пароль юзера</label>
+    <label class="opt"><input type="radio" name="q2" value="d">Полную схему всей базы</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="c">
+    <p>3. Каким методом создают новую заметку?</p>
+    <label class="opt"><input type="radio" name="q3" value="a">GET /api/v1/notes</label>
+    <label class="opt"><input type="radio" name="q3" value="b">PUT /api/v1/notes</label>
+    <label class="opt"><input type="radio" name="q3" value="c">POST /api/v1/notes</label>
+    <label class="opt"><input type="radio" name="q3" value="d">HEAD /api/v1/note</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="a">
+    <p>4. Где в ответе lab лежат сами данные?</p>
+    <label class="opt"><input type="radio" name="q4" value="a">в поле <code>data</code></label>
+    <label class="opt"><input type="radio" name="q4" value="b">в поле <code>status</code></label>
+    <label class="opt"><input type="radio" name="q4" value="c">в поле <code>message</code></label>
+    <label class="opt"><input type="radio" name="q4" value="d">в поле <code>header</code></label>
+    <div class="fb"></div>
+  </div>
+</div>
+
+<h2>3. Собери путь запроса</h2>
+<p>Расставь шаги в правильном порядке (1–6): сценарий «логин → список заметок».</p>
+<div class="card" id="order">
+  <div class="order-row"><select data-step="4"><option value="">№</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+    <span>Браузер шлёт <code>GET /notes</code> вместе с cookie</span></div>
+  <div class="order-row"><select data-step="1"><option value="">№</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+    <span>Браузер шлёт <code>POST /auth/login</code> с email и паролем</span></div>
+  <div class="order-row"><select data-step="6"><option value="">№</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+    <span>Store достаёт заметки из БД → сервер отвечает <code>200 {data:[...]}</code></span></div>
+  <div class="order-row"><select data-step="2"><option value="">№</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+    <span>Сервер проверяет пароль и создаёт JWT-токен</span></div>
+  <div class="order-row"><select data-step="5"><option value="">№</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+    <span>Middleware проверяет токен из cookie (аутентификация)</span></div>
+  <div class="order-row"><select data-step="3"><option value="">№</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+    <span>Сервер кладёт токен в <code>Set-Cookie</code> и отвечает <code>200</code></span></div>
+  <div style="margin-top:12px"><button id="checkOrder" class="ghost">Проверить порядок</button> <span class="res" id="orderRes"></span></div>
+</div>
+
+<h2>4. Практика на полигоне</h2>
+<p>Запусти lab и пройди путь руками — это превращает теорию в навык.</p>
+<pre><code># 1. Запусти API (в одном терминале)
+cd yamal_media/fullstack-lab/apps/api
+cp .env.example .env   # если ещё нет
+go run ./cmd/server
+
+# 2. В другом терминале — логин (сохраняем cookie в jar)
+curl -c /tmp/lab.jar -X POST http://localhost:8080/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"editor@lab.local","password":"lab12345"}'
+
+# 3. Список заметок БЕЗ cookie  → смотри статус
+curl -i http://localhost:8080/api/v1/notes
+
+# 4. Список заметок С cookie
+curl -b /tmp/lab.jar http://localhost:8080/api/v1/notes</code></pre>
+
+<div class="card">
+  <label class="ck"><input type="checkbox" id="p1">Запустил сервер, логин вернул токен в <code>Set-Cookie</code></label>
+  <label class="ck"><input type="checkbox" id="p2">Открыл <code>http://localhost:5173</code> и посмотрел те же запросы в DevTools → Network</label>
+  <label class="ck"><input type="checkbox" id="p3">Понял, чем отличается ответ с cookie и без</label>
+  <div style="margin-top:10px">
+    <span>Какой статус вернул <code>GET /notes</code> <b>без</b> cookie? </span>
+    <input class="txt" id="statusIn" placeholder="напр. 200" inputmode="numeric">
+    <button class="ghost" id="checkStatus">Проверить</button>
+    <span class="res" id="statusRes"></span>
+  </div>
+</div>
+
+<h2>5. Первоисточник</h2>
+<p>Самый надёжный справочник по HTTP — <a href="https://developer.mozilla.org/ru/docs/Web/HTTP" target="_blank">MDN: HTTP</a>.
+Прочитай раздел про методы и статус-коды (10 минут). Это эталон, к нему возвращаются годами.</p>
+<p class="small">Застрял или что-то непонятно? Спроси меня в чате — я твой преподаватель, для этого я здесь.
+Например: «Урок 0001: почему JWT в cookie, а не в localStorage?»</p>
+
+<h2>6. Отчёт для агента</h2>
+<p class="small">Нажми кнопку — отчёт скопируется в буфер. Вставь его мне в чат одним <b>Ctrl+V</b>.</p>
+<textarea id="issues" placeholder="Что осталось непонятным? (необязательно)"></textarea>
+<div style="margin-top:10px">
+  <button id="copyBtn">Скопировать отчёт</button>
+  <span class="res" id="copyRes"></span>
+</div>
+<div class="report" id="reportView" style="display:none"></div>
+
+<script>
+// ---- Quiz ----
+const quizState={};
+document.querySelectorAll("#quiz .q").forEach((q,i)=>{
+  const correct=q.dataset.correct;
+  q.querySelectorAll(".opt").forEach(opt=>{
+    opt.addEventListener("click",()=>{
+      const val=opt.querySelector("input").value;
+      q.querySelectorAll(".opt").forEach(o=>o.classList.remove("correct","wrong"));
+      const fb=q.querySelector(".fb");
+      quizState["q"+(i+1)]={chosen:val,ok:val===correct};
+      if(val===correct){opt.classList.add("correct");fb.textContent="Верно ✓";fb.className="fb ok";}
+      else{opt.classList.add("wrong");fb.textContent="Не то — подумай ещё раз";fb.className="fb no";}
+    });
+  });
+});
+
+// ---- Order ----
+let orderOk=false;
+document.getElementById("checkOrder").addEventListener("click",()=>{
+  let allFilled=true, allRight=true;
+  document.querySelectorAll("#order select").forEach(s=>{
+    if(!s.value){allFilled=false;return;}
+    if(s.value!==s.dataset.step) allRight=false;
+  });
+  const res=document.getElementById("orderRes");
+  if(!allFilled){res.textContent="Заполни все номера";res.style.color="var(--bad)";orderOk=false;}
+  else if(allRight){res.textContent="Идеальный порядок ✓";res.style.color="var(--ok)";orderOk=true;}
+  else{res.textContent="Порядок неверный — попробуй ещё";res.style.color="var(--bad)";orderOk=false;}
+});
+
+// ---- Status check ----
+let statusOk=false;
+document.getElementById("checkStatus").addEventListener("click",()=>{
+  const v=document.getElementById("statusIn").value.trim();
+  const res=document.getElementById("statusRes");
+  if(v==="401"){res.textContent="Точно ✓ нет токена → 401";res.style.color="var(--ok)";statusOk=true;}
+  else{res.textContent="Не совсем — это код «не авторизован»";res.style.color="var(--bad)";statusOk=false;}
+});
+
+// ---- Report ----
+function buildReport(){
+  const qLines=[];let qScore=0;
+  for(let i=1;i<=4;i++){const s=quizState["q"+i];if(s){if(s.ok)qScore++;qLines.push(`  Q${i}: ${s.chosen} ${s.ok?"OK":"WRONG"}`);}else qLines.push(`  Q${i}: (не отвечено)`);}
+  const p=id=>document.getElementById(id).checked?"да":"нет";
+  const issues=document.getElementById("issues").value.trim()||"(нет)";
+  return [
+"=== ОТЧЁТ · Курс Senior 2026 · Урок 0001 «Путь запроса» ===",
+`Квиз: ${qScore}/4`,
+...qLines,
+`Порядок шагов: ${orderOk?"верно":"не подтверждён"}`,
+"Практика на полигоне:",
+`  Сервер+логин: ${p("p1")}`,
+`  DevTools Network: ${p("p2")}`,
+`  Понял разницу с/без cookie: ${p("p3")}`,
+`  Статус GET /notes без cookie распознан как 401: ${statusOk?"да":"нет"}`,
+`Что непонятно: ${issues}`,
+"=== конец отчёта ==="
+  ].join("\n");
+}
+document.getElementById("copyBtn").addEventListener("click",async()=>{
+  const text=buildReport();
+  const view=document.getElementById("reportView");
+  view.style.display="block";view.textContent=text;
+  const res=document.getElementById("copyRes");
+  try{await navigator.clipboard.writeText(text);res.textContent="Скопировано ✓ вставь в чат (Ctrl+V)";res.style.color="var(--ok)";}
+  catch(e){res.textContent="Выдели текст ниже и скопируй вручную";res.style.color="var(--bad)";}
+});
+</script>
+</body>
+</html>

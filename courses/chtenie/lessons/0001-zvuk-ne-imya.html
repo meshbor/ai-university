@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 1 · Звук, а не имя буквы</title>
+<style>
+  :root{
+    --ink:#1f2430; --muted:#5b6472; --accent:#b5402a; --good:#2f7d4f;
+    --line:#e3e0d8; --paper:#fbf9f4; --card:#ffffff; --vowel:#b5402a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--paper); color:var(--ink);
+    font:18px/1.65 "Georgia","Times New Roman",serif; padding:48px 20px}
+  .wrap{max-width:760px; margin:0 auto}
+  header{border-bottom:3px double var(--line); padding-bottom:18px; margin-bottom:26px}
+  .kicker{font:600 13px/1.2 system-ui,sans-serif; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); margin:0 0 8px}
+  h1{font-size:33px; line-height:1.15; margin:0 0 8px}
+  .meta{color:var(--muted); font-style:italic; margin:0}
+  .goal{background:var(--card); border:1px solid var(--line); border-left:6px solid var(--good);
+    border-radius:8px; padding:16px 18px; margin:22px 0}
+  .goal b{color:var(--good)}
+  .why{background:#fbf3f0; border:1px dashed var(--accent); border-radius:8px; padding:14px 16px; margin:18px 0}
+  h2{font-size:22px; margin:30px 0 8px; padding-top:10px; border-top:1px solid var(--line)}
+  .step{display:flex; gap:14px; align-items:flex-start; margin:14px 0}
+  .num{flex:0 0 36px; height:36px; border-radius:50%; background:var(--accent); color:#fff;
+    font:700 18px/36px system-ui,sans-serif; text-align:center}
+  .step .body{flex:1}
+  .step h3{margin:2px 0 4px; font-size:19px}
+  p{margin:0 0 12px}
+  .say{font-weight:700; color:var(--accent)}
+  .big{font-size:30px; font-weight:700; letter-spacing:.04em}
+  .v{color:var(--vowel)}
+  .tip{background:#f3f0e7; border-radius:8px; padding:12px 16px; font-size:16px; margin:12px 0}
+  .tip b{color:var(--accent)}
+  .clock{display:inline-block; font:600 13px/1 system-ui,sans-serif; color:var(--muted);
+    border:1px solid var(--line); border-radius:999px; padding:5px 10px; margin-left:8px; vertical-align:middle}
+  .source{background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin:22px 0}
+  .source h3{margin:0 0 6px; font-size:17px}
+  .ask{margin-top:24px; padding:14px 16px; border:1px dashed var(--accent); border-radius:8px; background:#fbf3f0}
+  table.snd{width:100%; border-collapse:collapse; margin:8px 0 4px}
+  table.snd td{border:1px solid var(--line); padding:8px 10px; font-size:17px}
+  table.snd td:first-child{font-weight:700; font-size:24px; text-align:center; width:64px; background:#f1ede3}
+  a{color:var(--accent)}
+
+  .cards{page-break-before:always}
+  .cards h2{border:0}
+  .grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-top:14px}
+  .pc{border:3px solid var(--ink); border-radius:14px; aspect-ratio:1/1;
+    display:flex; align-items:center; justify-content:center; background:#fff}
+  .pc span{font:800 110px/1 "Georgia",serif}
+
+  @media print{
+    body{background:#fff; padding:0; font-size:12pt}
+    a{color:inherit; text-decoration:none}
+    h2{page-break-after:avoid}
+    .goal,.step,.source,.tip,.pc,.why{page-break-inside:avoid}
+    .num{ -webkit-print-color-adjust:exact; print-color-adjust:exact }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="kicker">Курс чтения · Урок 1</p>
+    <h1>Звук, а не имя буквы</h1>
+    <p class="meta">Для родителя · занятие 5–7 минут · только утром</p>
+  </header>
+
+  <div class="goal">
+    <b>Цель урока (одна!):</b> чтобы ребёнок для буквы называл <b>звук-«песенку»</b>
+    (<span class="big">М → [м-м-м]</span>), а не имя («эм»). Никакого слияния и слов
+    сегодня — только это. Это фундамент, без него чтение не «склеится».
+  </div>
+
+  <div class="why">
+    <b>Зачем именно это.</b> Сейчас он читает так: «Д»… пауза… «А»… → «ДыА». Он зовёт
+    буквы по <i>именам</i> и по одной. Имена букв («дэ», «эм») невозможно слить в слог —
+    отсюда пауза и «ДыА». Поменяем имена на песенки-звуки — и слоги начнут склеиваться сами.
+  </div>
+
+  <h2>Шаг 1. «У буквы два имени» <span class="clock">1 мин</span></h2>
+  <div class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <p>Покажи букву <span class="big">М</span> и расскажи как секрет:
+      <i>«У каждой буквы есть взрослое имя — “эм”. Но когда мы читаем, буква не
+      называет имя, она <b>поёт песенку</b>: м-м-м-м! Давай послушаем её песенку.»</i></p>
+      <p>Спой звук вместе, длинно: <span class="say">«м-м-м-м-м»</span>. Пусть повторит.
+      Главное послание: <b>для чтения нужна песенка, а не имя.</b></p>
+    </div>
+  </div>
+
+  <h2>Шаг 2. Поём 5 букв-«певуний» <span class="clock">2 мин</span></h2>
+  <div class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <p>Берём только те согласные, которые <b>можно тянуть</b> — с них всё легко.
+      Показываешь карточку — ребёнок «поёт» её звук как можно дольше:</p>
+      <table class="snd">
+        <tr><td>М</td><td>«м-м-м» — как мычит коровка</td></tr>
+        <tr><td>С</td><td>«с-с-с» — как течёт водичка / насос</td></tr>
+        <tr><td>Х</td><td>«х-х-х» — как дышим на стекло, греем ручки</td></tr>
+        <tr><td>Л</td><td>«л-л-л» — как поём «ла-ла-ла»</td></tr>
+        <tr><td>Н</td><td>«н-н-н» — как тянем «не-е-е-т»</td></tr>
+      </table>
+      <div class="tip"><b>Важно:</b> сегодня НЕ берём Д, Б, К, Т, П — их звук нельзя
+      тянуть, ребёнку с ними труднее. Начинаем только с «певуний». Гласные А, О, У тоже
+      прекрасно поются — добавь их в игру.</div>
+    </div>
+  </div>
+
+  <h2>Шаг 3. Игра «Поймай песенку» <span class="clock">1–2 мин</span></h2>
+  <div class="step">
+    <div class="num">3</div>
+    <div class="body">
+      <p>Ты показываешь карточку и говоришь <b>имя</b> буквы — а иногда <b>песенку</b>.
+      Когда сказал(а) <b>имя</b> («эс») — ребёнок ловит ошибку и кричит правильную
+      песенку <span class="say">«с-с-с!»</span>. Поменяйтесь ролями: пусть он «учит» мишку
+      петь песенки букв. Объяснять кому-то — лучший способ запомнить самому.</p>
+    </div>
+  </div>
+
+  <h2>Шаг 4. С движением: «пропой и шагни» <span class="clock">1 мин</span></h2>
+  <div class="step">
+    <div class="num">4</div>
+    <div class="body">
+      <p>Разложи 5 карточек на полу дорожкой. Идём по ней: наступил на букву —
+      <b>поём её песенку</b>, пока стоим на ней; шагнул дальше — поём следующую.
+      Он подвижный — пусть чтение будет «ногами».</p>
+    </div>
+  </div>
+
+  <div class="goal" style="border-left-color:var(--accent)">
+    <b style="color:var(--accent)">Признак, что урок удался:</b> ты показываешь М, С, Х, Л или Н —
+    и ребёнок <b>сразу поёт звук</b>, а не вспоминает имя. Как только это стабильно
+    на 3–4 буквах — можно переходить к <a href="0002-begushchiy-palchik.html">Уроку 2
+    («Бегущий пальчик»)</a>, где из этих песенок склеим первый слог.
+  </div>
+
+  <div class="tip"><b>Если соскальзывает на имена</b> («эм»): не ругай, просто переспроси
+  «а как её <i>песенка</i>?» и пой вместе. Привычка к именам уйдёт за несколько дней
+  коротких игр — не торопи.</div>
+
+  <div class="source">
+    <h3>📖 Первоисточник</h3>
+    <p>Принцип «учим звук, а не имя буквы» — основа «Букваря» Н. С. Жуковой и
+    логопедических методик. Подробнее — в <a href="../RESOURCES.md">RESOURCES.md</a>,
+    правила на одной странице — в <a href="../reference/pamyatka-roditelyu.html">памятке родителю</a>.</p>
+  </div>
+
+  <div class="ask">
+    <b>Я — твой соавтор курса.</b> Напиши мне после занятия: какие буквы он уверенно
+    «поёт», на каких сбивается на имя, сколько выдержал. Я подстрою Урок 2 и следующие
+    под его темп.
+  </div>
+
+  <!-- ================= PRINTABLE CARDS ================= -->
+  <section class="cards" id="cards">
+    <h2>Карточки для печати</h2>
+    <p class="meta">Распечатай, разрежь. Это «певуньи» (красным — гласные).</p>
+    <div class="grid">
+      <div class="pc"><span>М</span></div>
+      <div class="pc"><span>С</span></div>
+      <div class="pc"><span>Х</span></div>
+      <div class="pc"><span>Л</span></div>
+      <div class="pc"><span>Н</span></div>
+      <div class="pc"><span class="v">А</span></div>
+      <div class="pc"><span class="v">О</span></div>
+      <div class="pc"><span class="v">У</span></div>
+      <div class="pc"><span class="v">Ы</span></div>
+    </div>
+  </section>
+</div>
+</body>
+</html>

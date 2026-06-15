@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Расписание дня · будни</title>
+<style>
+  :root{--ink:#1a1a1a;--muted:#666;--line:#e2e2e2;--accent:#7a4f9e;--accent2:#2e6e8e;
+    --bg:#fbfbf9;--card:#fff;--warn:#b5651d;--learn:#2e6e8e}
+  *{box-sizing:border-box}
+  body{font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:var(--bg);
+    max-width:820px;margin:0 auto;padding:48px 24px 96px;line-height:1.5;font-size:18px}
+  h1{font-size:32px;margin:0 0 6px}
+  .sub{color:var(--muted);font-style:italic;margin:0 0 28px}
+  h2{font-size:23px;margin:36px 0 10px;border-bottom:2px solid var(--line);padding-bottom:6px}
+  table{width:100%;border-collapse:collapse;margin:10px 0 18px;font-size:16px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .time{font-family:ui-monospace,Menlo,Consolas,monospace;white-space:nowrap;font-size:15px}
+  .tag{display:inline-block;font-size:12px;border-radius:5px;padding:2px 8px;color:#fff}
+  .t-work{background:#555}
+  .t-corp{background:var(--warn)}
+  .t-learn{background:var(--learn)}
+  .t-life{background:#3f7d3f}
+  .note{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--accent);
+    border-radius:8px;padding:14px 18px;margin:16px 0;font-size:16px}
+  .note b{color:var(--accent)}
+  ul{margin:6px 0 6px 0;padding-left:22px}li{margin:4px 0}
+  a{color:var(--accent2)}
+  @media print{body{font-size:12pt;background:#fff}}
+</style>
+</head>
+<body>
+
+<h1>Расписание буднего дня</h1>
+<p class="sub">8:30–20:00 · выходные — семья, не учимся · 1 час чистого обучения + микро-привычки</p>
+
+<div class="note">
+  <b>Главная идея.</b> Тяжёлое обучение требует свежей головы, но утро занято корп-проектом
+  (Java/Spring, <b>без ИИ</b>). Поэтому: утром — маленькая «бесплатная» микро-привычка по Java
+  прямо в рабочем коде (ИИ не нужен), а основной <span class="tag t-learn">блок обучения</span>
+  — сразу после обеда, на свежем переключении. Вечер — лёгкое повторение.
+</div>
+
+<h2>Сетка дня</h2>
+<table>
+  <tr><th>Время</th><th>Что</th><th>Тип</th></tr>
+  <tr>
+    <td class="time">8:30–8:45</td>
+    <td><b>Разогрев + Java-микрочтение.</b> Открыть корп-код, прочитать <i>один</i> класс/поток
+      (контроллер → сервис → репозиторий), записать в блокнот 3 вопроса «что тут происходит и почему».
+      ИИ не нужен — это чистое наблюдение.</td>
+    <td><span class="tag t-corp">корп · без ИИ</span></td>
+  </tr>
+  <tr>
+    <td class="time">8:45–13:30</td>
+    <td><b>Корп-проект.</b> Основная работа (деньги). Здесь не учимся специально — но держим
+      «архитектурные очки»: замечаем, как сделан бэк, складываем заметки/вопросы на потом.</td>
+    <td><span class="tag t-corp">корп · без ИИ</span></td>
+  </tr>
+  <tr>
+    <td class="time">13:30–14:30</td>
+    <td><b>Обед / отдых / переключение.</b> Без экрана по возможности — мозгу нужен сброс перед обучением.</td>
+    <td><span class="tag t-life">жизнь</span></td>
+  </tr>
+  <tr>
+    <td class="time">14:30–15:30</td>
+    <td><b>🎯 Блок обучения (главный, 1 час).</b> Урок дня из дорожной карты: ~15 мин теория с
+      автопроверкой → ~35 мин практика на <code>fullstack-lab</code> → ~10 мин «отчёт для агента» +
+      что непонятно. Это священный час.</td>
+    <td><span class="tag t-learn">обучение</span></td>
+  </tr>
+  <tr>
+    <td class="time">15:30–18:30</td>
+    <td><b>Проекты ANC / yamal (с ИИ).</b> Оперативка и фичи. <i>Применяем</i> то, что учили:
+      если сегодня про индексы — смотрим запросы yamal; если про API — проектируем эндпоинт осознанно.</td>
+    <td><span class="tag t-work">проекты · с ИИ</span></td>
+  </tr>
+  <tr>
+    <td class="time">18:30–19:50</td>
+    <td><b>Гибкий буфер.</b> Доделать проектные задачи ИЛИ догнать обучение, если день сорвался.
+      Не копить вину — этот буфер для этого и есть.</td>
+    <td><span class="tag t-work">проекты</span></td>
+  </tr>
+  <tr>
+    <td class="time">19:50–20:00</td>
+    <td><b>10 минут повторения.</b> Без открытия кода: вспомнить по памяти 1 вещь из сегодня и 1 из
+      прошлой недели (интервальное повторение). Можно вслух.</td>
+    <td><span class="tag t-learn">обучение</span></td>
+  </tr>
+  <tr>
+    <td class="time">после 20:00</td>
+    <td><b>Семья.</b> Стоп-кран. Граница важнее, чем «ещё чуть-чуть».</td>
+    <td><span class="tag t-life">жизнь</span></td>
+  </tr>
+</table>
+
+<h2>Недельный ритм</h2>
+<ul>
+  <li><b>Пн–чт:</b> новые темы по дорожной карте.</li>
+  <li><b>Пт:</b> «день сборки» — без новой теории. Повторяем неделю квизом, наводим порядок в
+    заметках, отмечаем прогресс в <a href="progress-tracker.html">трекере</a>.</li>
+  <li><b>Сб–вс:</b> семья. Не учимся. Отдых — часть обучения (консолидация памяти во сне и паузах).</li>
+</ul>
+
+<h2>Если день сорвался (а он будет срываться)</h2>
+<ul>
+  <li><b>Минимум-минимум:</b> 10 минут — прочитать урок без практики. Цепочку привычки не рвём.</li>
+  <li><b>Сорвалась неделя:</b> не бросаем фазу — сдвигаем её на дорожной карте. План гибкий.</li>
+  <li><b>Оперативка съела всё:</b> это сигнал, а не провал. Отметь — обсудим, как защищать священный час.</li>
+</ul>
+
+<div class="note">
+  <b>Почему так.</b> 1 час в день × 5 дней × ~28 недель ≈ 140 часов целенаправленного обучения +
+  микро-привычки и применение на проектах. Этого достаточно, чтобы пройти дорожную карту, если
+  держать постоянство. Постоянство &gt; интенсивность.
+</div>
+
+<p class="sub" style="margin-top:36px">Связанные:
+<a href="dorozhnaya-karta-2026.html">дорожная карта</a> ·
+<a href="progress-tracker.html">трекер прогресса</a> ·
+<a href="glossary.html">глоссарий</a></p>
+
+</body>
+</html>

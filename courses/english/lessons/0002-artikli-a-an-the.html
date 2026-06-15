@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Урок 0002 — Артикли: a / an / the / —</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #666;
+    --accent: #8b2500;
+    --rule: #ddd;
+    --bg: #fffff8;
+    --ok: #2e6b30;
+    --bad: #a33;
+    --ok-bg: #e8f0e3;
+    --bad-bg: #f7e6e2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    background: var(--bg);
+    color: var(--ink);
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+    line-height: 1.65;
+    font-size: 1.05rem;
+  }
+  h1 { font-size: 1.9rem; font-weight: normal; font-style: italic; margin-bottom: .2rem; }
+  .subtitle { color: var(--muted); font-style: italic; margin-top: 0; }
+  h2 { font-size: 1.35rem; font-weight: normal; font-style: italic; margin-top: 2.8rem; border-bottom: 1px solid var(--rule); padding-bottom: .3rem; }
+  .meta { font-size: .9rem; color: var(--muted); margin: 1rem 0 2rem; }
+  .algo {
+    background: #f7f4e9;
+    border-left: 3px solid var(--accent);
+    padding: 1rem 1.3rem;
+    margin: 1.3rem 0;
+  }
+  .algo ol { margin: .5rem 0; padding-left: 1.3rem; }
+  .algo li { margin: .6rem 0; }
+  .gap { margin: 1.1rem 0; font-size: 1.02rem; }
+  .gap select {
+    font-family: inherit;
+    font-size: 1rem;
+    padding: .15rem .3rem;
+    background: #fff;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+  }
+  .gap.ok select { background: var(--ok-bg); border-color: var(--ok); }
+  .gap.bad select { background: var(--bad-bg); border-color: var(--bad); }
+  .feedback { font-size: .88rem; margin-top: .25rem; display: none; }
+  .ok .feedback.good { display: block; color: var(--ok); }
+  .bad .feedback.fix { display: block; color: var(--bad); }
+  .story {
+    background: #f7f4e9;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 1rem 1.3rem;
+    margin: 1.3rem 0;
+  }
+  .story .gap { margin: .4rem 0; display: inline; }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-style: italic;
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    padding: .6rem 1.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 1.5rem;
+  }
+  button:hover { background: var(--accent); }
+  #result {
+    display: none;
+    margin-top: 1.5rem;
+    padding: 1rem 1.3rem;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: #f7f4e9;
+  }
+  #result .score { font-size: 1.4rem; font-style: italic; }
+  .note { font-size: .9rem; color: var(--muted); border-left: 3px solid var(--rule); padding-left: 1rem; margin: 1.5rem 0; }
+  a { color: var(--accent); }
+  code, .en-ex { font-family: Consolas, Menlo, monospace; font-size: .9em; background: #f0ede2; padding: .05em .3em; border-radius: 3px; }
+  .en { font-style: normal; }
+</style>
+</head>
+<body>
+
+<h1>Урок 0002 — Артикли: a / an / the / —</h1>
+<p class="subtitle">Одна ошибка из вашего письма — и алгоритм, который закрывает её навсегда.</p>
+<p class="meta">≈ 12 минут · после <a href="0001-diagnostika-tochka-starta.html">урока 0001</a> · шпаргалка: <a href="../reference/artikli.html">справочник по артиклям</a></p>
+
+<p>В вашем диагностическом письме была фраза <span class="en-ex">I was in interesting museum</span>. Носитель спотыкается об неё мгновенно: пропал артикль. В русском артиклей нет, поэтому мозг их не «слышит» — это ошибка №1 у русскоговорящих, и хорошая новость в том, что она лечится одним простым алгоритмом.</p>
+
+<h2>Алгоритм: 4 вопроса</h2>
+<p>Перед каждым существительным задайте вопросы по порядку (<a href="https://learnenglish.britishcouncil.org/grammar/a1-a2-grammar/articles-a-an-the" target="_blank">источник: British Council</a>):</p>
+
+<div class="algo">
+<ol>
+  <li><strong>Единственное число и исчисляемое?</strong> Тогда артикль <em>обязателен</em>. Голое <code>museum</code>, <code>bug</code>, <code>report</code> — всегда ошибка.</li>
+  <li><strong>Читатель знает, о каком именно предмете речь?</strong> (упоминался раньше / единственный в контексте) → <strong>the</strong>: <span class="en-ex">the server</span>, <span class="en-ex">the bug I mentioned</span></li>
+  <li><strong>Новый или «один из многих»?</strong> → <strong>a/an</strong> по первому <em>звуку</em>: <span class="en-ex">a bug</span>, <span class="en-ex">an error</span>, <span class="en-ex">an hour</span> (h немое), <span class="en-ex">a user</span> (звук «ю»)</li>
+  <li><strong>Множественное или неисчисляемое, и речь «вообще»?</strong> → <strong>без артикля</strong>: <span class="en-ex">Logs are useful</span></li>
+</ol>
+</div>
+
+<p>И главное правило любого связного текста — <strong>a → the</strong>: первое упоминание получает <strong>a/an</strong>, все следующие — <strong>the</strong>:</p>
+<p class="en" lang="en"><span class="en-ex">I found <strong>a</strong> bug. <strong>The</strong> bug crashes the app.</span></p>
+
+<h2>Практика 1 · История одного бага</h2>
+<p>Связный текст — как настоящий отчёт коллеге. Следите за правилом a → the.</p>
+
+<div class="story en" lang="en">
+  <span class="gap" data-answer="a" id="s1">Yesterday I found
+  <select><option value="">—?—</option><option value="a">a</option><option value="an">an</option><option value="the">the</option><option value="-">(без артикля)</option></select>
+  bug in our API.
+  <span class="feedback good">Верно: первое упоминание — a.</span>
+  <span class="feedback fix">Нет: баг упоминается впервые → a.</span></span>
+
+  <span class="gap" data-answer="the" id="s2">
+  <select><option value="">—?—</option><option value="A">A</option><option value="An">An</option><option value="the">The</option><option value="-">(без артикля)</option></select>
+  bug appears when
+  <span class="feedback good">Верно: теперь читатель знает, какой это баг — the.</span>
+  <span class="feedback fix">Нет: баг уже упоминался → The.</span></span>
+
+  <span class="gap" data-answer="a" id="s3">
+  <select><option value="">—?—</option><option value="a">a</option><option value="an">an</option><option value="the">the</option><option value="-">(без артикля)</option></select>
+  user sends
+  <span class="feedback good">Верно: любой пользователь, «один из многих» — a. Звук «ю» = согласный.</span>
+  <span class="feedback fix">Нет: любой пользователь → a (user начинается со звука «ю» — согласного).</span></span>
+
+  <span class="gap" data-answer="an" id="s4">
+  <select><option value="">—?—</option><option value="a">a</option><option value="an">an</option><option value="the">the</option><option value="-">(без артикля)</option></select>
+  empty request.
+  <span class="feedback good">Верно: empty начинается с гласного звука — an.</span>
+  <span class="feedback fix">Нет: запрос новый, empty начинается с гласного звука → an.</span></span>
+
+  <span class="gap" data-answer="the" id="s5">I checked
+  <select><option value="">—?—</option><option value="a">a</option><option value="an">an</option><option value="the">the</option><option value="-">(без артикля)</option></select>
+  logs from yesterday and wrote
+  <span class="feedback good">Верно: конкретные логи (вчерашние, с нашего сервера) — the.</span>
+  <span class="feedback fix">Нет: это конкретные логи — вчерашние → the.</span></span>
+
+  <span class="gap" data-answer="a" id="s6">
+  <select><option value="">—?—</option><option value="a">a</option><option value="an">an</option><option value="the">the</option><option value="-">(без артикля)</option></select>
+  short report.
+  <span class="feedback good">Верно: отчёт появился впервые — a.</span>
+  <span class="feedback fix">Нет: отчёт упоминается впервые → a.</span></span>
+</div>
+
+<h2>Практика 2 · Отдельные предложения</h2>
+<p>Здесь вперемешку все четыре исхода — включая «без артикля». Не торопитесь, прогоняйте алгоритм.</p>
+
+<div class="gap en" lang="en" data-answer="an" id="g1">1. Last weekend I went to
+  <select><option value="">—?—</option><option value="a">a</option><option value="an">an</option><option value="the">the</option><option value="-">(без артикля)</option></select>
+  interesting museum.
+  <div class="feedback good">Верно. Та самая фраза из вашего письма — теперь она правильная.</div>
+  <div class="feedback fix">Нет. Музей новый для читателя, interesting начинается с гласного → an.</div>
+</div>
+
+<div class="gap en" lang="en" data-answer="the" id="g2">2. It was
+  <select><option value="">—?—</option><option value="a">a</option><option value="an">an</option><option value="the">the</option><option value="-">(без артикля)</option></select>
+  British Museum.
+  <div class="feedback good">Верно. Известные музеи и здания — с the: the British Museum.</div>
+  <div class="feedback fix">Нет. Известные музеи, театры, организации → the (the British Museum, the EU).</div>
+</div>
+
+<div class="gap en" lang="en" data-answer="the" id="g3">3. Could you restart
+  <select><option value="">—?—</option><option value="a">a</option><option value="an">an</option><option value="the">the</option><option value="-">(без артикля)</option></select>
+  server, please?
+  <div class="feedback good">Верно. Оба знают, какой сервер — the.</div>
+  <div class="feedback fix">Нет. Вы оба знаете, о каком сервере речь → the.</div>
+</div>
+
+<div class="gap en" lang="en" data-answer="-" id="g4">4.
+  <select><option value="">—?—</option><option value="A">A</option><option value="An">An</option><option value="The">The</option><option value="-">(без артикля)</option></select>
+  unit tests are important.
+  <div class="feedback good">Верно. Множественное число, тесты «вообще» — без артикля.</div>
+  <div class="feedback fix">Нет. Множественное число и речь о тестах «вообще» → без артикля.</div>
+</div>
+
+<div class="gap en" lang="en" data-answer="a" id="g5">5. Caching is
+  <select><option value="">—?—</option><option value="a">a</option><option value="an">an</option><option value="the">the</option><option value="-">(без артикля)</option></select>
+  useful technique.
+  <div class="feedback good">Верно. Одна из многих техник — a. Useful начинается со звука «ю» — согласного.</div>
+  <div class="feedback fix">Нет. «Одна из многих техник» → a (useful начинается со звука «ю», это согласный звук).</div>
+</div>
+
+<div class="gap en" lang="en" data-answer="an" id="g6">6. I need
+  <select><option value="">—?—</option><option value="a">a</option><option value="an">an</option><option value="the">the</option><option value="-">(без артикля)</option></select>
+  hour to finish the review.
+  <div class="feedback good">Верно. В hour буква h не читается — первый звук гласный → an.</div>
+  <div class="feedback fix">Нет. Артикль выбирается по звуку: hour читается «ауэр» → an.</div>
+</div>
+
+<div class="gap en" lang="en" data-answer="-" id="g7">7. We need
+  <select><option value="">—?—</option><option value="a">a</option><option value="an">an</option><option value="the">the</option><option value="-">(без артикля)</option></select>
+  feedback from the team.
+  <div class="feedback good">Верно. Feedback — неисчисляемое: без артикля (как information, advice).</div>
+  <div class="feedback fix">Нет. Feedback — неисчисляемое слово (как information, advice) → без артикля.</div>
+</div>
+
+<button id="check">Проверить ответы</button>
+
+<div id="result">
+  <div class="score"></div>
+  <div class="verdict"></div>
+</div>
+
+<h2>Закрепление в реальном мире</h2>
+<p>Вернитесь в <a href="https://writeandimprove.com/" target="_blank">Write &amp; Improve</a>, откройте своё письмо про музей (или напишите заново), исправьте артикли по алгоритму — и нажмите Check. Если уровень вырос — алгоритм работает. Это займёт три минуты.</p>
+
+<h2>Что почитать</h2>
+<p>Главный источник урока — <a href="https://learnenglish.britishcouncil.org/grammar/a1-a2-grammar/articles-a-an-the" target="_blank">British Council: Articles ‘a’, ‘an’, ‘the’</a> (там же интерактивные упражнения — отличная добавка к этому уроку). Для глубокого погружения в the: <a href="https://learnenglish.britishcouncil.org/free-resources/grammar/english-grammar-reference/definite-article" target="_blank">справочник по definite article</a>.</p>
+
+<p class="note">Если какой-то пункт алгоритма вызывает вопрос «а почему здесь так?» — спросите меня в чате. Артикли полны мелких исключений, и разбирать их лучше на ваших собственных примерах.</p>
+
+<script>
+// Каждый пропуск привязан к пункту алгоритма — для диагностики ошибок.
+var RULES = {
+  s1: 2, s2: 2, s5: 2, s6: 2,          // a → the: первое/повторное упоминание, конкретность
+  s3: 3, s4: 3, g1: 3, g5: 3, g6: 3,   // выбор a/an по первому ЗВУКУ
+  g2: 2, g3: 2,                        // the: известно обоим / знаменитое
+  g4: 4, g7: 4                         // без артикля: множественное и неисчисляемое
+};
+var RULE_NAMES = {
+  2: 'пункт 2 — «the, когда читатель знает, о чём речь» (и правило a → the)',
+  3: 'пункт 3 — «a/an выбирается по первому ЗВУКУ, а не букве»',
+  4: 'пункт 4 — «множественное и неисчисляемое — без артикля»'
+};
+
+document.getElementById('check').addEventListener('click', function () {
+  var total = 0, correct = 0, all = document.querySelectorAll('.gap');
+  var wrongByRule = {};
+  all.forEach(function (g) {
+    var sel = g.querySelector('select');
+    g.classList.remove('ok', 'bad');
+    if (!sel.value) return;
+    total++;
+    if (sel.value.toLowerCase() === g.dataset.answer.toLowerCase()) { g.classList.add('ok'); correct++; }
+    else {
+      g.classList.add('bad');
+      var rule = RULES[g.id];
+      (wrongByRule[rule] = wrongByRule[rule] || []).push(g.id);
+    }
+  });
+
+  var unanswered = all.length - total;
+  var res = document.getElementById('result');
+  res.style.display = 'block';
+  res.querySelector('.score').textContent = 'Результат: ' + correct + ' из ' + all.length;
+
+  var verdict;
+  if (unanswered > 0) {
+    verdict = 'Осталось без ответа: ' + unanswered + '. Заполните все пропуски и проверьте снова.';
+  } else if (correct <= 7) {
+    verdict = 'Перечитайте алгоритм выше и попробуйте исправить красные ответы — кнопку можно нажимать сколько угодно раз. Ошибаться здесь полезно: именно так правило запоминается.';
+  } else if (correct < all.length) {
+    var parts = Object.keys(wrongByRule).map(function (rule) {
+      return RULE_NAMES[rule] + ' (ошибок: ' + wrongByRule[rule].length + ')';
+    });
+    verdict = 'Хорошо! Ваши красные ответы относятся к правилу: ' + parts.join('; а также ') +
+      '. Перечитайте этот пункт алгоритма, исправьте и проверьте снова.';
+  } else {
+    verdict = 'Безупречно. Алгоритм ваш. Теперь главное — применять его в реальном письме: загляните в раздел «Закрепление» ниже.';
+  }
+  res.querySelector('.verdict').textContent = verdict;
+});
+</script>
+
+</body>
+</html>

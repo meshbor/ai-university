@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Слоговая таблица · тренажёр чтения</title>
+<style>
+  :root{ --ink:#1f2430; --muted:#5b6472; --accent:#b5402a; --vowel:#b5402a; --line:#cfcabd; --paper:#fbf9f4; }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--paper); color:var(--ink);
+    font:16px/1.5 "Georgia",serif; padding:36px 18px}
+  .wrap{max-width:900px; margin:0 auto}
+  h1{font-size:28px; margin:0 0 4px; text-align:center}
+  .sub{color:var(--muted); font-style:italic; text-align:center; margin:0 0 22px}
+  table{border-collapse:collapse; width:100%; margin:0 auto; table-layout:fixed}
+  th,td{border:2px solid var(--line); text-align:center; padding:0; height:64px;
+    font-weight:700; font-size:30px; letter-spacing:.02em}
+  thead th{background:#f1ede3; font-size:30px}
+  th.corner{background:#e7e2d5}
+  th.cons{background:#f1ede3}
+  thead th.vow, td .v{color:var(--vowel)}
+  thead th{color:var(--vowel)}
+  td{background:#fff}
+  caption{caption-side:bottom; color:var(--muted); font-size:13px; padding-top:12px; font-style:italic}
+  .how{background:#fff; border:1px solid var(--line); border-left:6px solid var(--accent);
+    border-radius:8px; padding:14px 16px; margin:0 0 22px; font-size:15px}
+  .how b{color:var(--accent)}
+  .legend{text-align:center; color:var(--muted); font-size:14px; margin:10px 0 0}
+  @media print{
+    body{background:#fff; padding:0; font-size:11pt}
+    th,td{height:54px; font-size:26px}
+    thead th, th.cons, th.corner{ -webkit-print-color-adjust:exact; print-color-adjust:exact }
+    .how{page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Слоговая таблица</h1>
+  <p class="sub">Главный ежедневный тренажёр. Гласные — <span style="color:var(--accent)">красным</span>.</p>
+
+  <div class="how">
+    <b>Как читать:</b> ведём пальчиком по строке слева направо. На каждой клетке —
+    <b>тянем</b> согласный и без паузы «доезжаем» до гласного: «м-м-м-А» → «МА».
+    Читаем по одной строке за подход. Можно петь, можно по столбцам, можно вразнобой —
+    показывай клетку, ребёнок читает. 5 минут в день — этого достаточно.
+  </div>
+
+  <table>
+    <caption>Звук Р читаем как получается — произношение ставит логопед, на чтение это не влияет.</caption>
+    <thead>
+      <tr>
+        <th class="corner">·</th>
+        <th class="vow">А</th>
+        <th class="vow">О</th>
+        <th class="vow">У</th>
+        <th class="vow">Ы</th>
+        <th class="vow">И</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><th class="cons">М</th><td>МА</td><td>МО</td><td>МУ</td><td>МЫ</td><td>МИ</td></tr>
+      <tr><th class="cons">С</th><td>СА</td><td>СО</td><td>СУ</td><td>СЫ</td><td>СИ</td></tr>
+      <tr><th class="cons">Х</th><td>ХА</td><td>ХО</td><td>ХУ</td><td>ХЫ</td><td>ХИ</td></tr>
+      <tr><th class="cons">Л</th><td>ЛА</td><td>ЛО</td><td>ЛУ</td><td>ЛЫ</td><td>ЛИ</td></tr>
+      <tr><th class="cons">Н</th><td>НА</td><td>НО</td><td>НУ</td><td>НЫ</td><td>НИ</td></tr>
+      <tr><th class="cons">Р</th><td>РА</td><td>РО</td><td>РУ</td><td>РЫ</td><td>РИ</td></tr>
+      <tr><th class="cons">К</th><td>КА</td><td>КО</td><td>КУ</td><td>КЫ</td><td>КИ</td></tr>
+      <tr><th class="cons">Т</th><td>ТА</td><td>ТО</td><td>ТУ</td><td>ТЫ</td><td>ТИ</td></tr>
+      <tr><th class="cons">П</th><td>ПА</td><td>ПО</td><td>ПУ</td><td>ПЫ</td><td>ПИ</td></tr>
+      <tr><th class="cons">В</th><td>ВА</td><td>ВО</td><td>ВУ</td><td>ВЫ</td><td>ВИ</td></tr>
+      <tr><th class="cons">Д</th><td>ДА</td><td>ДО</td><td>ДУ</td><td>ДЫ</td><td>ДИ</td></tr>
+      <tr><th class="cons">Б</th><td>БА</td><td>БО</td><td>БУ</td><td>БЫ</td><td>БИ</td></tr>
+    </tbody>
+  </table>
+
+  <p class="legend">Совет: первые недели читай только строки М, С, Х, Л, Н —
+  их легче всего тянуть. Остальные добавляй по мере уверенности.</p>
+</div>
+</body>
+</html>

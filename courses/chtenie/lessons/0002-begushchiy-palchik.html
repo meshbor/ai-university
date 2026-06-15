@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 2 · Бегущий пальчик: первый слитный слог</title>
+<style>
+  :root{
+    --ink:#1f2430; --muted:#5b6472; --accent:#b5402a; --good:#2f7d4f;
+    --line:#e3e0d8; --paper:#fbf9f4; --card:#ffffff; --vowel:#b5402a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--paper); color:var(--ink);
+    font:18px/1.65 "Georgia","Times New Roman",serif; padding:48px 20px}
+  .wrap{max-width:760px; margin:0 auto}
+  header{border-bottom:3px double var(--line); padding-bottom:18px; margin-bottom:26px}
+  .kicker{font:600 13px/1.2 system-ui,sans-serif; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); margin:0 0 8px}
+  h1{font-size:33px; line-height:1.15; margin:0 0 8px}
+  .meta{color:var(--muted); font-style:italic; margin:0}
+  .goal{background:var(--card); border:1px solid var(--line); border-left:6px solid var(--good);
+    border-radius:8px; padding:16px 18px; margin:22px 0}
+  .goal b{color:var(--good)}
+  h2{font-size:22px; margin:30px 0 8px; padding-top:10px; border-top:1px solid var(--line)}
+  .step{display:flex; gap:14px; align-items:flex-start; margin:14px 0}
+  .num{flex:0 0 36px; height:36px; border-radius:50%; background:var(--accent); color:#fff;
+    font:700 18px/36px system-ui,sans-serif; text-align:center}
+  .step .body{flex:1}
+  .step h3{margin:2px 0 4px; font-size:19px}
+  p{margin:0 0 12px}
+  .say{font-weight:700; color:var(--accent)}
+  .big{font-size:30px; font-weight:700; letter-spacing:.04em}
+  .v{color:var(--vowel)}
+  .tip{background:#f3f0e7; border-radius:8px; padding:12px 16px; font-size:16px; margin:12px 0}
+  .tip b{color:var(--accent)}
+  ul{margin:0 0 12px; padding-left:22px} li{margin:6px 0}
+  .clock{display:inline-block; font:600 13px/1 system-ui,sans-serif; color:var(--muted);
+    border:1px solid var(--line); border-radius:999px; padding:5px 10px; margin-left:8px; vertical-align:middle}
+  .source{background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin:22px 0}
+  .source h3{margin:0 0 6px; font-size:17px}
+  .ask{margin-top:24px; padding:14px 16px; border:1px dashed var(--accent); border-radius:8px; background:#fbf3f0}
+  a{color:var(--accent)}
+
+  /* ---- printable cards ---- */
+  .cards{page-break-before:always}
+  .cards h2{border:0}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:14px}
+  .pc{border:3px solid var(--ink); border-radius:14px; aspect-ratio:3/2;
+    display:flex; align-items:center; justify-content:center; background:#fff}
+  .pc span{font:800 120px/1 "Georgia",serif}
+  .pc.syl span .v{color:var(--vowel)}
+  .single .pc span{font-size:150px}
+
+  @media print{
+    body{background:#fff; padding:0; font-size:12pt}
+    a{color:inherit; text-decoration:none}
+    h2{page-break-after:avoid}
+    .goal,.step,.source,.tip,.pc{page-break-inside:avoid}
+    .num{ -webkit-print-color-adjust:exact; print-color-adjust:exact }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="kicker">Курс чтения · Урок 2</p>
+    <h1>Бегущий пальчик: первый по-настоящему слитный слог</h1>
+    <p class="meta">Для родителя · занятие 5–7 минут · только утром</p>
+  </header>
+
+  <div class="goal">
+    <b>Цель урока (одна!):</b> ребёнок прочитает <span class="big">МА · МО · МУ</span>
+    <b>слитно</b>, не называя буквы по отдельности. Это первый кирпич всего чтения —
+    навык слияния. Букв новых не учим, берём только знакомые.
+  </div>
+
+  <p>⚠️ Делай этот урок <b>только после Урока 1</b> («Звук, а не имя»): «бегущий пальчик»
+    работает, лишь когда буква для ребёнка уже стала звуком, который можно тянуть.</p>
+
+  <p>Перед началом распечатай карточки со <a href="#cards">второй страницы</a> и
+    <a href="../reference/slogovaya-tablica.html">слоговую таблицу</a>. Сядьте рядом, уберите со
+    стола лишнее. Настрой себя: это <b>игра на 5 минут</b>, а не «урок».</p>
+
+  <h2>Шаг 0. Быстрая проверка <span class="clock">30 сек</span></h2>
+  <div class="step">
+    <div class="num">✓</div>
+    <div class="body">
+      <p>Покажи букву <span class="big">М</span> и спроси: «как она <i>звучит</i>?»
+      Если ребёнок говорит <span class="say">[м]</span> — отлично. Если говорит
+      <span class="say">«эм»</span> — мягко поправь: <i>«Её имя — “эм”, а песенка —
+      [м-м-м]. Для чтения нам нужна песенка»</i>. То же с А → <span class="say">[а]</span>.</p>
+      <div class="tip"><b>Почему это важно:</b> «эм» + «а» склеивается в «эма», а не «ма».
+      Имена букв ломают чтение. Весь курс — только звуки.</div>
+    </div>
+  </div>
+
+  <h2>Шаг 1. Разогрев: тянем звуки <span class="clock">1 мин</span></h2>
+  <div class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <p>Поиграйте, кто дольше «пропоёт» звук: <span class="say">«м-м-м-м-м»</span> (как мычит корова),
+      потом <span class="say">«а-а-а-а»</span> (как у врача). Важно, чтобы ребёнок
+      почувствовал: звук <b>можно тянуть</b>. На этом держится слияние.</p>
+    </div>
+  </div>
+
+  <h2>Шаг 2. Главное: бегущий пальчик <span class="clock">2 мин</span></h2>
+  <div class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <p>Возьми карточку <span class="big">М<span class="v">А</span></span>. Положи палец
+      ребёнка на <b>М</b>. Командуй и веди его палец к <b>А</b>:</p>
+      <p style="font-size:24px"><span class="say">«Тянем: м-м-м-м…»</span> — палец медленно
+      ползёт к А — <span class="say">«…м-м-А!»</span></p>
+      <p>Секрет: <b>первый звук тянется, пока палец не добежал до второй буквы</b>, и
+      голос <b>не прерывается</b>. Получился слитный слог. Повтори 2–3 раза, потом
+      пусть ведёт пальцем сам, а ты только тянешь звук вместе с ним.</p>
+      <div class="tip"><b>Если читает по буквам</b> («м… а»): не ругай. Скажи
+      «не отрывай голос» и веди его палец медленнее — пауза исчезнет, когда палец
+      движется плавно.</div>
+    </div>
+  </div>
+
+  <h2>Шаг 3. Ещё два слога <span class="clock">1 мин</span></h2>
+  <div class="step">
+    <div class="num">3</div>
+    <div class="body">
+      <p>То же самое с <span class="big">М<span class="v">О</span></span> и
+      <span class="big">М<span class="v">У</span></span>. Меняй гласную — согласная
+      та же, ребёнок почувствует, что приём один и тот же. Хвали за каждый слитный слог:
+      <i>«Во! Слиплось! Ты прочитал!»</i></p>
+    </div>
+  </div>
+
+  <h2>Шаг 4. Игра с движением <span class="clock">1–2 мин</span></h2>
+  <div class="step">
+    <div class="num">4</div>
+    <div class="body">
+      <p>Разложи карточки МА, МО, МУ на полу в разных углах. Называешь слог —
+      ребёнок <b>прыгает</b> на нужный и читает его вслух. Он подвижный — пусть
+      чтение будет с прыжками. Это и есть «правильное» занятие для него, а не помеха.</p>
+    </div>
+  </div>
+
+  <div class="goal" style="border-left-color:var(--accent)">
+    <b style="color:var(--accent)">Финал:</b> закончи, пока ему ещё интересно («ого, уже всё?»).
+    Скажи, что завтра утром «побегаем пальчиком» снова. <b>Не продолжай</b>, даже если просит,
+    максимум повтори игру из шага 4. Лучше захотеть ещё, чем устать.
+  </div>
+
+  <div class="source">
+    <h3>📖 Что почитать родителю (первоисточник)</h3>
+    <p>«Букварь» Н. С. Жуковой — на нём построен весь приём «бегущего человечка».
+    Если возьмёте бумажную книгу, там этот приём нарисован как мальчик, бегущий по дорожке
+    от буквы к букве. Кратко о методе — в <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+  </div>
+
+  <div class="ask">
+    <b>Я — твой соавтор курса.</b> После занятия расскажи мне, как пошло: получилось ли
+    слияние, на чём застрял, сколько выдержал по времени. Я подстрою следующий урок под
+    него. Спрашивай что угодно — «а если он путает О и А?», «а если отказывается?» — разберём.
+  </div>
+
+  <!-- ================= PRINTABLE CARDS ================= -->
+  <section class="cards" id="cards">
+    <h2>Карточки для печати</h2>
+    <p class="meta">Распечатай, разрежь по линиям. Крупно — специально, чтобы вести пальцем.</p>
+
+    <div class="grid syl">
+      <div class="pc syl"><span>М<span class="v">А</span></span></div>
+      <div class="pc syl"><span>М<span class="v">О</span></span></div>
+      <div class="pc syl"><span>М<span class="v">У</span></span></div>
+      <div class="pc syl"><span>М<span class="v">Ы</span></span></div>
+    </div>
+
+    <div class="grid single" style="margin-top:16px">
+      <div class="pc"><span>М</span></div>
+      <div class="pc"><span class="v">А</span></div>
+      <div class="pc"><span class="v">О</span></div>
+      <div class="pc"><span class="v">У</span></div>
+    </div>
+  </section>
+</div>
+</body>
+</html>

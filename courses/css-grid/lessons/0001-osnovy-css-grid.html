@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Урок 1 · Основы CSS Grid</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #fffff8;
+    --accent: #a00000;
+    --soft: #888;
+    --cell: #4a7ebb;
+    --ok: #2e7d32;
+    --bad: #c62828;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: var(--paper);
+    color: var(--ink);
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 6rem;
+    line-height: 1.6;
+    font-size: 1.05rem;
+  }
+  h1 { font-size: 2rem; font-weight: 400; font-style: italic; margin-bottom: 0.2rem; }
+  h2 { font-size: 1.35rem; font-weight: 400; font-style: italic; margin-top: 2.8rem; border-bottom: 1px solid #ddd; padding-bottom: 0.3rem; }
+  .meta { color: var(--soft); font-size: 0.9rem; margin-bottom: 2.5rem; }
+  a { color: var(--accent); }
+  code, pre {
+    font-family: 'SF Mono', Consolas, Menlo, monospace;
+    font-size: 0.88em;
+  }
+  code { background: #f3f1e9; padding: 0.1em 0.35em; border-radius: 3px; }
+  pre {
+    background: #f3f1e9;
+    padding: 1rem 1.2rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    line-height: 1.5;
+  }
+  pre code { background: none; padding: 0; }
+  .note {
+    border-left: 3px solid var(--accent);
+    padding: 0.4rem 1rem;
+    margin: 1.5rem 0;
+    background: #faf6ef;
+    font-size: 0.95rem;
+  }
+  /* Демо-сетки */
+  .demo {
+    display: grid;
+    gap: 8px;
+    margin: 1rem 0;
+  }
+  .demo > div {
+    background: var(--cell);
+    color: #fff;
+    border-radius: 4px;
+    padding: 0.6rem;
+    text-align: center;
+    font-family: Consolas, monospace;
+    font-size: 0.85rem;
+  }
+  /* Песочница */
+  .playground {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1.2rem;
+    margin: 1.2rem 0;
+    background: #fcfbf5;
+  }
+  .playground label { font-size: 0.9rem; color: var(--soft); display: block; margin-bottom: 0.4rem; }
+  .playground input {
+    width: 100%;
+    font-family: Consolas, monospace;
+    font-size: 0.95rem;
+    padding: 0.5rem 0.7rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: #fff;
+  }
+  .playground input:focus { outline: 2px solid var(--cell); border-color: transparent; }
+  .chips { margin-top: 0.6rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .chips button {
+    font-family: Consolas, monospace;
+    font-size: 0.78rem;
+    padding: 0.25rem 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 999px;
+    background: #fff;
+    cursor: pointer;
+  }
+  .chips button:hover { border-color: var(--cell); color: var(--cell); }
+  #pg-status { font-size: 0.85rem; margin-top: 0.5rem; min-height: 1.3em; }
+  /* Квиз */
+  .quiz { margin: 1.2rem 0; }
+  .quiz .q { margin-bottom: 1.6rem; }
+  .quiz .q p { margin: 0 0 0.5rem; }
+  .quiz button.opt {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    font-size: 0.95rem;
+    padding: 0.55rem 0.9rem;
+    margin-bottom: 0.4rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+  }
+  .quiz button.opt:hover { border-color: var(--ink); }
+  .quiz button.opt.correct { border-color: var(--ok); background: #e8f5e9; }
+  .quiz button.opt.wrong { border-color: var(--bad); background: #ffebee; }
+  .quiz .fb { font-size: 0.88rem; min-height: 1.2em; }
+  .fb.ok { color: var(--ok); }
+  .fb.bad { color: var(--bad); }
+  .win {
+    border: 1px solid var(--ok);
+    background: #e8f5e9;
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin-top: 2rem;
+    display: none;
+  }
+  .report-btn {
+    font-family: inherit;
+    font-style: italic;
+    font-size: 0.95rem;
+    padding: 0.6rem 1.4rem;
+    border: 1px solid var(--ink);
+    border-radius: 6px;
+    background: var(--ink);
+    color: var(--paper);
+    cursor: pointer;
+  }
+  .report-btn:hover { background: var(--accent); border-color: var(--accent); }
+  #report-text { white-space: pre-wrap; display: none; margin-top: 1rem; }
+</style>
+</head>
+<body>
+
+<h1>Основы CSS Grid</h1>
+<p class="meta">Урок 0001 · ~10 минут · Миссия: уверенно собирать двумерные раскладки</p>
+
+<p>Сегодня одна-единственная вещь: как <em>любой</em> контейнер превратить в сетку тремя строками CSS. Это фундамент, на котором стоят все макеты — от «шапка-сайдбар-контент» до карточных галерей.</p>
+
+<h2>Знание: три строки, которые делают сетку</h2>
+
+<pre><code>.container {
+  display: grid;                  /* 1. включаем сетку */
+  grid-template-columns: 1fr 1fr 1fr;  /* 2. описываем колонки */
+  gap: 8px;                       /* 3. зазор между ячейками */
+}</code></pre>
+
+<p>Что здесь происходит:</p>
+<ul>
+  <li><code>display: grid</code> — контейнер становится <strong>grid-контейнером</strong>, а все его прямые дети автоматически — <strong>grid-элементами</strong> (<a href="https://developer.mozilla.org/ru/docs/Web/CSS/CSS_grid_layout/Basic_concepts_of_grid_layout">MDN: базовые концепции</a>).</li>
+  <li><code>grid-template-columns</code> — задаёт количество и ширину колонок. Строки создаются сами, по мере заполнения.</li>
+  <li><code>1fr</code> — единица <em>доли</em> (fraction): «возьми одну долю свободного места». <code>1fr 1fr 1fr</code> = три равные колонки (<a href="https://css-tricks.com/snippets/css/complete-guide-grid/#aa-fr-unit">CSS-Tricks: fr unit</a>).</li>
+</ul>
+
+<p>Вот те же 6 блоков с <code>grid-template-columns: 1fr 1fr 1fr</code>:</p>
+
+<div class="demo" style="grid-template-columns: 1fr 1fr 1fr;">
+  <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div>
+</div>
+
+<p>А вот с <code>grid-template-columns: 2fr 1fr</code> — первая колонка вдвое шире:</p>
+
+<div class="demo" style="grid-template-columns: 2fr 1fr;">
+  <div>2fr</div><div>1fr</div><div>2fr</div><div>1fr</div>
+</div>
+
+<div class="note">
+  Главное отличие от flexbox: Grid — <strong>двумерный</strong> (строки <em>и</em> колонки задаются контейнером), flexbox — одномерный (один ряд, который может переноситься). Если вы рисуете макет как таблицу — это Grid.
+</div>
+
+<h2>Навык: песочница</h2>
+
+<p>Меняйте значение <code>grid-template-columns</code> и смотрите, как перестраивается сетка. Попробуйте каждую заготовку — и обязательно поломайте что-нибудь своё.</p>
+
+<div class="playground">
+  <label for="pg-input">grid-template-columns:</label>
+  <input id="pg-input" type="text" value="1fr 1fr 1fr" spellcheck="false">
+  <div class="chips">
+    <button data-v="1fr 1fr 1fr">1fr 1fr 1fr</button>
+    <button data-v="2fr 1fr">2fr 1fr</button>
+    <button data-v="200px 1fr">200px 1fr</button>
+    <button data-v="repeat(4, 1fr)">repeat(4, 1fr)</button>
+    <button data-v="100px auto 100px">100px auto 100px</button>
+  </div>
+  <div id="pg-status"></div>
+  <div class="demo" id="pg-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 1rem;">
+    <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div>
+  </div>
+</div>
+
+<h2>Задания: впишите ответ</h2>
+
+<p>Введите значение <code>grid-template-columns</code> в поле — сетка под ним перестроится, а проверка сработает автоматически. Засчитывается любой корректный вариант, а не конкретная строка.</p>
+
+<div class="task playground" data-task="1">
+  <p class="task-title"><strong>Задание 1.</strong> Сетка из <strong>двух равных</strong> колонок.</p>
+  <label>grid-template-columns:</label>
+  <input type="text" class="task-input" spellcheck="false" placeholder="ваш ответ…">
+  <div class="fb task-fb"></div>
+  <div class="demo task-grid" style="margin-top: 1rem;">
+    <div>1</div><div>2</div><div>3</div><div>4</div>
+  </div>
+</div>
+
+<div class="task playground" data-task="2">
+  <p class="task-title"><strong>Задание 2.</strong> Узкий «сайдбар» <strong>150px</strong> и широкий «контент», занимающий остальное место.</p>
+  <label>grid-template-columns:</label>
+  <input type="text" class="task-input" spellcheck="false" placeholder="ваш ответ…">
+  <div class="fb task-fb"></div>
+  <div class="demo task-grid" style="margin-top: 1rem;">
+    <div>сайдбар</div><div>контент</div>
+  </div>
+</div>
+
+<div class="task playground" data-task="3">
+  <p class="task-title"><strong>Задание 3.</strong> Шесть равных колонок одной функцией <code>repeat()</code>.</p>
+  <label>grid-template-columns:</label>
+  <input type="text" class="task-input" spellcheck="false" placeholder="ваш ответ…">
+  <div class="fb task-fb"></div>
+  <div class="demo task-grid" style="margin-top: 1rem;">
+    <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div>
+  </div>
+</div>
+
+<h2>Проверка: квиз</h2>
+
+<div class="quiz" id="quiz"></div>
+
+<div class="win" id="win">
+  <strong>Победа засчитана.</strong> Вы умеете включать сетку и управлять колонками — это и есть ядро Grid. В следующем уроке: размещение элементов по областям (<code>grid-area</code>) и макет «шапка-сайдбар-контент».
+</div>
+
+<h2>Отчёт для агента</h2>
+
+<p>Закончили урок (или застряли) — нажмите кнопку и вставьте отчёт в чат одним Ctrl+V. Агент увидит, что решено, что нет и где были ошибки.</p>
+
+<div class="playground">
+  <button class="report-btn" id="report-btn">Скопировать отчёт для агента</button>
+  <div class="fb" id="report-status"></div>
+  <pre id="report-text"></pre>
+</div>
+
+<h2>Куда дальше</h2>
+
+<p><strong>Первоисточник урока:</strong> прочитайте раздел про <a href="https://css-tricks.com/snippets/css/complete-guide-grid/">A Complete Guide to CSS Grid (CSS-Tricks)</a> — до свойства <code>grid-template-areas</code> включительно. Это лучшая визуальная шпаргалка по теме.</p>
+
+<p>Для закрепления синтаксиса сыграйте 5–10 уровней в <a href="https://cssgridgarden.com/#ru">Grid Garden</a> (есть русский язык).</p>
+
+<p>Сжатая выжимка урока — в <a href="../reference/grid-spravochnik.html">справочнике по Grid</a>. Продолжение — <a href="./0002-razmeshchenie-elementov.html">урок 0002: размещение элементов</a>.</p>
+
+<div class="note">
+  Остались вопросы — задайте их агенту прямо в чате. Агент — ваш учитель: попросите объяснить иначе, дать ещё примеров или усложнить задание.
+</div>
+
+<script>
+  // Песочница
+  const input = document.getElementById('pg-input');
+  const grid = document.getElementById('pg-grid');
+  const status = document.getElementById('pg-status');
+  function applyColumns(v) {
+    grid.style.gridTemplateColumns = '';
+    grid.style.gridTemplateColumns = v;
+    const applied = grid.style.gridTemplateColumns !== '';
+    status.textContent = applied ? '✓ применено' : '✗ невалидное значение — сетка не изменилась';
+    status.style.color = applied ? 'var(--ok)' : 'var(--bad)';
+  }
+  input.addEventListener('input', () => applyColumns(input.value));
+  document.querySelectorAll('.chips button').forEach(b => {
+    b.addEventListener('click', () => { input.value = b.dataset.v; applyColumns(b.dataset.v); });
+  });
+
+  // Задания с автопроверкой.
+  // Не сравниваем строки: применяем CSS пользователя к сетке и измеряем
+  // реальные ширины колонок через getComputedStyle — любой корректный
+  // вариант ответа засчитывается.
+  function measureColumns(gridEl) {
+    const computed = getComputedStyle(gridEl).gridTemplateColumns;
+    if (!computed || computed === 'none') return [];
+    return computed.split(' ').map(parseFloat).filter(n => !isNaN(n));
+  }
+  const approxEqual = (a, b) => Math.abs(a - b) < 2; // допуск на округление
+
+  const checkers = {
+    1: (cols) => {
+      if (cols.length !== 2) return 'Нужно ровно две колонки — сейчас их ' + cols.length + '.';
+      if (!approxEqual(cols[0], cols[1])) return 'Колонок две, но они не равны по ширине.';
+      return true;
+    },
+    2: (cols, raw) => {
+      if (cols.length !== 2) return 'Нужно ровно две колонки: сайдбар и контент.';
+      if (!approxEqual(cols[0], 150)) return 'Первая колонка должна быть ровно 150px.';
+      if (cols[1] <= cols[0]) return 'Контент должен занимать всё оставшееся место.';
+      if (/^\s*150px\s+auto\s*$/i.test(raw)) {
+        return { ok: true, note: 'Засчитано. Но надёжнее 1fr: auto сожмётся до контента, если рядом появится fr-трек.' };
+      }
+      return true;
+    },
+    3: (cols, raw) => {
+      if (!/repeat\s*\(/i.test(raw)) return 'Условие: используйте функцию repeat().';
+      if (cols.length !== 6) return 'Нужно шесть колонок — сейчас их ' + cols.length + '.';
+      if (!cols.every(c => approxEqual(c, cols[0]))) return 'Все шесть колонок должны быть равными.';
+      return true;
+    }
+  };
+
+  const tasksSolved = new Set();
+  document.querySelectorAll('.task').forEach(taskEl => {
+    const id = taskEl.dataset.task;
+    const taskInput = taskEl.querySelector('.task-input');
+    const taskGrid = taskEl.querySelector('.task-grid');
+    const taskFb = taskEl.querySelector('.task-fb');
+
+    taskInput.addEventListener('input', () => {
+      const raw = taskInput.value.trim();
+      taskGrid.style.gridTemplateColumns = '';
+      if (!raw) { taskFb.textContent = ''; return; }
+      taskGrid.style.gridTemplateColumns = raw;
+      if (taskGrid.style.gridTemplateColumns === '') {
+        taskFb.textContent = '✗ невалидный CSS — сетка не изменилась';
+        taskFb.className = 'fb task-fb bad';
+        return;
+      }
+      const result = checkers[id](measureColumns(taskGrid), raw);
+      if (result === true || (result && result.ok)) {
+        tasksSolved.add(id);
+        taskFb.textContent = '✓ ' + (result.note || 'Верно!');
+        taskFb.className = 'fb task-fb ok';
+        checkWin();
+      } else {
+        taskFb.textContent = '✗ ' + result;
+        taskFb.className = 'fb task-fb bad';
+      }
+    });
+  });
+
+  // Квиз — варианты ответов одинаковой длины, без подсказок форматированием
+  const questions = [
+    {
+      q: 'Что делает свойство display: grid?',
+      opts: [
+        'Делает детей контейнера grid-элементами',
+        'Делает детей контейнера невидимыми сразу',
+        'Делает детей контейнера одной колонкой'
+      ],
+      correct: 0
+    },
+    {
+      q: 'Что означает запись 1fr в колонках?',
+      opts: [
+        'Одна доля свободного пространства сетки',
+        'Один процент свободного пространства сетки',
+        'Один пиксель свободного пространства сетки'
+      ],
+      correct: 0
+    },
+    {
+      q: 'Как задать четыре равные колонки короче всего?',
+      opts: [
+        'repeat(4, 1fr)',
+        'columns(4, 1fr)',
+        'stretch(4, 1fr)'
+      ],
+      correct: 0
+    }
+  ];
+
+  const quizEl = document.getElementById('quiz');
+  let solved = 0;
+  const quizState = questions.map(() => ({ done: false, wrong: 0 }));
+  function checkWin() {
+    if (tasksSolved.size === 3 && solved === questions.length) {
+      document.getElementById('win').style.display = 'block';
+    }
+  }
+  questions.forEach((item, qi) => {
+    // перемешиваем варианты
+    const order = item.opts.map((_, i) => i).sort(() => Math.random() - 0.5);
+    const qDiv = document.createElement('div');
+    qDiv.className = 'q';
+    qDiv.innerHTML = `<p><strong>${qi + 1}.</strong> ${item.q}</p>`;
+    const fb = document.createElement('div');
+    fb.className = 'fb';
+    let answered = false;
+    order.forEach(oi => {
+      const btn = document.createElement('button');
+      btn.className = 'opt';
+      btn.textContent = item.opts[oi];
+      btn.addEventListener('click', () => {
+        if (answered) return;
+        if (oi === item.correct) {
+          answered = true;
+          btn.classList.add('correct');
+          fb.textContent = 'Верно.';
+          fb.className = 'fb ok';
+          ++solved;
+          quizState[qi].done = true;
+          checkWin();
+        } else {
+          btn.classList.add('wrong');
+          fb.textContent = 'Не то — вспомните раздел «Знание» и попробуйте снова.';
+          fb.className = 'fb bad';
+          quizState[qi].wrong++;
+        }
+      });
+      qDiv.appendChild(btn);
+    });
+    qDiv.appendChild(fb);
+    quizEl.appendChild(qDiv);
+  });
+
+  // Отчёт для агента: собирает состояние урока и копирует в буфер
+  function buildReport() {
+    const lines = ['Отчёт об уроке 0001 «Основы CSS Grid» (CSS Grid)'];
+    lines.push('Дата: ' + new Date().toLocaleString('ru-RU'));
+    lines.push('');
+    lines.push('Задания: ' + tasksSolved.size + ' из 3');
+    document.querySelectorAll('.task').forEach(t => {
+      const id = t.dataset.task;
+      const val = t.querySelector('.task-input').value.trim();
+      let st;
+      if (tasksSolved.has(id)) st = '✓ решено — «' + val + '»';
+      else if (val) st = '✗ не решено, последняя попытка: «' + val + '»';
+      else st = '— не начато';
+      lines.push('  Задание ' + id + ': ' + st);
+    });
+    lines.push('Квиз: ' + solved + ' из ' + questions.length);
+    quizState.forEach((st, i) => {
+      lines.push('  Вопрос ' + (i + 1) + ': ' + (st.done ? '✓' : '✗ верного ответа нет') +
+        (st.wrong ? ' (неверных попыток: ' + st.wrong + ')' : ''));
+    });
+    return lines.join('\n');
+  }
+
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove();
+    return ok;
+  }
+
+  document.getElementById('report-btn').addEventListener('click', () => {
+    const text = buildReport();
+    const pre = document.getElementById('report-text');
+    pre.textContent = text;
+    pre.style.display = 'block';
+    const rStatus = document.getElementById('report-status');
+    const done = () => { rStatus.textContent = '✓ Отчёт скопирован — вставьте его в чат (Ctrl+V).'; rStatus.className = 'fb ok'; };
+    const fail = () => { rStatus.textContent = 'Автокопирование не сработало — выделите и скопируйте текст ниже вручную.'; rStatus.className = 'fb bad'; };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text) ? done() : fail());
+    } else {
+      fallbackCopy(text) ? done() : fail();
+    }
+  });
+</script>
+
+</body>
+</html>

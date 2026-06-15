@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Справочник: артикли a / an / the</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #666;
+    --accent: #8b2500;
+    --rule: #ddd;
+    --bg: #fffff8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    background: var(--bg);
+    color: var(--ink);
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+    line-height: 1.6;
+    font-size: 1.05rem;
+  }
+  h1 { font-size: 1.9rem; font-weight: normal; font-style: italic; margin-bottom: .2rem; }
+  .subtitle { color: var(--muted); font-style: italic; margin-top: 0; }
+  h2 { font-size: 1.3rem; font-weight: normal; font-style: italic; margin-top: 2.5rem; border-bottom: 1px solid var(--rule); padding-bottom: .3rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: .95rem; }
+  th, td { text-align: left; padding: .5rem .7rem; vertical-align: top; border-bottom: 1px solid var(--rule); }
+  th { font-style: italic; font-weight: normal; color: var(--muted); }
+  .lvl { font-weight: bold; white-space: nowrap; }
+  .algo {
+    background: #f7f4e9;
+    border-left: 3px solid var(--accent);
+    padding: 1rem 1.3rem;
+    margin: 1.3rem 0;
+  }
+  .algo ol { margin: .5rem 0; padding-left: 1.3rem; }
+  .algo li { margin: .6rem 0; }
+  .note { font-size: .9rem; color: var(--muted); border-left: 3px solid var(--rule); padding-left: 1rem; margin: 1.5rem 0; }
+  code, .en-ex { font-family: Consolas, Menlo, monospace; font-size: .9em; background: #f0ede2; padding: .05em .3em; border-radius: 3px; }
+  a { color: var(--accent); }
+  @media print { body { max-width: none; padding: 0; } }
+</style>
+</head>
+<body>
+<h1>Артикли: a / an / the / —</h1>
+<p class="subtitle">Алгоритм принятия решения + частные случаи рабочей переписки. По материалам <a href="https://learnenglish.britishcouncil.org/grammar/a1-a2-grammar/articles-a-an-the">British Council: Articles</a> и <a href="https://learnenglish.britishcouncil.org/free-resources/grammar/english-grammar-reference/definite-article">справочника по the</a>.</p>
+
+<h2>Алгоритм (4 вопроса)</h2>
+<div class="algo">
+<ol>
+  <li><strong>Существительное в единственном числе и исчисляемое?</strong><br>
+  Если да — артикль (или my/this/that…) <em>обязателен</em>. Голое <code>bug</code>, <code>museum</code>, <code>report</code> — всегда ошибка.</li>
+  <li><strong>Читатель понимает, о каком именно предмете речь?</strong> (уже упоминался / он единственный в контексте / есть уточнение «который…») → <strong>the</strong><br>
+  <span class="en-ex">the server</span> (наш сервер, оба знают какой), <span class="en-ex">the bug I mentioned</span></li>
+  <li><strong>Не понимает — предмет новый или «один из многих»?</strong> → <strong>a / an</strong> по первому <em>звуку</em>, не букве:<br>
+  <span class="en-ex">a bug</span>, <span class="en-ex">an error</span>, <span class="en-ex">an hour</span> (h немое), <span class="en-ex">a user</span> (звук «ю» = согласный j)</li>
+  <li><strong>Множественное число или неисчисляемое, и речь «вообще»?</strong> → <strong>без артикля</strong><br>
+  <span class="en-ex">Logs are useful.</span> <span class="en-ex">Caching improves performance.</span></li>
+</ol>
+</div>
+
+<h2>Правило повествования: a → the</h2>
+<p>Первое упоминание — <strong>a/an</strong>, все последующие — <strong>the</strong>:</p>
+<p><span class="en-ex">I found <strong>a</strong> bug in the API. <strong>The</strong> bug appears when <strong>a</strong> user sends <strong>an</strong> empty request.</span></p>
+<p>Это правило закрывает большинство артиклей в любом письме, отчёте или issue.</p>
+
+<h2>Частные случаи для рабочих текстов</h2>
+<table>
+  <tr><th>Случай</th><th>Артикль</th><th>Пример</th></tr>
+  <tr><td class="lvl">Уникальные в контексте вещи</td><td>the</td><td><span class="en-ex">the internet, the database, the team, the office</span></td></tr>
+  <tr><td class="lvl">Превосходная степень</td><td>the</td><td><span class="en-ex">the fastest solution, the best way</span></td></tr>
+  <tr><td class="lvl">Имена людей, городов, компаний</td><td>—</td><td><span class="en-ex">Rowan, London, Google</span> (но: <span class="en-ex">the UK, the USA</span>)</td></tr>
+  <tr><td class="lvl">Известные здания, музеи, организации</td><td>the</td><td><span class="en-ex">the British Museum, the EU</span></td></tr>
+  <tr><td class="lvl">Профессии</td><td>a/an</td><td><span class="en-ex">I am a developer. She is an engineer.</span></td></tr>
+  <tr><td class="lvl">Абстрактное/неисчисляемое «вообще»</td><td>—</td><td><span class="en-ex">performance, security, feedback, information</span></td></tr>
+</table>
+
+<h2>Самопроверка при письме</h2>
+<p>Закончив текст, найдите каждое существительное в единственном числе. Если перед ним нет артикля и нет my/this/that — это почти наверняка ошибка. Один такой проход ловит большинство пропущенных артиклей.</p>
+
+<p class="note">Связанные материалы: <a href="../lessons/0002-artikli-a-an-the.html">урок 0002 — артикли</a> · <a href="cefr-urovni.html">уровни CEFR</a></p>
+</body>
+</html>

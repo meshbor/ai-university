@@ -1,0 +1,14 @@
+# --- mattpocock skill (имеет собственный git-репозиторий) + служебное ---
+skills/
+skills-lock.json
+.agents/
+
+# --- внутренние рабочие документы (для агента, на английском) — не публикуем ---
+**/NOTES.md
+**/RESOURCES.md
+**/learning-records/
+
+# --- системное ---
+.DS_Store
+Thumbs.db
+node_modules/

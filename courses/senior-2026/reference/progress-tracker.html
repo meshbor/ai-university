@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Трекер прогресса · senior-2026</title>
+<style>
+  :root{--ink:#1a1a1a;--muted:#666;--line:#e2e2e2;--accent:#7a4f9e;--accent2:#2e6e8e;
+    --bg:#fbfbf9;--card:#fff;--ok:#2e7d32}
+  *{box-sizing:border-box}
+  body{font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:var(--bg);
+    max-width:820px;margin:0 auto;padding:48px 24px 96px;line-height:1.5;font-size:18px}
+  h1{font-size:32px;margin:0 0 6px}
+  .sub{color:var(--muted);font-style:italic;margin:0 0 20px}
+  h2{font-size:21px;margin:30px 0 6px}
+  .bar{position:sticky;top:0;background:var(--bg);padding:12px 0;z-index:5;border-bottom:1px solid var(--line)}
+  .track{height:14px;background:#eee;border-radius:8px;overflow:hidden}
+  .fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .3s}
+  .pct{font-size:15px;color:var(--muted);margin-top:6px}
+  .phase{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 18px 14px;margin:14px 0}
+  label{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #f0f0f0;cursor:pointer;font-size:16px}
+  label:last-child{border-bottom:none}
+  input[type=checkbox]{margin-top:5px;width:18px;height:18px;accent-color:var(--accent);flex:0 0 auto}
+  .done{color:var(--muted);text-decoration:line-through}
+  .ck{font-size:14px;color:var(--ok);background:#f3f8f3;border-radius:5px;padding:1px 7px;margin-left:6px;white-space:nowrap}
+  .controls{margin:8px 0 0}
+  button{font-family:inherit;font-size:14px;background:#fff;border:1px solid var(--line);
+    border-radius:6px;padding:6px 12px;cursor:pointer;color:var(--accent2)}
+  button:hover{background:#f3eff8}
+  a{color:var(--accent2)}
+  @media print{.bar{position:static}}
+</style>
+</head>
+<body>
+
+<h1>Трекер прогресса</h1>
+<p class="sub">Отмечай выполненное — отметки сохраняются в этом браузере. Чекпоинты (зелёные) — главные вехи фаз.</p>
+
+<div class="bar">
+  <div class="track"><div class="fill" id="fill"></div></div>
+  <div class="pct" id="pct">0 / 0 выполнено</div>
+  <div class="controls"><button id="reset">Сбросить всё</button></div>
+</div>
+
+<div id="root"></div>
+
+<p class="sub" style="margin-top:30px">Связанные:
+<a href="dorozhnaya-karta-2026.html">дорожная карта</a> ·
+<a href="raspisanie-dnya.html">расписание</a> ·
+<a href="glossary.html">глоссарий</a></p>
+
+<script>
+const DATA = [
+  ["Фаза 0 · Фундамент клиент-сервера (нед. 1–3)", [
+    ["HTTP: методы, статусы, заголовки, тело", 0],
+    ["Cookie / сессии / токены, CORS, почему 401", 0],
+    ["REST-контракт и формат {data,status,message}", 0],
+    ["Полигон: login → list notes через curl -v и DevTools", 0],
+    ["ЧЕКПОИНТ: схема пути запроса + объяснение статус-кодов", 1],
+  ]],
+  ["Фаза 1 · Как устроен бэкенд (нед. 4–8)", [
+    ["Слои: handler → service → store", 0],
+    ["Чтение Go-кода lab: main → handler → store", 0],
+    ["Middleware, JWT (cookie+Bearer), request_id", 0],
+    ["Валидация, обработка ошибок, идемпотентность (введение)", 0],
+    ["Практика: поле pinned + фильтр ?pinned=true (с ИИ-ревью)", 0],
+    ["ЧЕКПОИНТ: путь «от клика до SQL» + роли слоёв", 1],
+  ]],
+  ["Фаза 2 · Базы данных и данные (нед. 9–13)", [
+    ["Реляционная модель, ключи, нормализация", 0],
+    ["SQL: SELECT/JOIN, агрегации, индексы", 0],
+    ["Транзакции, изоляция, блокировки", 0],
+    ["Узкие места: N+1, медленные запросы, EXPLAIN", 0],
+    ["ЧЕКПОИНТ: схема БД для мини-фичи + обоснование индексов", 1],
+  ]],
+  ["Фаза 3 · API-дизайн и взаимодействие (нед. 14–17)", [
+    ["REST: версии, пагинация, фильтры, коды ошибок", 0],
+    ["AuthN/AuthZ: сессии vs JWT, OAuth/OIDC обзор, refresh", 0],
+    ["Идемпотентность, ретраи, безопасные методы", 0],
+    ["Кэширование: HTTP-кэш, Redis-идея, CDN", 0],
+    ["ЧЕКПОИНТ: REST-API для мини-фичи yamal на бумаге", 1],
+  ]],
+  ["Фаза 4 · Системный дизайн — ЯДРО (нед. 18–23)", [
+    ["Масштабирование + балансировка нагрузки", 0],
+    ["Очереди и асинхронность: RabbitMQ, gateway↔сервисы", 0],
+    ["Монолит vs микросервисы — компромиссы", 0],
+    ["Согласованность, репликация, шардирование (обзор)", 0],
+    ["Наблюдаемость: логи, метрики, трейсинг", 0],
+    ["Отказоустойчивость: таймауты, ретраи, circuit breaker, outbox", 0],
+    ["Фреймворк системного дизайна (7 шагов)", 0],
+    ["Кейс: разбор реального yamal-media gateway", 0],
+    ["ЧЕКПОИНТ: системный дизайн «лента yamal» за ~45 мин", 1],
+  ]],
+  ["Фаза 5 · Java/Spring мост + фронт (нед. 24–26)", [
+    ["Spring: DI, слои controller→service→repository", 0],
+    ["Сопоставление моделей Go ↔ Java ↔ корп-код", 0],
+    ["Фронт-архитектура: состояние, data fetching, границы", 0],
+    ["ЧЕКПОИНТ: ревью куска корп-бэка (Java)", 1],
+  ]],
+  ["Фаза 6 · Подготовка к собесу + синтез (нед. 27–28)", [
+    ["Системный дизайн интервью: фреймворк + 5 задач", 0],
+    ["Фундамент-вопросы: интервальное повторение курса", 0],
+    ["Поведенческая часть + рассказ о решениях", 0],
+    ["ФИНАЛЬНЫЙ ЧЕКПОИНТ: дизайн под таймер + самооценка senior", 1],
+  ]],
+];
+
+const KEY = "senior2026_progress_v1";
+const state = JSON.parse(localStorage.getItem(KEY) || "{}");
+const root = document.getElementById("root");
+let total=0, items=[];
+
+DATA.forEach((phase,pi)=>{
+  const box=document.createElement("div"); box.className="phase";
+  const h=document.createElement("h2"); h.textContent=phase[0]; box.appendChild(h);
+  phase[1].forEach((it,ii)=>{
+    const id=`p${pi}_i${ii}`; total++;
+    const lab=document.createElement("label");
+    const cb=document.createElement("input"); cb.type="checkbox"; cb.id=id;
+    cb.checked=!!state[id];
+    const sp=document.createElement("span"); sp.textContent=it[0];
+    if(cb.checked) sp.className="done";
+    lab.appendChild(cb); lab.appendChild(sp);
+    if(it[1]){const ck=document.createElement("span");ck.className="ck";ck.textContent="чекпоинт";lab.appendChild(ck);}
+    cb.addEventListener("change",()=>{
+      state[id]=cb.checked; localStorage.setItem(KEY,JSON.stringify(state));
+      sp.className=cb.checked?"done":""; update();
+    });
+    box.appendChild(lab); items.push(id);
+  });
+  root.appendChild(box);
+});
+
+function update(){
+  const done=items.filter(id=>state[id]).length;
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById("fill").style.width=pct+"%";
+  document.getElementById("pct").textContent=`${done} / ${total} выполнено · ${pct}%`;
+}
+document.getElementById("reset").addEventListener("click",()=>{
+  if(confirm("Сбросить весь прогресс?")){localStorage.removeItem(KEY);location.reload();}
+});
+update();
+</script>
+</body>
+</html>

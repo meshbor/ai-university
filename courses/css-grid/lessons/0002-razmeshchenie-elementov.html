@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Урок 2 · Размещение элементов в Grid</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #fffff8;
+    --accent: #a00000;
+    --soft: #888;
+    --cell: #4a7ebb;
+    --cell2: #b8860b;
+    --ok: #2e7d32;
+    --bad: #c62828;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: var(--paper);
+    color: var(--ink);
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 6rem;
+    line-height: 1.6;
+    font-size: 1.05rem;
+  }
+  h1 { font-size: 2rem; font-weight: 400; font-style: italic; margin-bottom: 0.2rem; }
+  h2 { font-size: 1.35rem; font-weight: 400; font-style: italic; margin-top: 2.8rem; border-bottom: 1px solid #ddd; padding-bottom: 0.3rem; }
+  .meta { color: var(--soft); font-size: 0.9rem; margin-bottom: 2.5rem; }
+  a { color: var(--accent); }
+  code, pre { font-family: 'SF Mono', Consolas, Menlo, monospace; font-size: 0.88em; }
+  code { background: #f3f1e9; padding: 0.1em 0.35em; border-radius: 3px; }
+  pre { background: #f3f1e9; padding: 1rem 1.2rem; border-radius: 6px; overflow-x: auto; line-height: 1.5; }
+  pre code { background: none; padding: 0; }
+  .note {
+    border-left: 3px solid var(--accent);
+    padding: 0.4rem 1rem;
+    margin: 1.5rem 0;
+    background: #faf6ef;
+    font-size: 0.95rem;
+  }
+  .demo { display: grid; gap: 8px; margin: 1rem 0; }
+  .demo > div {
+    background: var(--cell);
+    color: #fff;
+    border-radius: 4px;
+    padding: 0.6rem;
+    text-align: center;
+    font-family: Consolas, monospace;
+    font-size: 0.85rem;
+  }
+  .demo > .hl { background: var(--cell2); }
+  /* Визуализация линий */
+  .lines-wrap { position: relative; margin: 1.5rem 0 2.2rem; }
+  .lines-wrap .demo { margin: 0; }
+  .lines-wrap .line {
+    position: absolute;
+    top: -6px; bottom: -6px;
+    width: 2px;
+    background: var(--accent);
+    opacity: 0.65;
+  }
+  .lines-wrap .line span {
+    position: absolute;
+    top: -1.45em; left: -0.4em;
+    font-family: Consolas, monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+  }
+  .playground {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1.2rem;
+    margin: 1.2rem 0;
+    background: #fcfbf5;
+  }
+  .playground label { font-size: 0.9rem; color: var(--soft); display: block; margin-bottom: 0.4rem; }
+  .playground input, .playground textarea {
+    width: 100%;
+    font-family: Consolas, monospace;
+    font-size: 0.95rem;
+    padding: 0.5rem 0.7rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: #fff;
+  }
+  .playground textarea { resize: vertical; min-height: 4.5em; line-height: 1.5; }
+  .playground input:focus, .playground textarea:focus { outline: 2px solid var(--cell); border-color: transparent; }
+  .fb { font-size: 0.88rem; min-height: 1.2em; margin-top: 0.5rem; }
+  .fb.ok { color: var(--ok); }
+  .fb.bad { color: var(--bad); }
+  /* Макет для задания 3 */
+  .layout-grid {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 8px;
+    margin-top: 1rem;
+  }
+  .layout-grid > div {
+    color: #fff;
+    border-radius: 4px;
+    padding: 0.8rem;
+    text-align: center;
+    font-family: Consolas, monospace;
+    font-size: 0.85rem;
+  }
+  .layout-grid .lg-header { background: #6a5acd; grid-area: header; }
+  .layout-grid .lg-sidebar { background: var(--cell2); grid-area: sidebar; }
+  .layout-grid .lg-content { background: var(--cell); grid-area: content; min-height: 90px; }
+  .layout-grid .lg-footer { background: #555; grid-area: footer; }
+  /* Квиз */
+  .quiz .q { margin-bottom: 1.6rem; }
+  .quiz .q p { margin: 0 0 0.5rem; }
+  .quiz button.opt {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    font-size: 0.95rem;
+    padding: 0.55rem 0.9rem;
+    margin-bottom: 0.4rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+  }
+  .quiz button.opt:hover { border-color: var(--ink); }
+  .quiz button.opt.correct { border-color: var(--ok); background: #e8f5e9; }
+  .quiz button.opt.wrong { border-color: var(--bad); background: #ffebee; }
+  .win {
+    border: 1px solid var(--ok);
+    background: #e8f5e9;
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin-top: 2rem;
+    display: none;
+  }
+  .report-btn {
+    font-family: inherit;
+    font-style: italic;
+    font-size: 0.95rem;
+    padding: 0.6rem 1.4rem;
+    border: 1px solid var(--ink);
+    border-radius: 6px;
+    background: var(--ink);
+    color: var(--paper);
+    cursor: pointer;
+  }
+  .report-btn:hover { background: var(--accent); border-color: var(--accent); }
+  #report-text { white-space: pre-wrap; display: none; margin-top: 1rem; }
+</style>
+</head>
+<body>
+
+<h1>Размещение элементов в Grid</h1>
+<p class="meta">Урок 0002 · ~12 минут · Опирается на <a href="./0001-osnovy-css-grid.html">урок 0001: основы</a></p>
+
+<p>В прошлом уроке вы научились создавать колонки. Сегодня — главный приз: расставлять элементы по сетке <em>точно туда, куда нужно</em>. К концу урока вы соберёте классический макет «шапка-сайдбар-контент-подвал».</p>
+
+<h2>Знание №1: сетка — это линии, а не ячейки</h2>
+
+<p>Grid нумерует не колонки, а <strong>линии между ними</strong>. У сетки из трёх колонок — четыре вертикальные линии (<a href="https://developer.mozilla.org/ru/docs/Web/CSS/CSS_grid_layout/Basic_concepts_of_grid_layout#%D0%BB%D0%B8%D0%BD%D0%B8%D0%B8_%D1%81%D0%B5%D1%82%D0%BA%D0%B8">MDN: линии сетки</a>):</p>
+
+<div class="lines-wrap" id="lines-demo">
+  <div class="demo" style="grid-template-columns: 1fr 1fr 1fr;">
+    <div>A</div><div>B</div><div>C</div>
+  </div>
+</div>
+
+<p>Элемент размещается командой «от линии — до линии»:</p>
+
+<pre><code>.item {
+  grid-column: 1 / 3;   /* от линии 1 до линии 3 = первые ДВЕ колонки */
+  grid-row: 2 / 3;      /* вторая строка */
+}</code></pre>
+
+<p>Полезные сокращения (<a href="https://css-tricks.com/snippets/css/complete-guide-grid/#aa-grid-column-startgrid-column-end">CSS-Tricks: grid-column</a>):</p>
+<ul>
+  <li><code>grid-column: span 2</code> — «займи 2 колонки отсюда»</li>
+  <li><code>grid-column: 1 / -1</code> — «от первой линии до последней» = на всю ширину. <code>-1</code> считает с конца.</li>
+</ul>
+
+<p>Вот элемент <span style="color: var(--cell2); font-weight: bold;">D</span> с <code>grid-column: 1 / 3</code>:</p>
+
+<div class="demo" style="grid-template-columns: 1fr 1fr 1fr;">
+  <div class="hl" style="grid-column: 1 / 3;">D: 1 / 3</div><div>E</div>
+  <div>F</div><div>G</div><div>H</div>
+</div>
+
+<h2>Навык №1: попадите в цель</h2>
+
+<div class="task playground" data-task="1">
+  <p><strong>Задание 1.</strong> Растяните жёлтый элемент на <strong>две колонки</strong> (любым способом).</p>
+  <label>grid-column (для жёлтого элемента):</label>
+  <input type="text" class="task-input" spellcheck="false" placeholder="ваш ответ…">
+  <div class="fb task-fb"></div>
+  <div class="demo task-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 1rem;">
+    <div class="hl target">цель</div><div>2</div><div>3</div><div>4</div><div>5</div>
+  </div>
+</div>
+
+<div class="task playground" data-task="2">
+  <p><strong>Задание 2.</strong> Сетка из четырёх колонок. Поставьте жёлтый элемент так, чтобы он занимал <strong>вторую и третью</strong> колонки (подсказка: какие это линии?).</p>
+  <label>grid-column (для жёлтого элемента):</label>
+  <input type="text" class="task-input" spellcheck="false" placeholder="ваш ответ…">
+  <div class="fb task-fb"></div>
+  <div class="demo task-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr; margin-top: 1rem;">
+    <div class="hl target">цель</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div>
+  </div>
+</div>
+
+<h2>Знание №2: именованные области</h2>
+
+<p>Для целых макетов линии неудобны. Grid умеет лучше: вы <em>рисуете макет текстом</em> прямо в CSS через <code>grid-template-areas</code> (<a href="https://css-tricks.com/snippets/css/complete-guide-grid/#aa-grid-template-areas">CSS-Tricks: template areas</a>):</p>
+
+<pre><code>.page {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  grid-template-areas:
+    "header  header"
+    "sidebar content"
+    "footer  footer";
+}
+.page > header  { grid-area: header; }
+.page > aside   { grid-area: sidebar; }
+.page > main    { grid-area: content; }
+.page > footer  { grid-area: footer; }</code></pre>
+
+<p>Правила простые: каждая строка в кавычках — строка сетки, каждое слово — колонка. Повторите имя — область растянется на несколько ячеек. Имя каждой области должно образовывать прямоугольник.</p>
+
+<h2>Навык №2: соберите макет</h2>
+
+<div class="task playground" data-task="3">
+  <p><strong>Задание 3.</strong> Впишите <code>grid-template-areas</code>, чтобы получился макет: шапка на всю ширину, под ней сайдбар слева и контент справа, внизу подвал на всю ширину. Области называются <code>header</code>, <code>sidebar</code>, <code>content</code>, <code>footer</code>.</p>
+  <label>grid-template-areas:</label>
+  <textarea class="task-input" spellcheck="false" placeholder='"… …"&#10;"… …"&#10;"… …"'></textarea>
+  <div class="fb task-fb"></div>
+  <div class="layout-grid task-grid">
+    <div class="lg-header">header</div>
+    <div class="lg-sidebar">sidebar</div>
+    <div class="lg-content">content</div>
+    <div class="lg-footer">footer</div>
+  </div>
+</div>
+
+<h2>Проверка: квиз</h2>
+
+<div class="quiz" id="quiz"></div>
+
+<div class="win" id="win">
+  <strong>Победа засчитана.</strong> Вы умеете расставлять элементы по линиям и собирать макеты областями — это 80% повседневной работы с Grid. Загляните в <a href="../reference/grid-spravochnik.html">справочник</a> — всё сегодняшнее там сжато до одной страницы. Дальше: адаптивные сетки с <code>minmax()</code> и <code>auto-fit</code>.
+</div>
+
+<h2>Отчёт для агента</h2>
+
+<p>Закончили урок (или застряли) — нажмите кнопку и вставьте отчёт в чат одним Ctrl+V. Агент увидит, что решено, что нет и где были ошибки.</p>
+
+<div class="playground">
+  <button class="report-btn" id="report-btn">Скопировать отчёт для агента</button>
+  <div class="fb" id="report-status"></div>
+  <pre id="report-text"></pre>
+</div>
+
+<h2>Куда дальше</h2>
+
+<p><strong>Первоисточник урока:</strong> <a href="https://gridbyexample.com/examples/">Grid by Example — Examples</a> от Рэйчел Эндрю (участница CSS Working Group). Посмотрите примеры 1–5: размещение по линиям и областям, разобранное по шагам.</p>
+
+<p>Сжатая выжимка этого и прошлого урока — в <a href="../reference/grid-spravochnik.html">справочнике по Grid</a>. Он рассчитан на быстрый поиск «как это пишется».</p>
+
+<div class="note">
+  Остались вопросы — задайте их агенту прямо в чате. Агент — ваш учитель: попросите объяснить иначе, дать ещё примеров или усложнить задание.
+</div>
+
+<script>
+  // Визуализация линий сетки поверх демо
+  (function drawLines() {
+    const wrap = document.getElementById('lines-demo');
+    const demo = wrap.querySelector('.demo');
+    function render() {
+      wrap.querySelectorAll('.line').forEach(l => l.remove());
+      const cols = getComputedStyle(demo).gridTemplateColumns.split(' ').map(parseFloat);
+      const gap = parseFloat(getComputedStyle(demo).columnGap) || 0;
+      let x = 0;
+      const positions = [0];
+      cols.forEach((w, i) => {
+        x += w;
+        positions.push(i < cols.length - 1 ? x + gap / 2 : x + gap * (cols.length - 1));
+      });
+      positions.forEach((pos, i) => {
+        const line = document.createElement('div');
+        line.className = 'line';
+        line.style.left = Math.min(pos, demo.clientWidth - 2) + 'px';
+        line.innerHTML = '<span>' + (i + 1) + '</span>';
+        wrap.appendChild(line);
+      });
+    }
+    render();
+    window.addEventListener('resize', render);
+  })();
+
+  // --- Задания с автопроверкой (семантической, не по строке) ---
+  const approxEqual = (a, b, tol = 3) => Math.abs(a - b) < tol;
+
+  function colWidth(gridEl) {
+    return parseFloat(getComputedStyle(gridEl).gridTemplateColumns.split(' ')[0]);
+  }
+  function gapOf(gridEl) {
+    return parseFloat(getComputedStyle(gridEl).columnGap) || 0;
+  }
+
+  const checkers = {
+    // Растянуть на две колонки (позиция не важна)
+    1: (taskEl) => {
+      const grid = taskEl.querySelector('.task-grid');
+      const target = taskEl.querySelector('.target');
+      const expected = colWidth(grid) * 2 + gapOf(grid);
+      if (approxEqual(target.getBoundingClientRect().width, expected)) return true;
+      return 'Элемент пока не занимает две колонки. Попробуйте span или «линия / линия».';
+    },
+    // Занять колонки 2 и 3 из четырёх
+    2: (taskEl) => {
+      const grid = taskEl.querySelector('.task-grid');
+      const target = taskEl.querySelector('.target');
+      const cw = colWidth(grid), gap = gapOf(grid);
+      const rect = target.getBoundingClientRect();
+      const gridRect = grid.getBoundingClientRect();
+      const left = rect.left - gridRect.left;
+      const expectedLeft = cw + gap;
+      const expectedWidth = cw * 2 + gap;
+      if (!approxEqual(rect.width, expectedWidth)) return 'Ширина не та: нужно занять ровно две колонки.';
+      if (!approxEqual(left, expectedLeft)) return 'Ширина верная, но элемент не на месте: нужны 2-я и 3-я колонки.';
+      return true;
+    },
+    // Макет header/sidebar/content/footer
+    3: (taskEl) => {
+      const grid = taskEl.querySelector('.task-grid');
+      const r = (sel) => taskEl.querySelector(sel).getBoundingClientRect();
+      const g = grid.getBoundingClientRect();
+      const h = r('.lg-header'), s = r('.lg-sidebar'), c = r('.lg-content'), f = r('.lg-footer');
+      const fullWidth = (rect) => approxEqual(rect.width, g.width, 4);
+      if (!fullWidth(h)) return 'Шапка должна тянуться на всю ширину (повторите имя в строке).';
+      if (!(h.bottom <= s.top + 2 && h.bottom <= c.top + 2)) return 'Шапка должна быть выше сайдбара и контента.';
+      if (!(approxEqual(s.left, g.left, 4) && s.width < c.width)) return 'Сайдбар должен быть слева и уже контента.';
+      if (!approxEqual(s.top, c.top, 4)) return 'Сайдбар и контент должны стоять в одной строке.';
+      if (!fullWidth(f)) return 'Подвал должен тянуться на всю ширину.';
+      if (!(f.top >= s.bottom - 2 && f.top >= c.bottom - 2)) return 'Подвал должен быть ниже сайдбара и контента.';
+      return true;
+    }
+  };
+
+  const tasksSolved = new Set();
+  document.querySelectorAll('.task').forEach(taskEl => {
+    const id = taskEl.dataset.task;
+    const input = taskEl.querySelector('.task-input');
+    const grid = taskEl.querySelector('.task-grid');
+    const fb = taskEl.querySelector('.task-fb');
+    const target = taskEl.querySelector('.target');
+
+    input.addEventListener('input', () => {
+      const raw = input.value.trim();
+      // Сброс
+      if (target) target.style.gridColumn = '';
+      if (id === '3') grid.style.gridTemplateAreas = '';
+      if (!raw) { fb.textContent = ''; fb.className = 'fb task-fb'; return; }
+
+      // Применяем CSS пользователя
+      let applied;
+      if (id === '3') {
+        grid.style.gridTemplateAreas = raw.replace(/\n/g, ' ');
+        applied = grid.style.gridTemplateAreas !== '';
+      } else {
+        target.style.gridColumn = raw;
+        applied = target.style.gridColumn !== '';
+      }
+      if (!applied) {
+        fb.textContent = '✗ невалидный CSS — сетка не изменилась';
+        fb.className = 'fb task-fb bad';
+        return;
+      }
+
+      const result = checkers[id](taskEl);
+      if (result === true) {
+        tasksSolved.add(id);
+        fb.textContent = '✓ Верно!';
+        fb.className = 'fb task-fb ok';
+        checkWin();
+      } else {
+        fb.textContent = '✗ ' + result;
+        fb.className = 'fb task-fb bad';
+      }
+    });
+  });
+
+  // --- Квиз: ответы одинаковой длины, без подсказок форматированием ---
+  const questions = [
+    {
+      q: 'Сколько вертикальных линий у сетки из трёх колонок?',
+      opts: ['Четыре линии', 'Только три линии', 'Всего шесть линий'],
+      correct: 0
+    },
+    {
+      q: 'Что делает grid-column: 1 / -1?',
+      opts: [
+        'Растягивает элемент на все колонки сетки',
+        'Растягивает элемент на одну колонку сетки',
+        'Переносит элемент в самый конец сетки'
+      ],
+      correct: 0
+    },
+    {
+      q: 'Каким свойством элемент привязывается к имени из grid-template-areas?',
+      opts: ['grid-area', 'grid-name', 'grid-slot'],
+      correct: 0
+    }
+  ];
+
+  const quizEl = document.getElementById('quiz');
+  let solved = 0;
+  const quizState = questions.map(() => ({ done: false, wrong: 0 }));
+  function checkWin() {
+    if (tasksSolved.size === 3 && solved === questions.length) {
+      document.getElementById('win').style.display = 'block';
+    }
+  }
+  questions.forEach((item, qi) => {
+    const order = item.opts.map((_, i) => i).sort(() => Math.random() - 0.5);
+    const qDiv = document.createElement('div');
+    qDiv.className = 'q';
+    qDiv.innerHTML = `<p><strong>${qi + 1}.</strong> ${item.q}</p>`;
+    const fb = document.createElement('div');
+    fb.className = 'fb';
+    let answered = false;
+    order.forEach(oi => {
+      const btn = document.createElement('button');
+      btn.className = 'opt';
+      btn.textContent = item.opts[oi];
+      btn.addEventListener('click', () => {
+        if (answered) return;
+        if (oi === item.correct) {
+          answered = true;
+          btn.classList.add('correct');
+          fb.textContent = 'Верно.';
+          fb.className = 'fb ok';
+          ++solved;
+          quizState[qi].done = true;
+          checkWin();
+        } else {
+          btn.classList.add('wrong');
+          fb.textContent = 'Не то — вернитесь к разделу «Знание» и попробуйте снова.';
+          fb.className = 'fb bad';
+          quizState[qi].wrong++;
+        }
+      });
+      qDiv.appendChild(btn);
+    });
+    qDiv.appendChild(fb);
+    quizEl.appendChild(qDiv);
+  });
+
+  // Отчёт для агента: собирает состояние урока и копирует в буфер
+  function buildReport() {
+    const lines = ['Отчёт об уроке 0002 «Размещение элементов в Grid» (CSS Grid)'];
+    lines.push('Дата: ' + new Date().toLocaleString('ru-RU'));
+    lines.push('');
+    lines.push('Задания: ' + tasksSolved.size + ' из 3');
+    document.querySelectorAll('.task').forEach(t => {
+      const id = t.dataset.task;
+      const val = t.querySelector('.task-input').value.trim();
+      let st;
+      if (tasksSolved.has(id)) st = '✓ решено — «' + val.replace(/\s*\n\s*/g, ' ') + '»';
+      else if (val) st = '✗ не решено, последняя попытка: «' + val.replace(/\s*\n\s*/g, ' ') + '»';
+      else st = '— не начато';
+      lines.push('  Задание ' + id + ': ' + st);
+    });
+    lines.push('Квиз: ' + solved + ' из ' + questions.length);
+    quizState.forEach((st, i) => {
+      lines.push('  Вопрос ' + (i + 1) + ': ' + (st.done ? '✓' : '✗ верного ответа нет') +
+        (st.wrong ? ' (неверных попыток: ' + st.wrong + ')' : ''));
+    });
+    return lines.join('\n');
+  }
+
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove();
+    return ok;
+  }
+
+  document.getElementById('report-btn').addEventListener('click', () => {
+    const text = buildReport();
+    const pre = document.getElementById('report-text');
+    pre.textContent = text;
+    pre.style.display = 'block';
+    const rStatus = document.getElementById('report-status');
+    const done = () => { rStatus.textContent = '✓ Отчёт скопирован — вставьте его в чат (Ctrl+V).'; rStatus.className = 'fb ok'; };
+    const fail = () => { rStatus.textContent = 'Автокопирование не сработало — выделите и скопируйте текст ниже вручную.'; rStatus.className = 'fb bad'; };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text) ? done() : fail());
+    } else {
+      fallbackCopy(text) ? done() : fail();
+    }
+  });
+</script>
+
+</body>
+</html>
