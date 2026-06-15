@@ -136,6 +136,24 @@
   .stat-mini span{font-size:10px;opacity:.8;text-transform:var(--tt);line-height:1.2}
   @media(max-width:420px){.cards3{grid-template-columns:repeat(3,1fr)}}
 
+  /* wheel of life / radar */
+  .balance{margin-top:16px;padding-top:14px;border-top:var(--frame)}
+  .balance-hd{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}
+  .balance-hd b{font-size:13px;text-transform:var(--tt)}
+  .balance-hd span{font-size:11px;opacity:.7}
+  .radar-wrap{display:flex;justify-content:center;margin:4px 0 8px}
+  .radar{width:100%;max-width:280px;height:auto;display:block}
+  .radar .grid{stroke:var(--line);stroke-width:1;fill:none;opacity:.55}
+  .radar .axis{stroke:var(--line);stroke-width:1;opacity:.35}
+  .radar .fill{fill:var(--accent);opacity:.22;stroke:var(--accent);stroke-width:2;transition:d .4s}
+  .radar .dot{fill:var(--xp);stroke:var(--panel);stroke-width:2}
+  .radar .lbl{fill:var(--ink);font-size:11px;font-family:var(--font);text-anchor:middle;dominant-baseline:middle}
+  .radar .lbl b{font-size:12px}
+  .radar .lbl.dim{opacity:.55}
+  .radar .lbl.weak{color:var(--xp);font-weight:bold}
+  .balance-tip{font-size:11px;opacity:.8;line-height:1.35;text-transform:var(--tt)}
+  .balance-tip em{font-style:normal;color:var(--xp);font-weight:bold}
+
   .main-panel{min-width:0}
 
   /* tabs */
@@ -233,6 +251,16 @@
           <div class="stat-mini"><b id="stLessons">0</b><span>пройдено</span></div>
           <div class="stat-mini"><b id="stTotal">0</b><span>всего</span></div>
         </div>
+        <div class="balance">
+          <div class="balance-hd">
+            <b>Баланс жизни</b>
+            <span>1–10</span>
+          </div>
+          <div class="radar-wrap">
+            <svg class="radar" id="lifeRadar" viewBox="0 0 260 260" aria-label="Диаграмма баланса жизни"></svg>
+          </div>
+          <div class="balance-tip" id="lifeTip">—</div>
+        </div>
       </aside>
 
       <div class="main-panel">
@@ -281,6 +309,14 @@ const COURSES = [
               {n:"0005", t:"Буквы без тяни и превращения", href:"courses/chtenie/lessons/0005-bukvy-bez-tyani-i-prevrashcheniya.html"} ],
     refs:[ {t:"Памятка родителю", href:"courses/chtenie/reference/pamyatka-roditelyu.html"},
            {t:"Слоговая таблица", href:"courses/chtenie/reference/slogovaya-tablica.html"} ] },
+];
+
+// Колесо жизни: оси 1–10, часть считается от курсов, здоровье — от серии (пока нет отдельного трекера)
+const LIFE = [
+  {id:"work",   label:"Работа",  emoji:"💼", src:"senior-2026"},
+  {id:"study",  label:"Учёба",   emoji:"📚", src:["english","css-grid"]},
+  {id:"family", label:"Семья",   emoji:"👨‍👦", src:"chtenie"},
+  {id:"health", label:"Здоровье",emoji:"❤️", src:"streak"},
 ];
 
 const SPECIAL = [
@@ -456,12 +492,55 @@ function courseFrac(id){
   return c.lessons.filter(l=>store.lessons[lk(id,l.n)]).length/c.lessons.length;
 }
 function totalDoneCount(){let n=0;COURSES.forEach(c=>c.lessons.forEach(l=>{if(store.lessons[lk(c.id,l.n)])n++;}));return n;}
+function clamp10(v){return Math.max(1,Math.min(10,v));}
+function fracToScore(frac){return clamp10(1+Math.round(frac*9));}
+function lifeScore(axis){
+  const s=axis.src;
+  if(s==="streak") return clamp10(1+currentStreak());
+  if(Array.isArray(s)){
+    const avg=s.reduce((a,id)=>a+courseFrac(id),0)/s.length;
+    return fracToScore(avg);
+  }
+  return fracToScore(courseFrac(s));
+}
+function lifeScores(){return LIFE.map(a=>({...a, val:lifeScore(a)}));}
+
+function drawLifeRadar(scores){
+  const svg=document.getElementById("lifeRadar");
+  const cx=130, cy=130, R=88, n=scores.length;
+  const min=Math.min(...scores.map(s=>s.val));
+  const weak=scores.filter(s=>s.val===min).map(s=>s.id);
+  const ang=i=>-Math.PI/2+i*2*Math.PI/n;
+  const pt=(i,v,r=R)=>{const a=ang(i);const rr=r*(v-1)/9;return[cx+rr*Math.cos(a),cy+rr*Math.sin(a)];};
+  let h=`<polygon class="grid" points="${scores.map((_,i)=>pt(i,10).join(",")).join(" ")}"/>`;
+  for(let g=2;g<=10;g+=2){
+    h+=`<polygon class="grid" points="${scores.map((_,i)=>pt(i,g).join(",")).join(" ")}"/>`;
+  }
+  scores.forEach((_,i)=>{
+    const [x,y]=pt(i,10); h+=`<line class="axis" x1="${cx}" y1="${cy}" x2="${x}" y2="${y}"/>`;
+  });
+  const fill=scores.map((s,i)=>pt(i,s.val).join(",")).join(" ");
+  h+=`<polygon class="fill" points="${fill}"/>`;
+  scores.forEach((s,i)=>{
+    const [x,y]=pt(i,s.val);
+    h+=`<circle class="dot" cx="${x}" cy="${y}" r="4.5"/>`;
+    const [lx,ly]=pt(i,10,1.22);
+    const cls=["lbl", weak.includes(s.id)?"weak":""].filter(Boolean).join(" ");
+    h+=`<text class="${cls}" x="${lx}" y="${ly}">${s.emoji} <tspan class="dim">${s.val}</tspan></text>`;
+    const [tx,ty]=pt(i,10,1.38);
+    h+=`<text class="lbl dim" x="${tx}" y="${ty}" style="font-size:10px">${s.label}</text>`;
+  });
+  svg.innerHTML=h;
+  const weakLbl=scores.filter(s=>weak.includes(s.id)).map(s=>`${s.emoji} ${s.label} (${s.val})`).join(", ");
+  document.getElementById("lifeTip").innerHTML=
+    min<6?`Просадка: <em>${weakLbl}</em>`:`Баланс ровный · слабее всего: <em>${weakLbl}</em>`;
+}
+
 function statValue(src){
-  const clamp=v=>Math.max(1,Math.min(10,v));
-  if(src==="streak") return clamp(1+currentStreak());
-  if(src==="pace")   return clamp(1+totalDoneCount());
-  if(src==="overall"){const avg=COURSES.reduce((a,c)=>a+courseFrac(c.id),0)/COURSES.length;return clamp(1+Math.round(avg*9));}
-  return clamp(1+Math.round(courseFrac(src)*9));
+  if(src==="streak") return clamp10(1+currentStreak());
+  if(src==="pace")   return clamp10(1+totalDoneCount());
+  if(src==="overall"){const avg=COURSES.reduce((a,c)=>a+courseFrac(c.id),0)/COURSES.length;return fracToScore(avg);}
+  return fracToScore(courseFrac(src));
 }
 
 function refresh(){
@@ -504,6 +583,7 @@ function refresh(){
   }
   document.getElementById("archetype").textContent=p.label;
   document.getElementById("vTier").textContent="T"+p.tier;
+  drawLifeRadar(lifeScores());
 }
 
 // ---- theme switching ----
