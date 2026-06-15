@@ -3,10 +3,11 @@ skills/
 skills-lock.json
 .agents/
 
-# --- внутренние рабочие документы (для агента, на английском) — не публикуем ---
+# --- внутренние рабочие документы — не публикуем ---
 **/NOTES.md
 **/RESOURCES.md
 **/learning-records/
+VISUAL-TRACK.md
 
 # --- системное ---
 .DS_Store
