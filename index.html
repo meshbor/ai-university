@@ -40,9 +40,20 @@
     --shadow:0 0 0 1px rgba(54,214,255,.25), 0 0 40px rgba(54,214,255,.12), 0 10px 40px rgba(0,0,0,.6);
     --frame:1px solid var(--line);
   }
+  body[data-theme="wot"]{
+    --page-bg:transparent;
+    --bg:linear-gradient(180deg, rgba(32,30,22,.72), rgba(18,16,12,.88));
+    --panel:rgba(38,36,28,.62); --panel2:rgba(48,44,34,.55);
+    --ink:#e8e2d0; --muted:#9a9478; --line:#5c5844;
+    --accent:#c9a227; --accent2:#8b7355; --xp:#e8b923; --xp2:#a08030; --on:#e8b923;
+    --font:"Segoe UI",system-ui,-apple-system,sans-serif;
+    --radius:10px; --glow:0 0 6px rgba(232,185,35,.35); --tt:none;
+    --shadow:0 0 0 1px rgba(201,162,39,.2), 0 8px 32px rgba(0,0,0,.55);
+    --frame:1px solid var(--line);
+  }
 
   body{font-family:var(--font);background:var(--page-bg);min-height:100vh;color:var(--ink);
-    max-width:1040px;margin:0 auto;padding:0 16px 80px;transition:background .3s}
+    max-width:1280px;margin:0 auto;padding:0 16px 80px;transition:background .3s}
 
   /* ============ COCKPIT BACKGROUND (space theme only) ============ */
   .cockpit{position:fixed;inset:0;z-index:-1;display:none;pointer-events:none;
@@ -50,6 +61,14 @@
     background-image:linear-gradient(rgba(3,5,15,.30),rgba(3,5,15,.55)),url("assets/space-cockpit.png")}
   body[data-theme="space"] .cockpit{display:block}
   body[data-theme="space"] .screen{backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+
+  /* ============ HANGAR BACKGROUND (WoT theme only) ============ */
+  .hangar{position:fixed;inset:0;z-index:-1;display:none;pointer-events:none;
+    background:#14120c center/cover no-repeat;
+    background-image:linear-gradient(rgba(20,18,12,.32),rgba(10,9,6,.58)),url("assets/wot-hangar.png")}
+  body[data-theme="wot"] .hangar{display:block}
+  body[data-theme="wot"] .screen,
+  body[data-theme="wot"] .hero-panel{backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
 
   /* ============ TOOLBAR (always readable) ============ */
   .toolbar{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;
@@ -86,9 +105,38 @@
 
   /* header */
   .top{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:var(--frame);
-    padding-bottom:8px;margin-bottom:10px;font-size:13px;text-transform:var(--tt)}
+    padding-bottom:8px;margin-bottom:14px;font-size:13px;text-transform:var(--tt)}
   .top .brand{font-size:18px;font-weight:bold}
   .top .sys{opacity:.85;text-align:right;line-height:1.45}
+
+  /* dashboard: рубка слева, контент справа */
+  .dashboard{display:grid;grid-template-columns:minmax(300px,380px) 1fr;gap:20px;align-items:start}
+  @media(max-width:920px){.dashboard{grid-template-columns:1fr}}
+
+  .hero-panel{position:sticky;top:68px;background:var(--panel);border:var(--frame);border-radius:var(--radius);
+    padding:16px;box-shadow:var(--shadow);text-shadow:var(--glow)}
+  @media(max-width:920px){.hero-panel{position:static}}
+
+  .avatar{width:100%;aspect-ratio:4/3;min-height:240px;border:var(--frame);border-radius:14px;background:var(--panel2);
+    overflow:hidden;position:relative;margin-bottom:14px}
+  .avatar .face-img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .35s, transform .35s}
+  .avatar.flash .face-img{animation:portraitPop .45s ease}
+  @keyframes portraitPop{0%{opacity:.6;transform:scale(1.03)}100%{opacity:1;transform:scale(1)}}
+  .avatar .vnum{position:absolute;left:10px;bottom:10px;font-size:13px;letter-spacing:.1em;
+    background:rgba(0,0,0,.65);color:#fff;padding:4px 10px;border-radius:6px;text-transform:var(--tt);text-shadow:none}
+  .avatar .vtier{position:absolute;right:10px;top:10px;font-size:12px;letter-spacing:.08em;
+    background:rgba(0,0,0,.6);color:var(--xp);padding:3px 10px;border-radius:6px;text-transform:var(--tt);text-shadow:none}
+  .bigline{font-size:22px;font-weight:bold;text-transform:var(--tt);line-height:1.25}
+  .lvltrack{height:18px;border:var(--frame);border-radius:6px;overflow:hidden;background:var(--panel2);margin:10px 0 5px}
+  .lvlfill{height:100%;width:0;background:linear-gradient(90deg,var(--xp),var(--xp2));transition:width .5s}
+  .mini{font-size:13px;opacity:.85;text-transform:var(--tt)}
+  .cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+  .stat-mini{border:var(--frame);border-radius:10px;padding:8px 6px;text-align:center;background:var(--panel2)}
+  .stat-mini b{font-size:20px;display:block}
+  .stat-mini span{font-size:10px;opacity:.8;text-transform:var(--tt);line-height:1.2}
+  @media(max-width:420px){.cards3{grid-template-columns:repeat(3,1fr)}}
+
+  .main-panel{min-width:0}
 
   /* tabs */
   .tabs{display:flex;border-bottom:2px solid var(--line);margin-bottom:18px;flex-wrap:wrap}
@@ -98,27 +146,6 @@
   .tab:hover{opacity:.9}
   section{display:none}section.active{display:block;animation:fade .25s}
   @keyframes fade{from{opacity:0}to{opacity:1}}
-
-  /* status */
-  .statusrow{display:flex;gap:24px;flex-wrap:wrap;align-items:center}
-  .avatar{flex:0 0 auto;width:230px;height:170px;border:var(--frame);border-radius:14px;background:var(--panel2);
-    overflow:hidden;position:relative}
-  .avatar .face-img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .3s}
-  .avatar .vnum{position:absolute;left:8px;bottom:8px;font-size:12px;letter-spacing:.1em;
-    background:rgba(0,0,0,.6);color:#fff;padding:3px 9px;border-radius:6px;text-transform:var(--tt);text-shadow:none}
-  .avatar .vtier{position:absolute;right:8px;top:8px;font-size:11px;letter-spacing:.08em;
-    background:rgba(0,0,0,.55);color:var(--xp);padding:2px 8px;border-radius:6px;text-transform:var(--tt);text-shadow:none}
-  @media(max-width:620px){.avatar{width:100%;height:200px}}
-  .statbox{flex:1;min-width:260px}
-  .bigline{font-size:24px;font-weight:bold;text-transform:var(--tt)}
-  .lvltrack{height:16px;border:var(--frame);border-radius:6px;overflow:hidden;background:var(--panel2);margin:8px 0 4px}
-  .lvlfill{height:100%;width:0;background:linear-gradient(90deg,var(--xp),var(--xp2));transition:width .5s}
-  .mini{font-size:13px;opacity:.85;text-transform:var(--tt)}
-  .cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
-  .stat-mini{border:var(--frame);border-radius:10px;padding:10px 12px;text-align:center;background:var(--panel)}
-  .stat-mini b{font-size:24px;display:block}
-  .stat-mini span{font-size:11px;opacity:.8;text-transform:var(--tt)}
-  @media(max-width:620px){.cards3{grid-template-columns:repeat(2,1fr)}}
 
   /* special */
   .special{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -164,6 +191,7 @@
 <body data-theme="light">
 
   <div class="cockpit"></div>
+  <div class="hangar"></div>
 
   <div class="toolbar">
     <div class="logo">🎓 AI University</div>
@@ -172,6 +200,7 @@
       <button class="tbtn" data-theme-btn="light">☀️ Светлая</button>
       <button class="tbtn" data-theme-btn="fallout">📟 Pip-Boy</button>
       <button class="tbtn" data-theme-btn="space">🚀 Космос</button>
+      <button class="tbtn" data-theme-btn="wot">🛡️ Танки</button>
     </div>
   </div>
 
@@ -187,41 +216,39 @@
       </div>
     </div>
 
-    <div class="tabs">
-      <div class="tab active" data-tab="status">Обзор</div>
-      <div class="tab" data-tab="special">Характеристики</div>
-      <div class="tab" data-tab="skills">Курсы</div>
-    </div>
-
-    <section id="status" class="active">
-      <div class="statusrow">
-        <div class="avatar">
+    <div class="dashboard">
+      <aside class="hero-panel" id="heroPanel">
+        <div class="avatar" id="avatarBox">
           <img class="face-img" id="avatarImg" alt="портрет персонажа">
           <div class="vtier" id="vTier">T1</div>
           <div class="vnum">LVL <span id="vLevel">1</span></div>
         </div>
-        <div class="statbox">
-          <div class="bigline">Уровень <span id="level">1</span> · <span id="rank">Новичок</span></div>
-          <div class="lvltrack"><div class="lvlfill" id="xpFill"></div></div>
-          <div class="mini" id="xpText">0 XP</div>
-          <div class="mini" style="margin-top:8px">Серия: <span id="streak" style="color:var(--xp)">0</span> дн. <span class="blink">▮</span></div>
-          <div class="mini" style="margin-top:6px">Образ: <span id="archetype" style="color:var(--accent);font-weight:bold">—</span></div>
+        <div class="bigline">Уровень <span id="level">1</span> · <span id="rank">Новичок</span></div>
+        <div class="lvltrack"><div class="lvlfill" id="xpFill"></div></div>
+        <div class="mini" id="xpText">0 XP</div>
+        <div class="mini" style="margin-top:8px">Серия: <span id="streak" style="color:var(--xp)">0</span> дн. <span class="blink">▮</span></div>
+        <div class="mini" style="margin-top:6px">Образ: <span id="archetype" style="color:var(--accent);font-weight:bold">—</span></div>
+        <div class="cards3">
+          <div class="stat-mini"><b id="stCourses">0</b><span>курсов</span></div>
+          <div class="stat-mini"><b id="stLessons">0</b><span>пройдено</span></div>
+          <div class="stat-mini"><b id="stTotal">0</b><span>всего</span></div>
+        </div>
+      </aside>
+
+      <div class="main-panel">
+        <div class="tabs">
+          <div class="tab" data-tab="special">Характеристики</div>
+          <div class="tab active" data-tab="skills">Курсы</div>
+        </div>
+
+        <section id="special"><div class="special" id="specialGrid"></div></section>
+        <section id="skills" class="active"><div id="skillList"></div></section>
+
+        <div class="foot">
+          <span>1 урок = 100 XP · уровень каждые 300 XP · прогресс в браузере</span>
+          <button class="reset" id="reset">Сбросить прогресс</button>
         </div>
       </div>
-      <div class="cards3">
-        <div class="stat-mini"><b id="stCourses">0</b><span>курсов активно</span></div>
-        <div class="stat-mini"><b id="stLessons">0</b><span>уроков пройдено</span></div>
-        <div class="stat-mini"><b id="stTotal">0</b><span>уроков всего</span></div>
-      </div>
-    </section>
-
-    <section id="special"><div class="special" id="specialGrid"></div></section>
-
-    <section id="skills"><div id="skillList"></div></section>
-
-    <div class="foot">
-      <span>1 урок = 100 XP · уровень каждые 300 XP · прогресс хранится в браузере</span>
-      <button class="reset" id="reset">Сбросить прогресс</button>
     </div>
   </div>
 
@@ -269,21 +296,23 @@ const SPECIAL = [
 const THEMES = {
   light:{
     brand:"AI University · лист навыков", who:"Игрок: Baruh",
-    tabs:{status:"Обзор", special:"Характеристики", skills:"Курсы"},
+    tabs:{special:"Характеристики", skills:"Курсы"},
     ranks:["Новичок","Ученик","Подмастерье","Специалист","Профи","Старший","Эксперт","Мастер","Гуру","Легенда"],
-    faces:["🙂","😀","😎","🤓","🧠","💪","🚀","🏆","👑","🐉"],
   },
   fallout:{
     brand:"PIP-BOY 3000 · AI UNIVERSITY", who:"VAULT 2026 · DWELLER: BARUH",
-    tabs:{status:"STATUS", special:"S.P.E.C.I.A.L.", skills:"SKILLS"},
+    tabs:{special:"S.P.E.C.I.A.L.", skills:"SKILLS"},
     ranks:["Стажёр убежища","Падаван","Подмастерье","Странник","Искатель","Ветеран","Архитектор","Мастер","Оверсир","Легенда Пустоши"],
-    faces:["👍","🙂","😎","🤓","🧠","🦾","🚀","🏆","👑","🐉"],
   },
   space:{
     brand:"КОСМО-РЕЙНДЖЕР · БОРТОВОЙ ЖУРНАЛ", who:"Рейнджер: Baruh · Сектор 2026",
-    tabs:{status:"Рубка", special:"Системы корабля", skills:"Курсы"},
+    tabs:{special:"Системы корабля", skills:"Курсы"},
     ranks:["Кадет","Пилот","Рейнджер","Лейтенант","Капитан","Командор","Ас сектора","Адмирал","Герой галактики","Легенда"],
-    faces:["🛰️","🚀","🛸","👨‍🚀","🪐","☄️","🌌","🏆","👑","🐉"],
+  },
+  wot:{
+    brand:"АНГАР · AI UNIVERSITY", who:"Танкист: Baruh · Бой 2026",
+    tabs:{special:"Экипаж", skills:"Курсы"},
+    ranks:["Рекрут","Рядовой","Сержант","Мл. лейтенант","Лейтенант","Капитан","Майор","Полковник","Генерал","Маршал"],
   },
 };
 
@@ -294,15 +323,18 @@ const PORTRAITS={
   fast:  {1:"assets/space-fast.png",    2:"assets/fast-t2.png",  3:"assets/fast-t3.png"},
   gun:   {1:"assets/space-gun.png",     2:"assets/gun-t2.png",   3:"assets/gun-t3.png"},
   cargo: {1:"assets/space-cargo.png",   2:"assets/cargo-t2.png", 3:"assets/cargo-t3.png"},
+  tank:  {1:"assets/tank-t1.png",       2:"assets/tank-t2.png",  3:"assets/tank-t3.png"},
 };
 const ARCH_LABELS={
   smart:"Умник в очках 🤓", strong:"Силач 💪",
   fast:"Быстрый разведчик 🚀", gun:"Боевой крейсер 🔫", cargo:"Грузовой транспорт 📦",
+  tank:"Т-34 🛡️",
 };
 const TIER_NAMES={
   light:  ["Стажёр","Специалист","Мастер"],
   fallout:["Убежище","Пустошь","Братство"],
   space:  ["Модуль","Усилен","Флагман"],
+  wot:    ["Сток","Топ","Асс"],
 };
 
 function levelTier(level){
@@ -323,6 +355,7 @@ function dominant(){
   return SPECIAL.filter((s,i)=>vals[i]===max).map(s=>s.k);
 }
 function resolveArch(theme, L){
+  if(theme==="wot") return "tank";
   if(theme==="space"){
     if(L){ if(L.includes("A")) return "fast";
            if(L.includes("S")) return "gun";
@@ -461,7 +494,14 @@ function refresh(){
   document.getElementById("stTotal").textContent=totalLessons;
   const p=pickPortrait(theme, level);
   const img=document.getElementById("avatarImg");
-  if(img.getAttribute("src")!==p.src) img.src=p.src;
+  const box=document.getElementById("avatarBox");
+  const portraitChanged=img.getAttribute("src")!==p.src
+    || box.dataset.tier!==String(p.tier) || box.dataset.level!==String(level);
+  if(portraitChanged){
+    img.src=p.src;
+    box.dataset.tier=p.tier; box.dataset.level=level;
+    box.classList.remove("flash"); void box.offsetWidth; box.classList.add("flash");
+  }
   document.getElementById("archetype").textContent=p.label;
   document.getElementById("vTier").textContent="T"+p.tier;
 }
@@ -474,7 +514,6 @@ function applyTheme(t){
   const cfg=THEMES[t];
   document.getElementById("brand").textContent=cfg.brand;
   document.getElementById("sysWho").textContent=cfg.who;
-  document.querySelector('[data-tab="status"]').textContent=cfg.tabs.status;
   document.querySelector('[data-tab="special"]').textContent=cfg.tabs.special;
   document.querySelector('[data-tab="skills"]').textContent=cfg.tabs.skills;
   refresh();
