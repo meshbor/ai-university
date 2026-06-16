@@ -242,6 +242,42 @@
     border-radius:6px;padding:6px 12px;cursor:pointer;text-shadow:var(--glow)}
   button.reset:hover{background:var(--panel2)}
   .blink{animation:blink 1.2s steps(2) infinite}@keyframes blink{50%{opacity:0}}
+
+  /* first-run picker */
+  .onboarding{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;
+    background:
+      radial-gradient(1200px 500px at 50% 100%, rgba(255,120,40,.18), transparent 60%),
+      linear-gradient(rgba(10,8,12,.82),rgba(10,8,12,.9)),
+      url("assets/knight-hall.png") center/cover no-repeat}
+  .onboarding.show{display:flex}
+  .pick{width:min(1060px,95vw);border:1px solid rgba(255,255,255,.18);border-radius:16px;
+    background:rgba(18,16,24,.8);box-shadow:0 20px 60px rgba(0,0,0,.45);padding:18px;color:#efeafc}
+  .pick h2{margin:0 0 4px;font-size:24px}
+  .pick p{margin:0 0 14px;color:#c8c1dc}
+  .pick-layout{display:grid;grid-template-columns:minmax(280px,360px) 1fr;gap:16px;align-items:start}
+  @media(max-width:880px){.pick-layout{grid-template-columns:1fr}}
+  .pick-preview{border:1px solid #4f466d;border-radius:12px;background:linear-gradient(180deg,#222031,#171522);padding:10px}
+  .pick-avatar{aspect-ratio:4/3;border:1px solid #4f466d;border-radius:10px;overflow:hidden;position:relative;
+    background:radial-gradient(ellipse at 50% 80%, rgba(150,130,255,.14), transparent 70%)}
+  .pick-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+  .pick-avatar model-viewer{width:100%;height:100%;display:none;background:transparent;--poster-color:transparent}
+  .pick-avatar.is3d img{display:none}
+  .pick-avatar.is3d model-viewer{display:block}
+  .pick-name{margin-top:10px}
+  .pick-name label{font-size:12px;color:#b8b0ce;display:block;margin-bottom:6px}
+  .pick-name input{width:100%;padding:9px 10px;border-radius:8px;border:1px solid #4f466d;background:#171522;color:#efeafc}
+  .carousel{display:grid;grid-template-columns:40px 1fr 40px;gap:10px;align-items:center}
+  .cbtn{height:40px;border:1px solid #4e4864;border-radius:10px;background:#29253a;color:#fff;cursor:pointer}
+  .viewport{overflow:hidden}
+  .track{display:flex;gap:12px;transition:transform .25s}
+  .card{min-width:220px;max-width:220px;border:1px solid #4f466d;border-radius:12px;padding:12px;cursor:pointer;
+    background:linear-gradient(180deg,#272239,#1c182b)}
+  .card.active{border-color:#8f7bff;box-shadow:0 0 0 2px rgba(143,123,255,.25) inset}
+  .card .name{font-weight:700;margin-bottom:5px}
+  .card .meta{font-size:12px;color:#b8b0ce}
+  .pick .actions{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:14px}
+  .pick .start{padding:10px 14px;border-radius:10px;border:1px solid #8f7bff;background:#6f5bdf;color:#fff;cursor:pointer}
+  .pick .hint{font-size:12px;color:#b8b0ce}
 </style>
 </head>
 <body data-theme="light">
@@ -250,6 +286,36 @@
   <div class="hangar"></div>
   <div class="knight-bg"></div>
   <div class="dojo"></div>
+
+  <div class="onboarding" id="onboarding">
+    <div class="pick">
+      <h2>Выбери героя и мир</h2>
+      <p>Первый запуск: как в RPG-лобби. Выбираешь класс, даёшь имя и стартуешь.</p>
+      <div class="pick-layout">
+        <div class="pick-preview">
+          <div class="pick-avatar" id="pickAvatar">
+            <img id="pickImg" alt="предпросмотр героя">
+            <model-viewer id="pick3d" alt="3D предпросмотр"
+              camera-controls auto-rotate rotation-per-second="14deg"
+              interaction-prompt="none" shadow-intensity="1" touch-action="pan-y"></model-viewer>
+          </div>
+          <div class="pick-name">
+            <label for="pickName">Имя героя</label>
+            <input id="pickName" type="text" maxlength="24" placeholder="Например: Baruh the Brave">
+          </div>
+        </div>
+        <div class="carousel">
+          <button class="cbtn" id="pickPrev" aria-label="Назад">◀</button>
+          <div class="viewport"><div class="track" id="pickTrack"></div></div>
+          <button class="cbtn" id="pickNext" aria-label="Вперёд">▶</button>
+        </div>
+      </div>
+      <div class="actions">
+        <span class="hint" id="pickHint">—</span>
+        <button class="start" id="pickStart">Начать путь</button>
+      </div>
+    </div>
+  </div>
 
   <div class="toolbar">
     <div class="logo">🎓 AI University</div>
@@ -261,6 +327,7 @@
       <button class="tbtn" data-theme-btn="wot">🛡️ Танки</button>
       <button class="tbtn" data-theme-btn="knight">⚔️ Рыцарь</button>
       <button class="tbtn" data-theme-btn="samurai">🗡️ Самурай</button>
+      <button class="tbtn" id="newHeroBtn">🎭 Новый герой</button>
     </div>
   </div>
 
@@ -472,6 +539,14 @@ function dominant(){
   return SPECIAL.filter((s,i)=>vals[i]===max).map(s=>s.k);
 }
 function resolveArch(theme, L){
+  const forced=profile&&profile.hero;
+  if(forced){
+    if(theme==="space" && ["fast","gun","cargo"].includes(forced)) return forced;
+    if(theme==="wot" && forced==="tank") return forced;
+    if(theme==="knight" && forced==="knight") return forced;
+    if(theme==="samurai" && forced==="samurai") return forced;
+    if(["light","fallout"].includes(theme) && ["smart","strong"].includes(forced)) return forced;
+  }
   if(theme==="wot") return "tank";
   if(theme==="knight") return "knight";
   if(theme==="samurai") return "samurai";
@@ -509,11 +584,26 @@ function applyPortrait(theme, p){
   }
 }
 
-const XP_PER_LESSON=100, XP_PER_LEVEL=300, KEY="aiuni_pipboy_v1", THEME_KEY="aiuni_theme";
+const XP_PER_LESSON=100, XP_PER_LEVEL=300, KEY="aiuni_pipboy_v1", THEME_KEY="aiuni_theme", PROFILE_KEY="aiuni_profile_v1";
 const store = JSON.parse(localStorage.getItem(KEY) || '{"lessons":{},"meta":{}}');
 if(!store.lessons) store.lessons={}; if(!store.meta) store.meta={};
 const save = ()=> localStorage.setItem(KEY, JSON.stringify(store));
 const lk = (cid,n)=> cid+"/"+n;
+const loadProfile=()=>{
+  const raw=localStorage.getItem(PROFILE_KEY);
+  if(!raw) return null;
+  try{return JSON.parse(raw);}catch{return null;}
+};
+const saveProfile=(p)=>localStorage.setItem(PROFILE_KEY,JSON.stringify(p));
+let profile=loadProfile();
+const START_PRESETS=[
+  {id:"fallout", name:"Умник убежища", theme:"fallout", hero:"smart", note:"Pip-Boy + ретро", lore:"Технарь и планировщик"},
+  {id:"space", name:"Косморейнджер", theme:"space", hero:"fast", note:"корабль и рубка", lore:"Скорость и маневр"},
+  {id:"wot", name:"Танкист Т-34", theme:"wot", hero:"tank", note:"ангар и броня", lore:"Сталь и напор"},
+  {id:"knight", name:"Рыцарь ордена", theme:"knight", hero:"knight", note:"замок + 3D", lore:"Честь и дисциплина"},
+  {id:"samurai", name:"Путь самурая", theme:"samurai", hero:"samurai", note:"додзё + 3D", lore:"Бусидо и клинок"},
+];
+let pickIdx=0;
 
 const dstr = d => d.toISOString().slice(0,10);
 function touchStreak(){
@@ -690,8 +780,17 @@ function applyTheme(t){
   document.body.dataset.theme=t; localStorage.setItem(THEME_KEY,t);
   document.querySelectorAll("[data-theme-btn]").forEach(b=>b.classList.toggle("active",b.dataset.themeBtn===t));
   const cfg=THEMES[t];
+  const heroName=(profile&&profile.name)?profile.name:"Baruh";
+  const whoMap={
+    light:`Игрок: ${heroName}`,
+    fallout:`VAULT 2026 · DWELLER: ${heroName.toUpperCase()}`,
+    space:`Рейнджер: ${heroName} · Сектор 2026`,
+    wot:`Танкист: ${heroName} · Бой 2026`,
+    knight:`Рыцарь: ${heroName} · Орден 2026`,
+    samurai:`Самурай: ${heroName} · Путь 2026`,
+  };
   document.getElementById("brand").textContent=cfg.brand;
-  document.getElementById("sysWho").textContent=cfg.who;
+  document.getElementById("sysWho").textContent=whoMap[t]||cfg.who;
   document.querySelector('[data-tab="special"]').textContent=cfg.tabs.special;
   document.querySelector('[data-tab="skills"]').textContent=cfg.tabs.skills;
   refresh();
@@ -704,10 +803,89 @@ document.getElementById("sysDate").textContent =
   new Date().toLocaleString("ru-RU",{weekday:"short",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
 
 document.getElementById("reset").addEventListener("click",()=>{
-  if(confirm("Сбросить прогресс? Уровень и серия обнулятся.")){localStorage.removeItem(KEY);location.reload();}
+  if(confirm("Сбросить прогресс? Уровень, серия и выбор героя обнулятся.")){
+    localStorage.removeItem(KEY);
+    localStorage.removeItem(PROFILE_KEY);
+    localStorage.removeItem(THEME_KEY);
+    location.reload();
+  }
 });
 
-applyTheme(localStorage.getItem(THEME_KEY) || "light");
+function applyPickPreview(p){
+  const avatar=document.getElementById("pickAvatar");
+  const img=document.getElementById("pickImg");
+  const mv=document.getElementById("pick3d");
+  const is3d=MODEL_THEMES.has(p.theme);
+  if(is3d){
+    avatar.classList.add("is3d");
+    const src=portraitSrc(p.theme,p.hero,1);
+    const cfg=(MODEL_TIER[p.theme]||{})[1]||{};
+    if(mv.getAttribute("src")!==src) mv.setAttribute("src",src);
+    if(cfg.scale) mv.setAttribute("scale",cfg.scale);
+    if(cfg.exposure) mv.setAttribute("exposure",cfg.exposure);
+    if(cfg.orbit) mv.setAttribute("camera-orbit",cfg.orbit);
+  }else{
+    avatar.classList.remove("is3d");
+    const src=portraitSrc(p.theme,p.hero,1);
+    if(img.getAttribute("src")!==src) img.src=src;
+  }
+}
+function renderPicker(){
+  const track=document.getElementById("pickTrack");
+  const hint=document.getElementById("pickHint");
+  track.innerHTML="";
+  START_PRESETS.forEach((p,idx)=>{
+    const el=document.createElement("div");
+    el.className="card"+(idx===pickIdx?" active":"");
+    el.innerHTML=`<div class="name">${p.name}</div><div class="meta">${p.lore}</div><div class="meta">${p.note}</div>`;
+    el.addEventListener("click",()=>{pickIdx=idx;renderPicker();});
+    track.appendChild(el);
+  });
+  track.style.transform=`translateX(${-pickIdx*232}px)`;
+  const p=START_PRESETS[pickIdx];
+  hint.textContent=`Выбор: ${p.name} · ${p.lore}`;
+  applyPickPreview(p);
+}
+function commitProfileFromPicker(){
+  const p=START_PRESETS[pickIdx];
+  const nameInput=document.getElementById("pickName");
+  const heroName=(nameInput.value||"Baruh").trim()||"Baruh";
+  profile={theme:p.theme,hero:p.hero,name:heroName,pickedAt:new Date().toISOString()};
+  saveProfile(profile);
+  localStorage.setItem(THEME_KEY,p.theme);
+  const panel=document.getElementById("onboarding");
+  panel.classList.remove("show");
+  document.getElementById("sysWho").textContent=`Игрок: ${heroName}`;
+  applyTheme(p.theme);
+}
+function openOnboarding(force=false){
+  if(!force && profile) return false;
+  const panel=document.getElementById("onboarding");
+  panel.classList.add("show");
+  const nameInput=document.getElementById("pickName");
+  if(profile&&profile.name) nameInput.value=profile.name;
+  else nameInput.value="Baruh";
+  renderPicker();
+  return true;
+}
+function initOnboarding(){
+  document.getElementById("pickPrev").addEventListener("click",()=>{pickIdx=(pickIdx-1+START_PRESETS.length)%START_PRESETS.length;renderPicker();});
+  document.getElementById("pickNext").addEventListener("click",()=>{pickIdx=(pickIdx+1)%START_PRESETS.length;renderPicker();});
+  document.getElementById("pickStart").addEventListener("click",commitProfileFromPicker);
+  document.getElementById("pickName").addEventListener("keydown",(e)=>{if(e.key==="Enter") commitProfileFromPicker();});
+  document.getElementById("newHeroBtn").addEventListener("click",()=>openOnboarding(true));
+  if(profile&&profile.name) document.getElementById("sysWho").textContent=`Игрок: ${profile.name}`;
+  const presetIdx=profile?START_PRESETS.findIndex(x=>x.theme===profile.theme && x.hero===profile.hero):-1;
+  if(presetIdx>=0) pickIdx=presetIdx;
+  const first=openOnboarding(false);
+  return first;
+}
+
+const isFirstRun=initOnboarding();
+if(!isFirstRun){
+  const initialTheme=(profile&&profile.theme&&THEMES[profile.theme])?profile.theme:(localStorage.getItem(THEME_KEY) || "light");
+  applyTheme(initialTheme);
+}
 </script>
 </body>
 </html>
