@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 0002 · Кто ты: сессии, токены и почему 401</title>
+<style>
+  :root{--ink:#1a1a1a;--muted:#666;--line:#e2e2e2;--accent:#7a4f9e;--accent2:#2e6e8e;
+    --bg:#fbfbf9;--card:#fff;--ok:#2e7d32;--bad:#c0392b;--code:#f4f2ef}
+  *{box-sizing:border-box}
+  body{font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:var(--bg);
+    max-width:780px;margin:0 auto;padding:44px 22px 110px;line-height:1.55;font-size:18px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 4px}
+  .meta{color:var(--muted);font-style:italic;margin:0 0 24px;font-size:16px}
+  h2{font-size:22px;margin:34px 0 8px;border-bottom:2px solid var(--line);padding-bottom:6px}
+  h3{font-size:18px;margin:18px 0 4px}
+  code,.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;background:var(--code);
+    padding:1px 6px;border-radius:4px}
+  pre{background:#2b2b2b;color:#eaeaea;padding:14px 16px;border-radius:8px;overflow:auto;font-size:13.5px;line-height:1.5}
+  pre code{background:none;color:inherit;padding:0}
+  .win{background:#f3eff8;border-left:5px solid var(--accent);border-radius:8px;padding:12px 16px;margin:16px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:18px 0}
+  .q{margin:14px 0;padding-bottom:12px;border-bottom:1px solid #f0f0f0}
+  .q:last-child{border-bottom:none}
+  .q p{margin:0 0 8px;font-weight:bold}
+  .opt{display:block;padding:8px 12px;margin:6px 0;border:1px solid var(--line);border-radius:8px;cursor:pointer;
+    font-size:16px;background:#fff;transition:.15s}
+  .opt:hover{background:#faf7fd}
+  .opt.correct{border-color:var(--ok);background:#f0f8f0}
+  .opt.wrong{border-color:var(--bad);background:#fcf0ef}
+  .opt input{margin-right:8px}
+  .fb{font-size:15px;margin-top:6px;min-height:20px}
+  .fb.ok{color:var(--ok)} .fb.no{color:var(--bad)}
+  .order-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+  .order-row select{font-family:inherit;font-size:15px;padding:5px 8px;border:1px solid var(--line);border-radius:6px}
+  .order-row span{font-size:16px}
+  table.cmp{width:100%;border-collapse:collapse;margin:10px 0;font-size:15.5px}
+  table.cmp th,table.cmp td{text-align:left;padding:9px 11px;border:1px solid var(--line);vertical-align:top}
+  table.cmp th{background:#f3eff8;font-size:13px;text-transform:uppercase;letter-spacing:.03em;color:var(--accent)}
+  button{font-family:inherit;font-size:15px;background:var(--accent);color:#fff;border:none;
+    border-radius:8px;padding:9px 16px;cursor:pointer}
+  button.ghost{background:#fff;color:var(--accent2);border:1px solid var(--line)}
+  button:hover{filter:brightness(1.05)}
+  input.txt{font-family:ui-monospace,monospace;font-size:15px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;width:120px}
+  label.ck{display:flex;gap:10px;align-items:flex-start;padding:6px 0;cursor:pointer;font-size:16px}
+  label.ck input{margin-top:5px;width:18px;height:18px;accent-color:var(--accent)}
+  .res{font-size:15px;margin-top:8px;font-weight:bold}
+  textarea{width:100%;min-height:70px;font-family:inherit;font-size:15px;padding:10px;border:1px solid var(--line);border-radius:8px}
+  .report{background:#1f2733;color:#e8eef5;border-radius:10px;padding:18px 20px;margin-top:14px;font-size:14px}
+  .report b{color:#9ecbff}
+  a{color:var(--accent2)}
+  .small{font-size:15px;color:var(--muted)}
+  .note{background:#fffaf0;border:1px solid #f0e2c0;border-radius:8px;padding:10px 14px;margin:14px 0;font-size:16px}
+  @media print{body{background:#fff}}
+</style>
+</head>
+<body>
+
+<h1>Урок 0002 · Кто ты: сессии, токены и почему 401</h1>
+<p class="meta">Курс «Senior 2026» · Фаза 0 · ~15 мин теории + практика на <code>fullstack-lab</code></p>
+
+<div class="win">
+  <b>Сегодняшняя победа.</b> Ты поймёшь, как сервер «помнит», что ты залогинен, хотя HTTP
+  ничего не запоминает; в чём разница между <b>серверной сессией</b> и <b>stateless JWT</b>;
+  что лежит внутри токена; чем <code>401</code> отличается от <code>403</code>; и почему «выйти»
+  с чистым JWT — это хитрость. Всё — на твоём реальном полигоне.
+</div>
+
+<h2>1. Теория (коротко)</h2>
+
+<h3>Проблема: HTTP ничего не помнит</h3>
+<p>HTTP — <b>stateless</b> (без состояния). Каждый запрос для сервера — «чистый лист»: он сам по
+себе не знает, что минуту назад ты вводил пароль. Тогда как сервер понимает, что список заметок
+надо отдать именно <i>тебе</i>? Ответ: клиент при каждом запросе предъявляет «пропуск». Есть два
+способа сделать этот пропуск.</p>
+
+<h3>Два способа помнить пользователя</h3>
+<table class="cmp">
+  <tr><th>Способ</th><th>Где живёт состояние</th><th>Что у клиента</th><th>Цена</th></tr>
+  <tr>
+    <td><b>Сессия</b></td>
+    <td>На сервере (память / Redis / БД) — список «кто сейчас вошёл»</td>
+    <td>Короткий <code>session_id</code> в cookie</td>
+    <td>Сервер хранит состояние; зато легко мгновенно разлогинить</td>
+  </tr>
+  <tr>
+    <td><b>JWT-токен</b></td>
+    <td>Нигде — сервер не хранит ничего</td>
+    <td>Сам токен с данными внутри (<code>userId</code>, <code>role</code>, срок)</td>
+    <td>Легко масштабировать; зато трудно отозвать до истечения срока</td>
+  </tr>
+</table>
+<p class="small">Запомни ось различия: <b>сессия = состояние на сервере</b>, <b>JWT = состояние
+в самом токене (stateless)</b>. Это любимый вопрос на собесе.</p>
+
+<h3>Что внутри JWT</h3>
+<p>JWT — это три части через точку: <code>header.payload.signature</code>.
+<b>payload</b> — это просто base64 с твоими данными (claims): <code>userId</code>, <code>role</code>,
+<code>exp</code> (когда протухнет). Его может прочитать кто угодно — это <u>не</u> шифр. А вот
+<b>signature</b> — подпись секретом сервера: подделать данные без секрета нельзя, сервер сразу
+заметит. Поэтому в JWT <b>не кладут секреты</b> — только идентификаторы.</p>
+
+<h3>Как это сделано в твоём lab</h3>
+<p>При <code>POST /auth/login</code> сервер проверяет пароль и <b>подписывает</b> JWT (алгоритм HS256,
+живёт 8 часов). Дальше токен едет к клиенту <b>двумя путями</b>: в HTTPOnly-cookie
+<code>access_token</code> <i>и</i> в теле ответа как <code>accessToken</code>. На каждом
+защищённом запросе <b>middleware</b> берёт токен сначала из cookie, а если её нет — из заголовка
+<code>Authorization: Bearer &lt;токен&gt;</code>. Нет токена или он битый → <code>401</code>.</p>
+
+<h3>401 ≠ 403</h3>
+<ul>
+  <li><code>401 Unauthorized</code> — «<b>я не знаю, кто ты</b>»: токен не предъявлен или невалиден. (Точнее было бы «не аутентифицирован».)</li>
+  <li><code>403 Forbidden</code> — «<b>я знаю, кто ты, но тебе сюда нельзя</b>»: прав/роли не хватает.</li>
+</ul>
+<div class="note"><b>Тонкость безопасности из lab.</b> Чужую заметку lab отдаёт как <code>404 Not Found</code>,
+а не <code>403</code> — чтобы не выдавать даже сам факт её существования. Это осознанный приём, его
+любят обсуждать сеньоры.</div>
+
+<h3>Почему «logout» с JWT — хитрость</h3>
+<p>В lab <code>logout</code> просто <b>стирает cookie</b>. Но stateless-токен сервер нигде не хранит,
+значит и «выбросить» его не может: если ты успел сохранить Bearer-токен, он будет работать до
+<code>exp</code>. Это реальный компромисс JWT — лечат коротким сроком жизни + refresh-токенами или
+чёрным списком по <code>jti</code>. Ты увидишь это руками в практике.</p>
+
+<h2>2. Проверь себя (автопроверка)</h2>
+
+<div class="card" id="quiz">
+  <div class="q" data-correct="a">
+    <p>1. Что значит «HTTP без состояния (stateless)»?</p>
+    <label class="opt"><input type="radio" name="q1" value="a">Сервер сам по себе не помнит прошлые запросы клиента</label>
+    <label class="opt"><input type="radio" name="q1" value="b">Сервер держит сессию каждого клиента в своей памяти</label>
+    <label class="opt"><input type="radio" name="q1" value="c">Браузер обязан слать логин и пароль в каждом запросе</label>
+    <label class="opt"><input type="radio" name="q1" value="d">Каждый новый запрос открывает отдельное TCP-соединение</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="b">
+    <p>2. Чем stateless JWT отличается от серверной сессии?</p>
+    <label class="opt"><input type="radio" name="q2" value="a">Сессия совсем не хранит данных о вошедшем клиенте</label>
+    <label class="opt"><input type="radio" name="q2" value="b">Данные лежат в самом токене, сервер их не хранит</label>
+    <label class="opt"><input type="radio" name="q2" value="c">Токен хранится лишь на сервере в его общей базе</label>
+    <label class="opt"><input type="radio" name="q2" value="d">Сессия подписана секретом, а токен ничем не подписан</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="a">
+    <p>3. Когда правильнее вернуть <code>403</code>, а не <code>401</code>?</p>
+    <label class="opt"><input type="radio" name="q3" value="a">Кто ты — понятно, но прав на это действие нет</label>
+    <label class="opt"><input type="radio" name="q3" value="b">Кто ты — неясно, токен вообще не был предъявлен</label>
+    <label class="opt"><input type="radio" name="q3" value="c">Сам сервер упал во время обработки запроса</label>
+    <label class="opt"><input type="radio" name="q3" value="d">Запрошенного ресурса на сервере просто нет</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="a">
+    <p>4. Почему «logout» с чистым JWT — это хитрость?</p>
+    <label class="opt"><input type="radio" name="q4" value="a">Выданный токен живёт до срока, отозвать его трудно</label>
+    <label class="opt"><input type="radio" name="q4" value="b">Сервер мгновенно стирает этот токен из своей базы</label>
+    <label class="opt"><input type="radio" name="q4" value="c">Браузер сам гасит токен сразу на всех устройствах</label>
+    <label class="opt"><input type="radio" name="q4" value="d">Токен после выдачи нельзя использовать ни разу</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="b">
+    <p>5. Можно ли класть пароль или секрет в payload JWT?</p>
+    <label class="opt"><input type="radio" name="q5" value="a">Да, ведь payload надёжно зашифрован секретом</label>
+    <label class="opt"><input type="radio" name="q5" value="b">Нет, payload лишь подписан и читается кем угодно</label>
+    <label class="opt"><input type="radio" name="q5" value="c">Да, но только если токен лежит внутри cookie</label>
+    <label class="opt"><input type="radio" name="q5" value="d">Нет, потому что payload вообще нельзя раскодировать</label>
+    <div class="fb"></div>
+  </div>
+</div>
+
+<h2>3. Сессия или JWT?</h2>
+<p>Для каждого утверждения выбери, к чему оно относится.</p>
+<div class="card" id="classify">
+  <div class="order-row"><select data-ans="session"><option value="">—</option><option value="session">Сессия</option><option value="jwt">JWT</option></select>
+    <span>Сервер держит список вошедших в памяти или Redis</span></div>
+  <div class="order-row"><select data-ans="jwt"><option value="">—</option><option value="session">Сессия</option><option value="jwt">JWT</option></select>
+    <span>Чтобы узнать клиента, достаточно проверить подпись</span></div>
+  <div class="order-row"><select data-ans="session"><option value="">—</option><option value="session">Сессия</option><option value="jwt">JWT</option></select>
+    <span>Легко мгновенно разлогинить юзера на стороне сервера</span></div>
+  <div class="order-row"><select data-ans="jwt"><option value="">—</option><option value="session">Сессия</option><option value="jwt">JWT</option></select>
+    <span>Масштабировать на много серверов проще: нечего хранить</span></div>
+  <div class="order-row"><select data-ans="session"><option value="">—</option><option value="session">Сессия</option><option value="jwt">JWT</option></select>
+    <span>У клиента лишь короткий id, данные лежат на сервере</span></div>
+  <div class="order-row"><select data-ans="jwt"><option value="">—</option><option value="session">Сессия</option><option value="jwt">JWT</option></select>
+    <span>Внутри у клиента — userId, role и срок годности</span></div>
+  <div style="margin-top:12px"><button id="checkClassify" class="ghost">Проверить</button> <span class="res" id="classifyRes"></span></div>
+</div>
+
+<h2>4. Практика на полигоне</h2>
+<p>Теперь руками докажем, что JWT — stateless: тот же токен работает <b>без cookie</b>, через Bearer.</p>
+<pre><code># 1. Запусти API (если ещё не запущен)
+cd yamal_media/fullstack-lab/apps/api
+go run ./cmd/server
+
+# 2. Логин — и сразу достанем сам токен из тела ответа в переменную TOKEN
+TOKEN=$(curl -s -X POST http://localhost:8080/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"editor@lab.local","password":"lab12345"}' \
+  | grep -o '"accessToken":"[^"]*"' | cut -d'"' -f4)
+echo "$TOKEN"
+
+# 3. Загляни ВНУТРЬ токена — раскодируем payload (вторую часть). Это не взлом: payload открыт
+python3 -c "import sys,base64,json;p=sys.argv[1].split('.')[1];p+='='*(-len(p)%4);print(json.dumps(json.loads(base64.urlsafe_b64decode(p)),indent=2,ensure_ascii=False))" "$TOKEN"
+
+# 4. Кто я? Спросим БЕЗ всякой cookie — только Bearer-токеном (stateless в действии)
+curl -i -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/v1/auth/me
+
+# 5. А теперь без токена вообще — смотри статус
+curl -i http://localhost:8080/api/v1/auth/me
+
+# 6. «Выходим» (logout стирает cookie) и СНОВА бьём тем же Bearer-токеном
+curl -i -X POST -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/v1/auth/logout
+curl -i -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/v1/auth/me</code></pre>
+
+<div class="card">
+  <label class="ck"><input type="checkbox" id="p1">Достал токен и увидел внутри payload <code>userId</code>, <code>role</code>, <code>exp</code></label>
+  <label class="ck"><input type="checkbox" id="p2">Через <code>Bearer</code> (без cookie) <code>/auth/me</code> узнал меня — это и есть stateless</label>
+  <label class="ck"><input type="checkbox" id="p3">После <code>logout</code> тот же Bearer-токен всё ещё работает — понял, почему</label>
+  <div style="margin-top:12px">
+    <span>Из скольких частей (через точку) состоит JWT? </span>
+    <input class="txt" id="partsIn" placeholder="число" inputmode="numeric" style="width:90px">
+    <button class="ghost" id="checkParts">Проверить</button>
+    <span class="res" id="partsRes"></span>
+  </div>
+  <div style="margin-top:10px">
+    <span>Какой статус вернул <code>/auth/me</code> <b>без</b> токена? </span>
+    <input class="txt" id="statusIn" placeholder="напр. 200" inputmode="numeric">
+    <button class="ghost" id="checkStatus">Проверить</button>
+    <span class="res" id="statusRes"></span>
+  </div>
+  <div style="margin-top:10px">
+    <span>После <code>logout</code> Bearer-токен ещё работает? (да/нет) </span>
+    <input class="txt" id="revokeIn" placeholder="да / нет" style="width:120px">
+    <button class="ghost" id="checkRevoke">Проверить</button>
+    <span class="res" id="revokeRes"></span>
+  </div>
+</div>
+
+<h2>5. Первоисточник</h2>
+<p>Эталонные справочники (по 10 минут):
+<a href="https://developer.mozilla.org/ru/docs/Web/HTTP/Authentication" target="_blank">MDN: HTTP-аутентификация</a> (там же про <code>401</code>/<code>403</code>) и
+<a href="https://developer.mozilla.org/ru/docs/Web/HTTP/Cookies" target="_blank">MDN: Cookies</a>
+(обрати внимание на <code>HttpOnly</code> и <code>SameSite</code> — почему токен в cookie безопаснее, чем в <code>localStorage</code>).</p>
+<p class="small">Застрял или непонятно? Спроси меня в чате — я твой преподаватель.
+Например: «Урок 0002: зачем нужен refresh-токен, если есть JWT?»</p>
+
+<h2>6. Отчёт для агента</h2>
+<p class="small">Нажми кнопку — отчёт скопируется в буфер. Вставь его мне в чат одним <b>Ctrl+V</b>.</p>
+<textarea id="issues" placeholder="Что осталось непонятным? (необязательно)"></textarea>
+<div style="margin-top:10px">
+  <button id="copyBtn">Скопировать отчёт</button>
+  <span class="res" id="copyRes"></span>
+</div>
+<div class="report" id="reportView" style="display:none"></div>
+
+<script>
+// ---- Quiz ----
+const quizState={};
+const QN=document.querySelectorAll("#quiz .q").length;
+document.querySelectorAll("#quiz .q").forEach((q,i)=>{
+  const correct=q.dataset.correct;
+  q.querySelectorAll(".opt").forEach(opt=>{
+    opt.addEventListener("click",()=>{
+      const val=opt.querySelector("input").value;
+      q.querySelectorAll(".opt").forEach(o=>o.classList.remove("correct","wrong"));
+      const fb=q.querySelector(".fb");
+      quizState["q"+(i+1)]={chosen:val,ok:val===correct};
+      if(val===correct){opt.classList.add("correct");fb.textContent="Верно ✓";fb.className="fb ok";}
+      else{opt.classList.add("wrong");fb.textContent="Не то — подумай ещё раз";fb.className="fb no";}
+    });
+  });
+});
+
+// ---- Classify (session vs jwt) ----
+let classifyOk=false;
+document.getElementById("checkClassify").addEventListener("click",()=>{
+  let allFilled=true, allRight=true;
+  document.querySelectorAll("#classify select").forEach(s=>{
+    if(!s.value){allFilled=false;return;}
+    if(s.value!==s.dataset.ans) allRight=false;
+  });
+  const res=document.getElementById("classifyRes");
+  if(!allFilled){res.textContent="Заполни все строки";res.style.color="var(--bad)";classifyOk=false;}
+  else if(allRight){res.textContent="Всё верно ✓";res.style.color="var(--ok)";classifyOk=true;}
+  else{res.textContent="Где-то перепутано — попробуй ещё";res.style.color="var(--bad)";classifyOk=false;}
+});
+
+// ---- Practice autochecks ----
+let partsOk=false,statusOk=false,revokeOk=false;
+document.getElementById("checkParts").addEventListener("click",()=>{
+  const v=document.getElementById("partsIn").value.trim();
+  const res=document.getElementById("partsRes");
+  if(v==="3"){res.textContent="Точно ✓ header.payload.signature";res.style.color="var(--ok)";partsOk=true;}
+  else{res.textContent="Не то — посчитай точки в токене";res.style.color="var(--bad)";partsOk=false;}
+});
+document.getElementById("checkStatus").addEventListener("click",()=>{
+  const v=document.getElementById("statusIn").value.trim();
+  const res=document.getElementById("statusRes");
+  if(v==="401"){res.textContent="Верно ✓ нет токена → 401";res.style.color="var(--ok)";statusOk=true;}
+  else{res.textContent="Не совсем — это код «не авторизован»";res.style.color="var(--bad)";statusOk=false;}
+});
+document.getElementById("checkRevoke").addEventListener("click",()=>{
+  const v=document.getElementById("revokeIn").value.trim().toLowerCase();
+  const res=document.getElementById("revokeRes");
+  const yes=["да","yes","работает","работа","y","ага","да."];
+  if(yes.some(w=>v.startsWith(w))){res.textContent="Верно ✓ JWT нельзя отозвать — он живёт до exp";res.style.color="var(--ok)";revokeOk=true;}
+  else if(v){res.textContent="Перепроверь шаг 6: токен сервер нигде не хранит";res.style.color="var(--bad)";revokeOk=false;}
+});
+
+// ---- Report ----
+function buildReport(){
+  const qLines=[];let qScore=0;
+  for(let i=1;i<=QN;i++){const s=quizState["q"+i];if(s){if(s.ok)qScore++;qLines.push(`  Q${i}: ${s.chosen} ${s.ok?"OK":"WRONG"}`);}else qLines.push(`  Q${i}: (не отвечено)`);}
+  const p=id=>document.getElementById(id).checked?"да":"нет";
+  const issues=document.getElementById("issues").value.trim()||"(нет)";
+  return [
+"=== ОТЧЁТ · Курс Senior 2026 · Урок 0002 «Сессии и токены, 401 vs 403» ===",
+`Квиз: ${qScore}/${QN}`,
+...qLines,
+`Классификация «сессия vs JWT»: ${classifyOk?"верно":"не подтверждено"}`,
+"Практика на полигоне:",
+`  Прочитал payload JWT (userId/role/exp): ${p("p1")}`,
+`  /auth/me через Bearer без cookie узнал меня: ${p("p2")}`,
+`  Понял, почему Bearer работает после logout: ${p("p3")}`,
+`  Частей в JWT = 3 распознано: ${partsOk?"да":"нет"}`,
+`  Статус /auth/me без токена распознан как 401: ${statusOk?"да":"нет"}`,
+`  Bearer после logout всё ещё работает: ${revokeOk?"да":"нет"}`,
+`Что непонятно: ${issues}`,
+"=== конец отчёта ==="
+  ].join("\n");
+}
+document.getElementById("copyBtn").addEventListener("click",async()=>{
+  const text=buildReport();
+  const view=document.getElementById("reportView");
+  view.style.display="block";view.textContent=text;
+  const res=document.getElementById("copyRes");
+  try{await navigator.clipboard.writeText(text);res.textContent="Скопировано ✓ вставь в чат (Ctrl+V)";res.style.color="var(--ok)";}
+  catch(e){res.textContent="Выдели текст ниже и скопируй вручную";res.style.color="var(--bad)";}
+});
+</script>
+</body>
+</html>

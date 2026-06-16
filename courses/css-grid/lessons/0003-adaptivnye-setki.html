@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Урок 3 · Адаптивные сетки</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #fffff8;
+    --accent: #a00000;
+    --soft: #888;
+    --cell: #4a7ebb;
+    --cell2: #b8860b;
+    --ok: #2e7d32;
+    --bad: #c62828;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: var(--paper);
+    color: var(--ink);
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 6rem;
+    line-height: 1.6;
+    font-size: 1.05rem;
+  }
+  h1 { font-size: 2rem; font-weight: 400; font-style: italic; margin-bottom: 0.2rem; }
+  h2 { font-size: 1.35rem; font-weight: 400; font-style: italic; margin-top: 2.8rem; border-bottom: 1px solid #ddd; padding-bottom: 0.3rem; }
+  .meta { color: var(--soft); font-size: 0.9rem; margin-bottom: 2.5rem; }
+  a { color: var(--accent); }
+  code, pre { font-family: 'SF Mono', Consolas, Menlo, monospace; font-size: 0.88em; }
+  code { background: #f3f1e9; padding: 0.1em 0.35em; border-radius: 3px; }
+  pre { background: #f3f1e9; padding: 1rem 1.2rem; border-radius: 6px; overflow-x: auto; line-height: 1.5; }
+  pre code { background: none; padding: 0; }
+  .note {
+    border-left: 3px solid var(--accent);
+    padding: 0.4rem 1rem;
+    margin: 1.5rem 0;
+    background: #faf6ef;
+    font-size: 0.95rem;
+  }
+  .demo { display: grid; gap: 8px; margin: 1rem 0; }
+  .demo > div, .card {
+    background: var(--cell);
+    color: #fff;
+    border-radius: 4px;
+    padding: 0.6rem;
+    text-align: center;
+    font-family: Consolas, monospace;
+    font-size: 0.85rem;
+  }
+  .playground {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1.2rem;
+    margin: 1.2rem 0;
+    background: #fcfbf5;
+  }
+  .playground label { font-size: 0.9rem; color: var(--soft); display: block; margin-bottom: 0.4rem; }
+  .playground input, .playground textarea {
+    width: 100%;
+    font-family: Consolas, monospace;
+    font-size: 0.95rem;
+    padding: 0.5rem 0.7rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: #fff;
+  }
+  .playground textarea { resize: vertical; min-height: 5em; line-height: 1.5; }
+  .playground input:focus, .playground textarea:focus { outline: 2px solid var(--cell); border-color: transparent; }
+  .fb { font-size: 0.88rem; min-height: 1.2em; margin-top: 0.5rem; }
+  .fb.ok { color: var(--ok); }
+  .fb.bad { color: var(--bad); }
+  .resize-box {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 8px;
+    resize: horizontal;
+    overflow: auto;
+    min-width: 220px;
+    max-width: 100%;
+    width: 100%;
+    margin: 1rem 0;
+  }
+  .resize-box .demo { margin: 0; }
+  .width-readout { font-size: 0.85rem; color: var(--soft); font-family: Consolas, monospace; }
+  .layout-grid {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 8px;
+    margin-top: 1rem;
+  }
+  .layout-grid > div {
+    color: #fff;
+    border-radius: 4px;
+    padding: 0.8rem;
+    text-align: center;
+    font-family: Consolas, monospace;
+    font-size: 0.85rem;
+  }
+  .layout-grid .lg-header { background: #6a5acd; grid-area: header; }
+  .layout-grid .lg-sidebar { background: var(--cell2); grid-area: sidebar; }
+  .layout-grid .lg-content { background: var(--cell); grid-area: content; min-height: 70px; }
+  .layout-grid .lg-footer { background: #555; grid-area: footer; }
+  .narrow-wrap {
+    width: 280px;
+    border: 2px dashed var(--accent);
+    border-radius: 8px;
+    padding: 8px;
+    margin-top: 1rem;
+  }
+  .narrow-wrap .label { font-size: 0.8rem; color: var(--accent); font-family: Consolas, monospace; margin-bottom: 0.4rem; }
+  .quiz .q { margin-bottom: 1.6rem; }
+  .quiz .q p { margin: 0 0 0.5rem; }
+  .quiz button.opt {
+    display: block; width: 100%; text-align: left;
+    font-family: inherit; font-size: 0.95rem;
+    padding: 0.55rem 0.9rem; margin-bottom: 0.4rem;
+    border: 1px solid #ccc; border-radius: 6px;
+    background: #fff; cursor: pointer;
+  }
+  .quiz button.opt:hover { border-color: var(--ink); }
+  .quiz button.opt.correct { border-color: var(--ok); background: #e8f5e9; }
+  .quiz button.opt.wrong { border-color: var(--bad); background: #ffebee; }
+  .win {
+    border: 1px solid var(--ok); background: #e8f5e9;
+    border-radius: 8px; padding: 1rem 1.2rem; margin-top: 2rem; display: none;
+  }
+  .report-btn {
+    font-family: inherit; font-style: italic; font-size: 0.95rem;
+    padding: 0.6rem 1.4rem; border: 1px solid var(--ink); border-radius: 6px;
+    background: var(--ink); color: var(--paper); cursor: pointer;
+  }
+  .report-btn:hover { background: var(--accent); border-color: var(--accent); }
+  #report-text { white-space: pre-wrap; display: none; margin-top: 1rem; }
+</style>
+</head>
+<body>
+
+<h1>Адаптивные сетки</h1>
+<p class="meta">Урок 0003 · ~12 минут · после <a href="./0002-razmeshchenie-elementov.html">урока 0002</a> · шпаргалка: <a href="../reference/grid-spravochnik.html">справочник</a></p>
+
+<p>Вы умеете собирать макеты и расставлять элементы. Сегодня — паттерн, ради которого многие вообще переходят на Grid: <strong>карточная сетка, которая сама перестраивается при изменении ширины</strong>. Одна строка CSS вместо медиазапросов на каждое количество колонок.</p>
+
+<h2>Знание №1: minmax()</h2>
+
+<p>Трек может быть не фиксированным и не долей — а <em>диапазоном</em> (<a href="https://developer.mozilla.org/ru/docs/Web/CSS/minmax">MDN: minmax()</a>):</p>
+
+<pre><code>grid-template-columns: minmax(200px, 1fr);</code></pre>
+
+<p>Читается: «колонка не уже 200px и не шире 1fr». Если места мало — колонка сожмётся до 200px и дальше перенос. Если места много — растянется.</p>
+
+<h2>Знание №2: auto-fit + repeat = магия</h2>
+
+<p>Свяжите <code>repeat()</code>, <code>auto-fit</code> и <code>minmax()</code> (<a href="https://css-tricks.com/snippets/css/complete-guide-grid/#aa-auto-fit-and-auto-fill">CSS-Tricks: auto-fit</a>):</p>
+
+<pre><code>.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+}</code></pre>
+
+<p>Браузер сам считает, сколько колонок по 200px+ поместится, и растягивает их равномерно. Сужаете контейнер — колонок становится меньше. Расширяете — больше. Без единого <code>@media</code>.</p>
+
+<p>Потяните за правый край рамки — смотрите, как сетка перестраивается:</p>
+
+<div class="resize-box" id="demo-resize">
+  <div class="demo" id="demo-cards" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+    <div class="card">1</div><div class="card">2</div><div class="card">3</div>
+    <div class="card">4</div><div class="card">5</div><div class="card">6</div>
+  </div>
+</div>
+<p class="width-readout" id="width-readout">ширина контейнера: —</p>
+
+<div class="note">
+  <code>auto-fit</code> схлопывает пустые колонки — карточки растягиваются на всю ширину. <code>auto-fill</code> оставляет пустые дорожки. Для карточек почти всегда берите <strong>auto-fit</strong>.
+</div>
+
+<h2>Навык №1: карточная сетка</h2>
+
+<div class="task playground" data-task="1">
+  <p><strong>Задание 1.</strong> Напишите <code>grid-template-columns</code> для адаптивной сетки карточек: минимум <strong>200px</strong> на карточку, максимум — равномерное растягивание. Используйте <code>repeat</code>, <code>auto-fit</code> и <code>minmax</code>.</p>
+  <label>grid-template-columns:</label>
+  <input type="text" class="task-input" spellcheck="false" placeholder="ваш ответ…">
+  <div class="fb task-fb"></div>
+  <div class="resize-box task-resize" style="width: 640px;">
+    <div class="demo task-grid" data-cards="6">
+      <div class="card">1</div><div class="card">2</div><div class="card">3</div>
+      <div class="card">4</div><div class="card">5</div><div class="card">6</div>
+    </div>
+  </div>
+</div>
+
+<div class="task playground" data-task="2">
+  <p><strong>Задание 2.</strong> То же самое, но минимальная ширина карточки — <strong>280px</strong> (крупные карточки, меньше колонок).</p>
+  <label>grid-template-columns:</label>
+  <input type="text" class="task-input" spellcheck="false" placeholder="ваш ответ…">
+  <div class="fb task-fb"></div>
+  <div class="resize-box task-resize" style="width: 640px;">
+    <div class="demo task-grid" data-cards="6">
+      <div class="card">1</div><div class="card">2</div><div class="card">3</div>
+      <div class="card">4</div><div class="card">5</div><div class="card">6</div>
+    </div>
+  </div>
+</div>
+
+<h2>Знание №3: макет страницы на узком экране</h2>
+
+<p>Карточки сами адаптируются. Но макет «сайдбар слева» из <a href="./0002-razmeshchenie-elementov.html">урока 0002</a> на телефоне нужно <em>перестроить вручную</em> — через медиазапрос и новые <code>grid-template-areas</code>:</p>
+
+<pre><code>@media (max-width: 600px) {
+  .page {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "header"
+      "sidebar"
+      "content"
+      "footer";
+  }
+}</code></pre>
+
+<p>Одна колонка, четыре строки — всё друг под другом. На широком экране остаётся прежний макет из урока 0002.</p>
+
+<h2>Навык №2: узкий экран</h2>
+
+<div class="task playground" data-task="3">
+  <p><strong>Задание 3.</strong> Контейнер ниже — «узкий экран» (280px). Напишите <code>grid-template-areas</code>, чтобы header, sidebar, content и footer шли <strong>друг под другом</strong> (одна колонка, четыре строки). Имена областей: <code>header</code>, <code>sidebar</code>, <code>content</code>, <code>footer</code>.</p>
+  <label>grid-template-areas:</label>
+  <textarea class="task-input" spellcheck="false" placeholder='"header"&#10;"sidebar"&#10;"content"&#10;"footer"'></textarea>
+  <div class="fb task-fb"></div>
+  <div class="narrow-wrap">
+    <div class="label">узкий экран · 280px</div>
+    <div class="layout-grid task-grid" style="grid-template-columns: 1fr;">
+      <div class="lg-header">header</div>
+      <div class="lg-sidebar">sidebar</div>
+      <div class="lg-content">content</div>
+      <div class="lg-footer">footer</div>
+    </div>
+  </div>
+</div>
+
+<h2>Проверка: квиз</h2>
+
+<div class="quiz" id="quiz"></div>
+
+<div class="win" id="win">
+  <strong>Победа засчитана.</strong> Вы закрыли второй критерий миссии — адаптивная карточная сетка одной строкой. Обновлённый <a href="../reference/grid-spravochnik.html">справочник</a> теперь включает и этот паттерн.
+</div>
+
+<h2>Отчёт для агента</h2>
+
+<p>Закончили урок (или застряли) — нажмите кнопку и вставьте отчёт в чат одним Ctrl+V.</p>
+
+<div class="playground">
+  <button class="report-btn" id="report-btn">Скопировать отчёт для агента</button>
+  <div class="fb" id="report-status"></div>
+  <pre id="report-text"></pre>
+</div>
+
+<h2>Куда дальше</h2>
+
+<p><strong>Первоисточник урока:</strong> <a href="https://web.dev/learn/css/grid#auto-fill_and_auto-fit">web.dev: auto-fill and auto-fit</a> — с интерактивными примерами, где видно разницу между auto-fit и auto-fill.</p>
+
+<p>Попробуйте на реальной странице: возьмите любой список карточек (товары, посты) и замените фиксированные колонки на <code>repeat(auto-fit, minmax(…))</code>. Потяните окно браузера — сетка должна перестраиваться сама.</p>
+
+<div class="note">
+  Остались вопросы — задайте их агенту прямо в чате. Агент — ваш учитель: попросите объяснить иначе, дать ещё примеров или усложнить задание.
+</div>
+
+<script>
+  // Демо: показать ширину при ресайзе
+  const demoResize = document.getElementById('demo-resize');
+  const widthReadout = document.getElementById('width-readout');
+  function updateWidth() {
+    widthReadout.textContent = 'ширина контейнера: ' + Math.round(demoResize.clientWidth) + 'px';
+  }
+  new ResizeObserver(updateWidth).observe(demoResize);
+  updateWidth();
+
+  const approxEqual = (a, b, tol = 4) => Math.abs(a - b) < tol;
+
+  function measureColumns(gridEl) {
+    const computed = getComputedStyle(gridEl).gridTemplateColumns;
+    if (!computed || computed === 'none') return [];
+    return computed.split(' ').map(parseFloat).filter(n => !isNaN(n));
+  }
+
+  function parseMinFromRaw(raw) {
+    const m = raw.match(/minmax\s*\(\s*(\d+(?:\.\d+)?)(px|rem|em)/i);
+    return m ? { val: parseFloat(m[1]), unit: m[2].toLowerCase() } : null;
+  }
+
+  const checkers = {
+    // Адаптивная карточная сетка с заданным min
+    cardGrid: (taskEl, expectedMin) => {
+      const raw = taskEl.querySelector('.task-input').value.trim();
+      if (!/repeat\s*\(/i.test(raw)) return 'Нужна функция repeat().';
+      if (!/auto-fit/i.test(raw)) return 'Для карточек используйте auto-fit (не фиксированное число колонок).';
+      if (!/minmax\s*\(/i.test(raw)) return 'Нужна функция minmax() внутри repeat().';
+      const parsed = parseMinFromRaw(raw);
+      if (!parsed) return 'В minmax() укажите минимум в px, например minmax(200px, 1fr).';
+      if (parsed.unit !== 'px' || !approxEqual(parsed.val, expectedMin, 1)) {
+        return 'Минимальная ширина должна быть ' + expectedMin + 'px.';
+      }
+      if (!/1fr/i.test(raw)) return 'Максимум трека — 1fr (равномерное растягивание).';
+
+      const grid = taskEl.querySelector('.task-grid');
+      const cols = measureColumns(grid);
+      if (cols.length < 2) return 'При ширине 640px должно поместиться минимум 2 колонки — проверьте синтаксис.';
+      if (!cols.every(c => c >= expectedMin - 6)) return 'Колонки уже минимума (' + expectedMin + 'px) — minmax задан неверно.';
+      return true;
+    },
+  };
+
+  const checkersByTask = {
+    1: (el) => checkers.cardGrid(el, 200),
+    2: (el) => checkers.cardGrid(el, 280),
+    3: (taskEl) => {
+      const grid = taskEl.querySelector('.task-grid');
+      const r = (sel) => taskEl.querySelector(sel).getBoundingClientRect();
+      const g = grid.getBoundingClientRect();
+      const h = r('.lg-header'), s = r('.lg-sidebar'), c = r('.lg-content'), f = r('.lg-footer');
+      const fullWidth = (rect) => approxEqual(rect.width, g.width, 6);
+      if (!fullWidth(h) || !fullWidth(s) || !fullWidth(c) || !fullWidth(f)) {
+        return 'Каждая область должна занимать всю ширину — одна колонка.';
+      }
+      if (!(h.bottom <= s.top + 2 && s.bottom <= c.top + 2 && c.bottom <= f.top + 2)) {
+        return 'Области должны идти сверху вниз: header → sidebar → content → footer.';
+      }
+      const cols = measureColumns(grid);
+      if (cols.length !== 1) return 'Нужна одна колонка — четыре строки друг под другом.';
+      return true;
+    }
+  };
+
+  const tasksSolved = new Set();
+  document.querySelectorAll('.task').forEach(taskEl => {
+    const id = taskEl.dataset.task;
+    const input = taskEl.querySelector('.task-input');
+    const grid = taskEl.querySelector('.task-grid');
+    const fb = taskEl.querySelector('.task-fb');
+
+    input.addEventListener('input', () => {
+      const raw = input.value.trim();
+      if (id === '3') {
+        grid.style.gridTemplateAreas = '';
+        if (!raw) { fb.textContent = ''; fb.className = 'fb task-fb'; return; }
+        grid.style.gridTemplateAreas = raw.replace(/\n/g, ' ');
+        if (grid.style.gridTemplateAreas === '') {
+          fb.textContent = '✗ невалидный CSS';
+          fb.className = 'fb task-fb bad';
+          return;
+        }
+      } else {
+        grid.style.gridTemplateColumns = '';
+        if (!raw) { fb.textContent = ''; fb.className = 'fb task-fb'; return; }
+        grid.style.gridTemplateColumns = raw;
+        if (grid.style.gridTemplateColumns === '') {
+          fb.textContent = '✗ невалидный CSS';
+          fb.className = 'fb task-fb bad';
+          return;
+        }
+      }
+
+      const result = checkersByTask[id](taskEl);
+      if (result === true) {
+        tasksSolved.add(id);
+        fb.textContent = '✓ Верно!';
+        fb.className = 'fb task-fb ok';
+        checkWin();
+      } else {
+        fb.textContent = '✗ ' + result;
+        fb.className = 'fb task-fb bad';
+      }
+    });
+  });
+
+  const questions = [
+    {
+      q: 'Что означает minmax(200px, 1fr)?',
+      opts: [
+        'Колонка от 200px до равной доли места',
+        'Колонка ровно 200px без переноса строк',
+        'Колонка от 200px до 1px в ширину'
+      ],
+      correct: 0
+    },
+    {
+      q: 'Что делает repeat(auto-fit, minmax(200px, 1fr))?',
+      opts: [
+        'Сам считает число колонок по ширине',
+        'Всегда создаёт ровно две колонки',
+        'Фиксирует сетку в три колонки всегда'
+      ],
+      correct: 0
+    },
+    {
+      q: 'Когда нужен @media для grid-template-areas?',
+      opts: [
+        'Когда макет страницы меняет структуру',
+        'Когда карточки сами перестраиваются',
+        'Когда используется только одна колонка'
+      ],
+      correct: 0
+    }
+  ];
+
+  const quizEl = document.getElementById('quiz');
+  let solved = 0;
+  const quizState = questions.map(() => ({ done: false, wrong: 0 }));
+  function checkWin() {
+    if (tasksSolved.size === 3 && solved === questions.length) {
+      document.getElementById('win').style.display = 'block';
+    }
+  }
+  questions.forEach((item, qi) => {
+    const order = item.opts.map((_, i) => i).sort(() => Math.random() - 0.5);
+    const qDiv = document.createElement('div');
+    qDiv.className = 'q';
+    qDiv.innerHTML = '<p><strong>' + (qi + 1) + '.</strong> ' + item.q + '</p>';
+    const fb = document.createElement('div');
+    fb.className = 'fb';
+    let answered = false;
+    order.forEach(oi => {
+      const btn = document.createElement('button');
+      btn.className = 'opt';
+      btn.textContent = item.opts[oi];
+      btn.addEventListener('click', () => {
+        if (answered) return;
+        if (oi === item.correct) {
+          answered = true;
+          btn.classList.add('correct');
+          fb.textContent = 'Верно.';
+          fb.className = 'fb ok';
+          ++solved;
+          quizState[qi].done = true;
+          checkWin();
+        } else {
+          btn.classList.add('wrong');
+          fb.textContent = 'Не то — вернитесь к разделу «Знание» и попробуйте снова.';
+          fb.className = 'fb bad';
+          quizState[qi].wrong++;
+        }
+      });
+      qDiv.appendChild(btn);
+    });
+    qDiv.appendChild(fb);
+    quizEl.appendChild(qDiv);
+  });
+
+  function buildReport() {
+    const lines = ['Отчёт об уроке 0003 «Адаптивные сетки» (CSS Grid)'];
+    lines.push('Дата: ' + new Date().toLocaleString('ru-RU'));
+    lines.push('');
+    lines.push('Задания: ' + tasksSolved.size + ' из 3');
+    document.querySelectorAll('.task').forEach(t => {
+      const id = t.dataset.task;
+      const val = t.querySelector('.task-input').value.trim();
+      let st;
+      if (tasksSolved.has(id)) st = '✓ решено — «' + val.replace(/\s*\n\s*/g, ' ') + '»';
+      else if (val) st = '✗ не решено, последняя попытка: «' + val.replace(/\s*\n\s*/g, ' ') + '»';
+      else st = '— не начато';
+      lines.push('  Задание ' + id + ': ' + st);
+    });
+    lines.push('Квиз: ' + solved + ' из ' + questions.length);
+    quizState.forEach((st, i) => {
+      lines.push('  Вопрос ' + (i + 1) + ': ' + (st.done ? '✓' : '✗ верного ответа нет') +
+        (st.wrong ? ' (неверных попыток: ' + st.wrong + ')' : ''));
+    });
+    return lines.join('\n');
+  }
+
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove();
+    return ok;
+  }
+
+  document.getElementById('report-btn').addEventListener('click', () => {
+    const text = buildReport();
+    const pre = document.getElementById('report-text');
+    pre.textContent = text;
+    pre.style.display = 'block';
+    const rStatus = document.getElementById('report-status');
+    const done = () => { rStatus.textContent = '✓ Отчёт скопирован — вставьте его в чат (Ctrl+V).'; rStatus.className = 'fb ok'; };
+    const fail = () => { rStatus.textContent = 'Автокопирование не сработало — выделите и скопируйте текст ниже вручную.'; rStatus.className = 'fb bad'; };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text) ? done() : fail());
+    } else {
+      fallbackCopy(text) ? done() : fail();
+    }
+  });
+</script>
+
+</body>
+</html>

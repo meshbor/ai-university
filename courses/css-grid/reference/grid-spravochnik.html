@@ -40,7 +40,7 @@
 <body>
 
 <h1>CSS Grid — справочник</h1>
-<p class="meta">Сжатая выжимка уроков <a href="../lessons/0001-osnovy-css-grid.html">0001</a> и <a href="../lessons/0002-razmeshchenie-elementov.html">0002</a> · обновляется по мере обучения</p>
+<p class="meta">Сжатая выжимка уроков <a href="../lessons/0001-osnovy-css-grid.html">0001</a>, <a href="../lessons/0002-razmeshchenie-elementov.html">0002</a> и <a href="../lessons/0003-adaptivnye-setki.html">0003</a> · обновляется по мере обучения</p>
 
 <h2>Минимальная сетка</h2>
 
@@ -99,6 +99,34 @@
 <h2>Grid или flexbox?</h2>
 
 <p>Grid — <strong>двумерный</strong>: контейнер управляет и строками, и колонками. Flexbox — одномерный: один ряд с переносами. Рисуете макет как таблицу — берите Grid; раскладываете цепочку элементов в ряд — flexbox.</p>
+
+<h2>Адаптивные карточки (auto-fit + minmax)</h2>
+
+<pre><code>.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+}</code></pre>
+
+<table>
+  <tr><th>Запись</th><th>Значение</th></tr>
+  <tr><td><code>minmax(200px, 1fr)</code></td><td>колонка не уже 200px, растягивается до равной доли</td></tr>
+  <tr><td><code>repeat(auto-fit, …)</code></td><td>браузер сам считает число колонок; пустые схлопываются</td></tr>
+  <tr><td><code>repeat(auto-fill, …)</code></td><td>как auto-fit, но пустые дорожки остаются (карточки не растягиваются)</td></tr>
+</table>
+
+<p>Карточная сетка перестраивается сама при изменении ширины — медиазапрос не нужен. Для макета страницы (сайдбар → столбик) на узком экране — <code>@media</code> + новые <code>grid-template-areas</code>.</p>
+
+<pre><code>@media (max-width: 600px) {
+  .page {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "header"
+      "sidebar"
+      "content"
+      "footer";
+  }
+}</code></pre>
 
 <h2>Первоисточники</h2>
 
