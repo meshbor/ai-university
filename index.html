@@ -279,15 +279,22 @@
   .pick .start{padding:10px 14px;border-radius:10px;border:1px solid #8f7bff;background:#6f5bdf;color:#fff;cursor:pointer}
   .pick .hint{font-size:12px;color:#b8b0ce}
 
+  html:not(.authed) .toolbar,
+  html:not(.authed) .screen,
+  html:not(.authed) .onboarding,
+  html:not(.authed) .cockpit,
+  html:not(.authed) .hangar,
+  html:not(.authed) .knight-bg,
+  html:not(.authed) .dojo{display:none!important}
   body:not(.app-ready) .toolbar,
   body:not(.app-ready) .screen{display:none}
   .auth-gate{position:fixed;inset:0;z-index:350;display:none;align-items:center;justify-content:center;
     background:linear-gradient(rgba(10,8,12,.88),rgba(10,8,12,.94))}
-  .auth-gate.show{display:flex}
+  html:not(.authed) .auth-gate{display:flex}
   .auth-gate .pick{width:min(420px,92vw)}
   .auth-err{color:#ff8a8a;font-size:13px;min-height:1.2em;margin-top:8px}
-  .auth-gate .cbtn{padding:10px 14px;height:auto}
 </style>
+<script>if(localStorage.getItem("aiuni_auth_v1")==="1")document.documentElement.classList.add("authed");</script>
 </head>
 <body data-theme="light">
 
@@ -298,8 +305,8 @@
 
   <div class="auth-gate" id="authGate">
     <div class="pick">
-      <h2>Вход владельца</h2>
-      <p>Личный кабинет с прогрессом — только после входа. Гости могут играть в демо без сохранения.</p>
+      <h2>AI University</h2>
+      <p>Вход по логину и паролю. Без него страница недоступна.</p>
       <div class="pick-name">
         <label for="authUser">Логин</label>
         <input id="authUser" type="text" autocomplete="username" placeholder="user">
@@ -309,8 +316,7 @@
         <input id="authPass" type="password" autocomplete="current-password" placeholder="••••••••">
       </div>
       <div class="auth-err" id="authErr"></div>
-      <div class="actions">
-        <button class="cbtn" id="authBack">Назад к выбору героя</button>
+      <div class="actions" style="justify-content:flex-end">
         <button class="start" id="authSubmit">Войти</button>
       </div>
     </div>
@@ -341,10 +347,7 @@
       </div>
       <div class="actions">
         <span class="hint" id="pickHint">—</span>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button class="cbtn" id="authOpen" style="height:auto;padding:10px 12px">🔒 Вход</button>
-          <button class="start" id="pickStart">Начать путь</button>
-        </div>
+        <button class="start" id="pickStart">Начать путь</button>
       </div>
     </div>
   </div>
@@ -624,22 +627,19 @@ function applyPortrait(theme, p){
 const XP_PER_LESSON=100, XP_PER_LEVEL=300, KEY="aiuni_pipboy_v1", THEME_KEY="aiuni_theme", PROFILE_KEY="aiuni_profile_v1", AUTH_KEY="aiuni_auth_v1";
 const AUTH_USER="user", AUTH_PASS="baklajan2025";
 const isAuthed=()=>localStorage.getItem(AUTH_KEY)==="1";
-const setAuthed=()=>localStorage.setItem(AUTH_KEY,"1");
-const clearAuthed=()=>localStorage.removeItem(AUTH_KEY);
+const setAuthed=()=>{ localStorage.setItem(AUTH_KEY,"1"); document.documentElement.classList.add("authed"); };
+const clearAuthed=()=>{ localStorage.removeItem(AUTH_KEY); document.documentElement.classList.remove("authed"); };
 const showApp=()=>document.body.classList.add("app-ready");
-const store = isAuthed()
-  ? JSON.parse(localStorage.getItem(KEY) || '{"lessons":{},"meta":{}}')
-  : {lessons:{},meta:{}};
+const store = JSON.parse(localStorage.getItem(KEY) || '{"lessons":{},"meta":{}}');
 if(!store.lessons) store.lessons={}; if(!store.meta) store.meta={};
-const save = ()=>{ if(isAuthed()) localStorage.setItem(KEY, JSON.stringify(store)); };
+const save = ()=> localStorage.setItem(KEY, JSON.stringify(store));
 const lk = (cid,n)=> cid+"/"+n;
 const loadProfile=()=>{
-  if(!isAuthed()) return null;
   const raw=localStorage.getItem(PROFILE_KEY);
   if(!raw) return null;
   try{return JSON.parse(raw);}catch{return null;}
 };
-const saveProfile=(p)=>{ if(isAuthed()) localStorage.setItem(PROFILE_KEY,JSON.stringify(p)); };
+const saveProfile=(p)=> localStorage.setItem(PROFILE_KEY,JSON.stringify(p));
 let profile=loadProfile();
 const START_PRESETS=[
   {id:"fallout", name:"Умник убежища", theme:"fallout", hero:"smart", note:"Pip-Boy + ретро", lore:"Технарь и планировщик"},
@@ -823,7 +823,7 @@ function refresh(){
 function applyTheme(t){
   if(!THEMES[t]) t="light";
   document.body.dataset.theme=t;
-  if(isAuthed()) localStorage.setItem(THEME_KEY,t);
+  localStorage.setItem(THEME_KEY,t);
   document.querySelectorAll("[data-theme-btn]").forEach(b=>b.classList.toggle("active",b.dataset.themeBtn===t));
   const cfg=THEMES[t];
   const heroName=(profile&&profile.name)?profile.name:"Baruh";
@@ -849,7 +849,6 @@ document.getElementById("sysDate").textContent =
   new Date().toLocaleString("ru-RU",{weekday:"short",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
 
 document.getElementById("reset").addEventListener("click",()=>{
-  if(!isAuthed()) return;
   if(confirm("Сбросить прогресс? Уровень, серия и выбор героя обнулятся.")){
     localStorage.removeItem(KEY);
     localStorage.removeItem(PROFILE_KEY);
@@ -858,16 +857,13 @@ document.getElementById("reset").addEventListener("click",()=>{
   }
 });
 document.getElementById("logoutBtn").addEventListener("click",()=>{
-  if(confirm("Выйти? Откроется демо-режим без вашего прогресса.")){
+  if(confirm("Выйти? Потребуется снова ввести логин и пароль.")){
     clearAuthed();
     location.reload();
   }
 });
-if(isAuthed()) document.getElementById("logoutBtn").hidden=false;
-else document.getElementById("reset").hidden=true;
 
 function initAuth(){
-  const gate=document.getElementById("authGate");
   const err=document.getElementById("authErr");
   const tryLogin=()=>{
     const u=document.getElementById("authUser").value.trim();
@@ -880,20 +876,10 @@ function initAuth(){
     err.textContent="Неверный логин или пароль";
     document.getElementById("authPass").value="";
   };
-  document.getElementById("authOpen").addEventListener("click",()=>{
-    err.textContent="";
-    document.getElementById("onboarding").classList.remove("show");
-    gate.classList.add("show");
-    document.getElementById("authUser").focus();
-  });
-  document.getElementById("authBack").addEventListener("click",()=>{
-    gate.classList.remove("show");
-    document.getElementById("onboarding").classList.add("show");
-    err.textContent="";
-  });
   document.getElementById("authSubmit").addEventListener("click",tryLogin);
   document.getElementById("authPass").addEventListener("keydown",e=>{if(e.key==="Enter") tryLogin();});
   document.getElementById("authUser").addEventListener("keydown",e=>{if(e.key==="Enter") document.getElementById("authPass").focus();});
+  document.getElementById("authUser").focus();
 }
 
 function applyPickPreview(p){
@@ -937,7 +923,7 @@ function commitProfileFromPicker(){
   const heroName=(nameInput.value||"Baruh").trim()||"Baruh";
   profile={theme:p.theme,hero:p.hero,name:heroName,pickedAt:new Date().toISOString()};
   saveProfile(profile);
-  if(isAuthed()) localStorage.setItem(THEME_KEY,p.theme);
+  localStorage.setItem(THEME_KEY,p.theme);
   const panel=document.getElementById("onboarding");
   panel.classList.remove("show");
   showApp();
@@ -945,34 +931,37 @@ function commitProfileFromPicker(){
   applyTheme(p.theme);
 }
 function openOnboarding(force=false){
-  if(!force && isAuthed() && profile) return false;
+  if(!force && profile) return false;
   const panel=document.getElementById("onboarding");
   panel.classList.add("show");
   const nameInput=document.getElementById("pickName");
-  if(isAuthed() && profile&&profile.name) nameInput.value=profile.name;
+  if(profile&&profile.name) nameInput.value=profile.name;
   else nameInput.value="Baruh";
   renderPicker();
   return true;
 }
 function initOnboarding(){
-  initAuth();
   document.getElementById("pickPrev").addEventListener("click",()=>{pickIdx=(pickIdx-1+START_PRESETS.length)%START_PRESETS.length;renderPicker();});
   document.getElementById("pickNext").addEventListener("click",()=>{pickIdx=(pickIdx+1)%START_PRESETS.length;renderPicker();});
   document.getElementById("pickStart").addEventListener("click",commitProfileFromPicker);
   document.getElementById("pickName").addEventListener("keydown",(e)=>{if(e.key==="Enter") commitProfileFromPicker();});
   document.getElementById("newHeroBtn").addEventListener("click",()=>openOnboarding(true));
-  if(isAuthed() && profile&&profile.name) document.getElementById("sysWho").textContent=`Игрок: ${profile.name}`;
-  const presetIdx=(isAuthed() && profile)?START_PRESETS.findIndex(x=>x.theme===profile.theme && x.hero===profile.hero):-1;
+  if(profile&&profile.name) document.getElementById("sysWho").textContent=`Игрок: ${profile.name}`;
+  const presetIdx=profile?START_PRESETS.findIndex(x=>x.theme===profile.theme && x.hero===profile.hero):-1;
   if(presetIdx>=0) pickIdx=presetIdx;
-  const first=openOnboarding(false);
-  return first;
+  return openOnboarding(false);
 }
 
-const isFirstRun=initOnboarding();
-if(!isFirstRun){
-  showApp();
-  const initialTheme=(isAuthed() && profile&&profile.theme&&THEMES[profile.theme])?profile.theme:(isAuthed()?(localStorage.getItem(THEME_KEY) || "light"):"light");
-  applyTheme(initialTheme);
+if(isAuthed()){
+  document.getElementById("logoutBtn").hidden=false;
+  const isFirstRun=initOnboarding();
+  if(!isFirstRun){
+    showApp();
+    const initialTheme=(profile&&profile.theme&&THEMES[profile.theme])?profile.theme:(localStorage.getItem(THEME_KEY) || "light");
+    applyTheme(initialTheme);
+  }
+}else{
+  initAuth();
 }
 </script>
 </body>
