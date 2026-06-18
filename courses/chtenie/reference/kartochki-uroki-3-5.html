@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Карточки для вырезания · уроки 3–5</title>
+<style>
+  :root{ --ink:#1f2430; --vowel:#b5402a; --line:#cfcabd; --muted:#5b6472; }
+  *{box-sizing:border-box}
+  body{margin:0; color:var(--ink); font:13px/1.35 system-ui,sans-serif; padding:10mm}
+  h1{font:700 16px/1.2 "Georgia",serif; margin:0 0 2px}
+  .sub{color:var(--muted); font-size:11px; margin:0 0 8px}
+  h2{font:700 12px/1.2 system-ui,sans-serif; margin:10px 0 4px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted)}
+  .grid{display:grid; gap:3mm}
+  .g-syl{grid-template-columns:repeat(6,1fr)}
+  .g-let{grid-template-columns:repeat(8,1fr)}
+  .pc{border:2px solid var(--ink); border-radius:6px; height:24mm;
+    display:flex; align-items:center; justify-content:center; background:#fff; position:relative}
+  .pc span{font:800 22px/1 "Georgia",serif}
+  .pc .v{color:var(--vowel)}
+  .pc.wide{grid-column:span 2}
+  .pc.wide span{font-size:26px}
+  .qty{position:absolute; top:2px; right:4px; font:700 9px/1 system-ui,sans-serif; color:var(--muted)}
+  @media print{
+    body{padding:6mm}
+    @page{margin:6mm; size:A4}
+    h2{page-break-after:avoid}
+    .pc{page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+  <h1>Карточки для вырезания · уроки 3, 4, 5</h1>
+  <p class="sub">Печатать один раз. Уроки 3–5 ссылаются сюда — не дублируют карточки.</p>
+
+  <h2>Слоги (уроки 3–4)</h2>
+  <div class="grid g-syl">
+    <div class="pc wide"><span class="qty">×2</span><span>МА</span></div>
+    <div class="pc wide"><span>ЛУ</span></div>
+    <div class="pc wide"><span>НА</span></div>
+    <div class="pc wide"><span>ЛА</span></div>
+    <div class="pc wide"><span>МЫ</span></div>
+    <div class="pc wide"><span>ЛО</span></div>
+    <div class="pc wide"><span>СА</span></div>
+    <div class="pc wide"><span>НО</span></div>
+    <div class="pc wide"><span>СЫ</span></div>
+    <div class="pc wide"><span>СО</span></div>
+    <div class="pc wide"><span>МО</span></div>
+  </div>
+
+  <h2>Буквы (уроки 4–5)</h2>
+  <div class="grid g-let">
+    <div class="pc"><span>К</span></div>
+    <div class="pc"><span>Т</span></div>
+    <div class="pc"><span>П</span></div>
+    <div class="pc"><span>Д</span></div>
+    <div class="pc"><span>Б</span></div>
+    <div class="pc"><span class="qty">×2</span><span>М</span></div>
+    <div class="pc"><span class="qty">×2</span><span>С</span></div>
+    <div class="pc"><span class="qty">×2</span><span>Н</span></div>
+    <div class="pc"><span class="qty">×2</span><span>Л</span></div>
+    <div class="pc"><span>Х</span></div>
+    <div class="pc"><span class="v">А</span></div>
+    <div class="pc"><span class="qty">×2</span><span class="v">О</span></div>
+    <div class="pc"><span class="v">У</span></div>
+    <div class="pc"><span class="v">Ы</span></div>
+    <div class="pc"><span class="v">И</span></div>
+  </div>
+  <p class="sub" style="margin-top:6px">×2 — вырежь две одинаковые (нужно для МАМА, ДОМ+СОН и цепочек).</p>
+</body>
+</html>

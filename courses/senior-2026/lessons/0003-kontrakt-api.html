@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 0003 · Контракт API: data, status, message</title>
+<style>
+  :root{--ink:#1a1a1a;--muted:#666;--line:#e2e2e2;--accent:#7a4f9e;--accent2:#2e6e8e;
+    --bg:#fbfbf9;--card:#fff;--ok:#2e7d32;--bad:#c0392b;--code:#f4f2ef}
+  *{box-sizing:border-box}
+  body{font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:var(--bg);
+    max-width:780px;margin:0 auto;padding:44px 22px 110px;line-height:1.55;font-size:18px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 4px}
+  .meta{color:var(--muted);font-style:italic;margin:0 0 24px;font-size:16px}
+  h2{font-size:22px;margin:34px 0 8px;border-bottom:2px solid var(--line);padding-bottom:6px}
+  h3{font-size:18px;margin:18px 0 4px}
+  code,.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;background:var(--code);
+    padding:1px 6px;border-radius:4px}
+  pre{background:#2b2b2b;color:#eaeaea;padding:14px 16px;border-radius:8px;overflow:auto;font-size:13.5px;line-height:1.5}
+  pre code{background:none;color:inherit;padding:0}
+  .win{background:#f3eff8;border-left:5px solid var(--accent);border-radius:8px;padding:12px 16px;margin:16px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:18px 0}
+  .q{margin:14px 0;padding-bottom:12px;border-bottom:1px solid #f0f0f0}
+  .q:last-child{border-bottom:none}
+  .q p{margin:0 0 8px;font-weight:bold}
+  .opt{display:block;padding:8px 12px;margin:6px 0;border:1px solid var(--line);border-radius:8px;cursor:pointer;
+    font-size:16px;background:#fff;transition:.15s}
+  .opt:hover{background:#faf7fd}
+  .opt.correct{border-color:var(--ok);background:#f0f8f0}
+  .opt.wrong{border-color:var(--bad);background:#fcf0ef}
+  .opt input{margin-right:8px}
+  .fb{font-size:15px;margin-top:6px;min-height:20px}
+  .fb.ok{color:var(--ok)} .fb.no{color:var(--bad)}
+  .json-ok{border-left:4px solid var(--ok);background:#f3f8f3;padding:12px 14px;border-radius:6px;margin:10px 0;font-size:15px}
+  .json-bad{border-left:4px solid var(--bad);background:#fcf0ef;padding:12px 14px;border-radius:6px;margin:10px 0;font-size:15px}
+  button{font-family:inherit;font-size:15px;background:var(--accent);color:#fff;border:none;
+    border-radius:8px;padding:9px 16px;cursor:pointer}
+  button.ghost{background:#fff;color:var(--accent2);border:1px solid var(--line)}
+  button:hover{filter:brightness(1.05)}
+  input.txt{font-family:ui-monospace,monospace;font-size:15px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;width:140px}
+  label.ck{display:flex;gap:10px;align-items:flex-start;padding:6px 0;cursor:pointer;font-size:16px}
+  label.ck input{margin-top:5px;width:18px;height:18px;accent-color:var(--accent)}
+  .res{font-size:15px;margin-top:8px;font-weight:bold}
+  textarea{width:100%;min-height:70px;font-family:inherit;font-size:15px;padding:10px;border:1px solid var(--line);border-radius:8px}
+  .report{background:#1f2733;color:#e8eef5;border-radius:10px;padding:18px 20px;margin-top:14px;font-size:14px}
+  a{color:var(--accent2)}
+  .small{font-size:15px;color:var(--muted)}
+  .note{background:#fffaf0;border:1px solid #f0e2c0;border-radius:8px;padding:10px 14px;margin:14px 0;font-size:16px}
+  @media print{body{background:#fff}}
+</style>
+</head>
+<body>
+
+<h1>Урок 0003 · Контракт API: <code>data</code>, <code>status</code>, <code>message</code></h1>
+<p class="meta">Курс «Senior 2026» · Фаза 0 · ~15 мин · полигон <code>fullstack-lab</code> (тот же формат, что yamal-media gateway)</p>
+
+<div class="win">
+  <b>Сегодняшняя победа.</b> Ты научишься читать любой ответ lab (и yamal) как единый «конверт»,
+  понимать разницу между HTTP-статусом и полем <code>status</code> в теле, и писать на фронте один
+  универсальный обработчик вместо угадывания «а тут JSON другой?».
+</div>
+
+<h2>1. Теория (коротко)</h2>
+
+<h3>Зачем единый формат</h3>
+<p>Без договора каждый эндпоинт отдаёт JSON по-своему: где-то массив, где-то <code>{error: "..."}</code>,
+где-то просто строка. Фронт превращается в кашу из <code>if</code>. <b>Контракт API</b> — это договор:
+<b>всегда</b> три поля верхнего уровня. Данные — только внутри <code>data</code>.</p>
+
+<h3>Конверт (envelope) в lab</h3>
+<pre><code>{
+  "data":    { ... },   // полезная нагрузка (объект, список, пустой {})
+  "status":  200,       // дублирует HTTP-статус (см. ниже зачем)
+  "message": "ok"       // человекочитаемое пояснение для UI/логов
+}</code></pre>
+<p>В коде это одна функция — все handlers зовут её, а не собирают JSON руками:</p>
+<pre><code>// apps/api/pkg/response/response.go
+return ctx.Status(status).JSON(Envelope{
+  Data: data, Status: status, Message: message,
+})</code></pre>
+
+<h3>Успех и ошибка — одна форма</h3>
+<div class="json-ok"><b>Успех</b> — <code>GET /notes</code> (фрагмент):<br>
+<code>{"data":{"list":[...]},"status":200,"message":"ok"}</code></div>
+<div class="json-bad"><b>Ошибка</b> — без cookie:<br>
+<code>{"data":{},"status":401,"message":"unauthorized"}</code></div>
+<p>Обрати внимание: при ошибке <code>data</code> — пустой объект <code>{}</code>, не <code>null</code>.
+Фронт всегда может писать <code>res.data.list</code> только после проверки <code>res.ok</code> / статуса.</p>
+
+<h3>HTTP-статус и <code>body.status</code> — зачем оба?</h3>
+<ul>
+  <li><b>HTTP-статус</b> (первая строка ответа: <code>HTTP/1.1 401</code>) — для браузера, прокси, CDN, <code>fetch</code>.</li>
+  <li><b><code>status</code> в теле</b> — для единообразия в шине сообщений (в yamal тот же DTO уходит через RabbitMQ).</li>
+</ul>
+<p class="small">В lab они совпадают. На собесе: «дублируем намеренно — один тип ответа и для HTTP, и для очереди».</p>
+
+<h3>Как фронт lab это типизирует</h3>
+<pre><code>// apps/web/src/api/types.ts
+export type ApiEnvelope&lt;T&gt; = {
+  data: T
+  status: number
+  message: string
+}</code></pre>
+<p>Один generic — и <code>listNotes()</code> знает, что список в <code>data.list</code>, а <code>login()</code> — что юзер в <code>data.user</code>.</p>
+
+<h3>Таблица: что класть куда (паттерн lab)</h3>
+<table style="width:100%;border-collapse:collapse;font-size:15.5px;margin:12px 0">
+  <tr style="background:#f3eff8"><th style="border:1px solid var(--line);padding:8px">Ситуация</th>
+    <th style="border:1px solid var(--line);padding:8px">HTTP</th>
+    <th style="border:1px solid var(--line);padding:8px">message</th>
+    <th style="border:1px solid var(--line);padding:8px">data</th></tr>
+  <tr><td style="border:1px solid var(--line);padding:8px">Список заметок</td>
+    <td style="border:1px solid var(--line);padding:8px">200</td>
+    <td style="border:1px solid var(--line);padding:8px"><code>ok</code></td>
+    <td style="border:1px solid var(--line);padding:8px"><code>{ list: [...] }</code></td></tr>
+  <tr><td style="border:1px solid var(--line);padding:8px">Создали заметку</td>
+    <td style="border:1px solid var(--line);padding:8px">201</td>
+    <td style="border:1px solid var(--line);padding:8px"><code>created</code></td>
+    <td style="border:1px solid var(--line);padding:8px">объект заметки</td></tr>
+  <tr><td style="border:1px solid var(--line);padding:8px">Нет авторизации</td>
+    <td style="border:1px solid var(--line);padding:8px">401</td>
+    <td style="border:1px solid var(--line);padding:8px"><code>unauthorized</code></td>
+    <td style="border:1px solid var(--line);padding:8px"><code>{}</code></td></tr>
+  <tr><td style="border:1px solid var(--line);padding:8px">Заметка не найдена</td>
+    <td style="border:1px solid var(--line);padding:8px">404</td>
+    <td style="border:1px solid var(--line);padding:8px"><code>note not found</code></td>
+    <td style="border:1px solid var(--line);padding:8px"><code>{}</code></td></tr>
+</table>
+
+<div class="note"><b>Связь с yamal.</b> Реальный gateway yamal-media использует тот же принцип
+<code>{ data, status, message }</code> — lab специально это зеркалит. Выучив здесь, ты читаешь прод.</div>
+
+<h2>2. Проверь себя (автопроверка)</h2>
+
+<div class="card" id="quiz">
+  <div class="q" data-correct="a">
+    <p>1. Где в ответе lab всегда лежат «настоящие» данные для UI?</p>
+    <label class="opt"><input type="radio" name="q1" value="a">В поле <code>data</code> верхнего уровня</label>
+    <label class="opt"><input type="radio" name="q1" value="b">В поле <code>message</code> верхнего уровня</label>
+    <label class="opt"><input type="radio" name="q1" value="c">В HTTP-заголовке <code>Status</code></label>
+    <label class="opt"><input type="radio" name="q1" value="d">В cookie <code>access_token</code></label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="b">
+    <p>2. Как выглядит <code>data</code> при ошибке 401 в lab?</p>
+    <label class="opt"><input type="radio" name="q2" value="a">Поле <code>data</code> отсутствует в JSON</label>
+    <label class="opt"><input type="radio" name="q2" value="b">Пустой объект <code>{}</code></label>
+    <label class="opt"><input type="radio" name="q2" value="c">Строка с текстом ошибки</label>
+    <label class="opt"><input type="radio" name="q2" value="d">Массив с одним элементом</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="c">
+    <p>3. Список заметок в <code>GET /notes</code> лежит по пути…</p>
+    <label class="opt"><input type="radio" name="q3" value="a"><code>message.list</code></label>
+    <label class="opt"><input type="radio" name="q3" value="b"><code>status.list</code></label>
+    <label class="opt"><input type="radio" name="q3" value="c"><code>data.list</code></label>
+    <label class="opt"><input type="radio" name="q3" value="d"><code>data.notes</code></label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="a">
+    <p>4. Зачем дублировать код в HTTP-строке и в <code>body.status</code>?</p>
+    <label class="opt"><input type="radio" name="q4" value="a">Один DTO и для HTTP, и для очередей (yamal)</label>
+    <label class="opt"><input type="radio" name="q4" value="b">HTTP-статус в теле обязателен по RFC</label>
+    <label class="opt"><input type="radio" name="q4" value="c">Чтобы скрыть реальный код от браузера</label>
+    <label class="opt"><input type="radio" name="q4" value="d">Потому что Go не умеет HTTP-статусы</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="b">
+    <p>5. Какой HTTP-статус у успешного <code>POST /notes</code> (создание)?</p>
+    <label class="opt"><input type="radio" name="q5" value="a">200 — как у обычного GET</label>
+    <label class="opt"><input type="radio" name="q5" value="b">201 — ресурс создан</label>
+    <label class="opt"><input type="radio" name="q5" value="c">204 — тело ответа пустое</label>
+    <label class="opt"><input type="radio" name="q5" value="d">401 — нужна авторизация</label>
+    <div class="fb"></div>
+  </div>
+</div>
+
+<h2>3. Разбери ответ руками</h2>
+<p>Посмотри на два JSON (успех и ошибка). Отметь, какие утверждения верны.</p>
+<div class="card" id="analyze">
+  <pre style="background:#f4f2ef;color:var(--ink);font-size:13px"><code>// A — логин OK
+{"data":{"user":{"id":1,"email":"editor@lab.local","role":"editor"},
+  "accessToken":"eyJ..."},"status":200,"message":"ok"}
+
+// B — GET /notes без cookie
+{"data":{},"status":401,"message":"unauthorized"}</code></pre>
+  <label class="ck"><input type="checkbox" id="a1" data-ok="1">В ответе A поле <code>data.user.role</code> = <code>editor</code></label>
+  <label class="ck"><input type="checkbox" id="a2" data-ok="1">В ответе B текст ошибки для человека — в <code>message</code></label>
+  <label class="ck"><input type="checkbox" id="a3">В ответе B список заметок лежит в <code>data.list</code></label>
+  <label class="ck"><input type="checkbox" id="a4" data-ok="1">В обоих ответах есть ровно три ключа верхнего уровня</label>
+  <div style="margin-top:10px"><button id="checkAnalyze" class="ghost">Проверить разбор</button> <span class="res" id="analyzeRes"></span></div>
+</div>
+
+<h2>4. Практика на полигоне</h2>
+<pre><code># Логин + сохранить cookie
+curl -c /tmp/lab.jar -s -X POST http://localhost:8080/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"editor@lab.local","password":"lab12345"}' | python3 -m json.tool
+
+# Список заметок — смотри структуру data.list
+curl -b /tmp/lab.jar -s http://localhost:8080/api/v1/notes | python3 -m json.tool
+
+# Ошибка — та же форма конверта
+curl -s http://localhost:8080/api/v1/notes | python3 -m json.tool
+
+# Создать заметку — обрати внимание на HTTP 201 и message "created"
+curl -b /tmp/lab.jar -s -w "\nHTTP_CODE:%{http_code}\n" -X POST http://localhost:8080/api/v1/notes \
+  -H 'Content-Type: application/json' \
+  -d '{"title":"Контракт API","body":"data status message"}' | python3 -m json.tool</code></pre>
+
+<div class="card">
+  <label class="ck"><input type="checkbox" id="p1">Увидел у успешных ответов три поля: data, status, message</label>
+  <label class="ck"><input type="checkbox" id="p2">У ошибки 401 поле data — пустой объект</label>
+  <label class="ck"><input type="checkbox" id="p3">POST /notes вернул HTTP <b>201</b> и message <code>created</code></label>
+  <div style="margin-top:12px">
+    <span>Сколько ключей верхнего уровня в <b>любом</b> ответе lab? </span>
+    <input class="txt" id="keysIn" placeholder="число" inputmode="numeric" style="width:90px">
+    <button class="ghost" id="checkKeys">Проверить</button>
+    <span class="res" id="keysRes"></span>
+  </div>
+  <div style="margin-top:10px">
+    <span>Какой <code>message</code> у 401 без cookie? </span>
+    <input class="txt" id="msgIn" placeholder="одно слово" style="width:160px">
+    <button class="ghost" id="checkMsg">Проверить</button>
+    <span class="res" id="msgRes"></span>
+  </div>
+</div>
+
+<h2>5. Первоисточник</h2>
+<p><a href="https://developer.mozilla.org/ru/docs/Web/HTTP/Status" target="_blank">MDN: HTTP status codes</a> —
+особенно 200 vs 201 vs 204. Контракт envelope — внутренний стандарт проекта (см. комментарий в
+<code>response.go</code> и <code>MAPPING-YAMAL.md</code> в lab).</p>
+<p class="small">Вопросы — в чат: «Урок 0003: почему не GraphQL / почему не чистый REST без обёртки?»</p>
+
+<h2>6. Отчёт для агента</h2>
+<p class="small">Скопируй отчёт и вставь в чат (<b>Ctrl+V</b>).</p>
+<textarea id="issues" placeholder="Что осталось непонятным? (необязательно)"></textarea>
+<div style="margin-top:10px">
+  <button id="copyBtn">Скопировать отчёт</button>
+  <span class="res" id="copyRes"></span>
+</div>
+<div class="report" id="reportView" style="display:none"></div>
+
+<script>
+const quizState={};
+const QN=document.querySelectorAll("#quiz .q").length;
+document.querySelectorAll("#quiz .q").forEach((q,i)=>{
+  const correct=q.dataset.correct;
+  q.querySelectorAll(".opt").forEach(opt=>{
+    opt.addEventListener("click",()=>{
+      const val=opt.querySelector("input").value;
+      q.querySelectorAll(".opt").forEach(o=>o.classList.remove("correct","wrong"));
+      const fb=q.querySelector(".fb");
+      quizState["q"+(i+1)]={chosen:val,ok:val===correct};
+      if(val===correct){opt.classList.add("correct");fb.textContent="Верно ✓";fb.className="fb ok";}
+      else{opt.classList.add("wrong");fb.textContent="Не то — подумай ещё";fb.className="fb no";}
+    });
+  });
+});
+
+let analyzeOk=false;
+document.getElementById("checkAnalyze").addEventListener("click",()=>{
+  const okIds=["a1","a2","a4"];
+  const badIds=["a3"];
+  let right=true;
+  okIds.forEach(id=>{if(!document.getElementById(id).checked) right=false;});
+  badIds.forEach(id=>{if(document.getElementById(id).checked) right=false;});
+  const res=document.getElementById("analyzeRes");
+  if(right){res.textContent="Верно ✓";res.style.color="var(--ok)";analyzeOk=true;}
+  else{res.textContent="Перепроверь галочки — B не содержит list";res.style.color="var(--bad)";analyzeOk=false;}
+});
+
+let keysOk=false,msgOk=false;
+document.getElementById("checkKeys").addEventListener("click",()=>{
+  const v=document.getElementById("keysIn").value.trim();
+  const res=document.getElementById("keysRes");
+  if(v==="3"){res.textContent="Точно ✓ data, status, message";res.style.color="var(--ok)";keysOk=true;}
+  else{res.textContent="Считай ключи верхнего уровня";res.style.color="var(--bad)";keysOk=false;}
+});
+document.getElementById("checkMsg").addEventListener("click",()=>{
+  const v=document.getElementById("msgIn").value.trim().toLowerCase();
+  const res=document.getElementById("msgRes");
+  if(v==="unauthorized"){res.textContent="Верно ✓";res.style.color="var(--ok)";msgOk=true;}
+  else if(v){res.textContent="Посмотри ответ B или curl без cookie";res.style.color="var(--bad)";msgOk=false;}
+});
+
+function buildReport(){
+  const qLines=[];let qScore=0;
+  for(let i=1;i<=QN;i++){const s=quizState["q"+i];if(s){if(s.ok)qScore++;qLines.push(`  Q${i}: ${s.chosen} ${s.ok?"OK":"WRONG"}`);}else qLines.push(`  Q${i}: (не отвечено)`);}
+  const p=id=>document.getElementById(id).checked?"да":"нет";
+  const issues=document.getElementById("issues").value.trim()||"(нет)";
+  return [
+"=== ОТЧЁТ · Курс Senior 2026 · Урок 0003 «Контракт API: data, status, message» ===",
+`Квиз: ${qScore}/${QN}`,
+...qLines,
+`Разбор JSON A/B: ${analyzeOk?"верно":"не подтверждён"}`,
+"Практика на полигоне:",
+`  Три поля в каждом ответе: ${p("p1")}`,
+`  data={} при 401: ${p("p2")}`,
+`  POST /notes → 201 created: ${p("p3")}`,
+`  Ключей верхнего уровня = 3: ${keysOk?"да":"нет"}`,
+`  message при 401 = unauthorized: ${msgOk?"да":"нет"}`,
+`Что непонятно: ${issues}`,
+"=== конец отчёта ==="
+  ].join("\n");
+}
+document.getElementById("copyBtn").addEventListener("click",async()=>{
+  const text=buildReport();
+  document.getElementById("reportView").style.display="block";
+  document.getElementById("reportView").textContent=text;
+  const res=document.getElementById("copyRes");
+  try{await navigator.clipboard.writeText(text);res.textContent="Скопировано ✓ вставь в чат";res.style.color="var(--ok)";}
+  catch(e){res.textContent="Скопируй текст из блока ниже";res.style.color="var(--bad)";}
+});
+</script>
+</body>
+</html>
