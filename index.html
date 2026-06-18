@@ -293,6 +293,52 @@
   html:not(.authed) .auth-gate{display:flex}
   .auth-gate .pick{width:min(420px,92vw)}
   .auth-err{color:#ff8a8a;font-size:13px;min-height:1.2em;margin-top:8px}
+
+  /* duels + share */
+  .duel-box{border:var(--frame);border-radius:12px;padding:14px 16px;margin-bottom:14px;background:var(--panel)}
+  .duel-box h3{margin:0 0 8px;font-size:17px;text-transform:var(--tt)}
+  .duel-box p{margin:0 0 10px;font-size:13px;opacity:.85;line-height:1.4}
+  .duel-score{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin:12px 0}
+  .duel-side{border:var(--frame);border-radius:10px;padding:10px;text-align:center;background:var(--panel2)}
+  .duel-side b{display:block;font-size:22px;color:var(--xp)}
+  .duel-side span{font-size:11px;opacity:.75;text-transform:var(--tt)}
+  .duel-side.lead{border-color:var(--xp);box-shadow:0 0 0 1px var(--xp) inset}
+  .duel-vs{font-size:13px;opacity:.6;font-weight:bold}
+  .duel-meta{font-size:12px;opacity:.75;margin-top:8px}
+  .duel-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .dbtn{font-family:inherit;border:var(--frame);border-radius:8px;padding:8px 12px;cursor:pointer;
+    background:var(--panel2);color:var(--ink);font-size:13px;text-shadow:var(--glow)}
+  .dbtn:hover{background:var(--panel)}
+  .dbtn.primary{border-color:var(--accent);background:var(--accent);color:#fff}
+  .duel-paste{width:100%;padding:8px 10px;border:var(--frame);border-radius:8px;background:var(--panel2);
+    color:var(--ink);font-family:inherit;font-size:13px;margin-top:8px}
+  .duel-hint{font-size:12px;opacity:.7;line-height:1.4;margin-top:10px}
+  .duel-badge{margin-top:12px;padding:10px 12px;border:1px dashed var(--accent);border-radius:10px;
+    background:var(--panel2);font-size:12px;line-height:1.4}
+  .duel-badge b{color:var(--xp)}
+  .overlay{position:fixed;inset:0;z-index:320;display:none;align-items:center;justify-content:center;
+    background:rgba(8,6,14,.78);padding:16px}
+  .overlay.show{display:flex}
+  .modal{width:min(520px,96vw);border:1px solid rgba(255,255,255,.16);border-radius:16px;
+    background:linear-gradient(180deg,#1e1a2c,#141020);color:#efeafc;padding:18px;box-shadow:0 24px 70px rgba(0,0,0,.5)}
+  .modal h2{margin:0 0 6px;font-size:22px}
+  .modal p{margin:0 0 12px;color:#c8c1dc;font-size:13px;line-height:1.45}
+  .modal .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .modal .row button{flex:1;min-width:120px}
+  .share-card{border:1px solid #5a4f7f;border-radius:14px;padding:14px;background:linear-gradient(135deg,#2a2340,#1a1528);margin:12px 0}
+  .share-card .tag{font-size:11px;letter-spacing:.08em;opacity:.7;text-transform:uppercase}
+  .share-card .hero{font-size:24px;font-weight:bold;margin:4px 0 10px}
+  .share-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .share-stat{border:1px solid #4f466d;border-radius:8px;padding:8px;text-align:center}
+  .share-stat b{display:block;font-size:18px;color:#c9b4ff}
+  .share-stat span{font-size:10px;opacity:.75}
+  .share-top{margin-top:10px;font-size:12px;opacity:.85}
+  .field{margin-top:10px}
+  .field label{display:block;font-size:12px;color:#b8b0ce;margin-bottom:5px}
+  .field select{width:100%;padding:8px 10px;border-radius:8px;border:1px solid #4f466d;background:#171522;color:#efeafc}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:400;background:#1a1630;color:#fff;
+    border:1px solid #6f5bdf;border-radius:10px;padding:10px 16px;font-size:13px;display:none;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+  .toast.show{display:block;animation:fade .2s}
 </style>
 <script>if(localStorage.getItem("aiuni_auth_v1")==="1")document.documentElement.classList.add("authed");</script>
 </head>
@@ -362,6 +408,7 @@
       <button class="tbtn" data-theme-btn="wot">🛡️ Танки</button>
       <button class="tbtn" data-theme-btn="knight">⚔️ Рыцарь</button>
       <button class="tbtn" data-theme-btn="samurai">🗡️ Самурай</button>
+      <button class="tbtn" id="shareBtn">📤 Поделиться</button>
       <button class="tbtn" id="newHeroBtn">🎭 Новый герой</button>
       <button class="tbtn" id="logoutBtn" hidden>🔒 Выйти</button>
     </div>
@@ -400,6 +447,7 @@
           <div class="stat-mini"><b id="stLessons">0</b><span>пройдено</span></div>
           <div class="stat-mini"><b id="stTotal">0</b><span>всего</span></div>
         </div>
+        <div class="duel-badge" id="duelBadge" hidden></div>
         <div class="balance">
           <div class="balance-hd">
             <b>Баланс жизни</b>
@@ -416,10 +464,12 @@
         <div class="tabs">
           <div class="tab" data-tab="special">Характеристики</div>
           <div class="tab active" data-tab="skills">Курсы</div>
+          <div class="tab" data-tab="duels">Дуэли</div>
         </div>
 
         <section id="special"><div class="special" id="specialGrid"></div></section>
         <section id="skills" class="active"><div id="skillList"></div></section>
+        <section id="duels"><div id="duelPanel"></div></section>
 
         <div class="foot">
           <span>1 урок = 100 XP · уровень каждые 300 XP · прогресс в браузере</span>
@@ -428,6 +478,43 @@
       </div>
     </div>
   </div>
+
+  <div class="overlay" id="shareOverlay">
+    <div class="modal">
+      <h2>Поделиться прогрессом</h2>
+      <p>Карточка героя и ссылка на 7-дневную дуэль. Друг откроет ссылку и примет вызов.</p>
+      <div class="share-card" id="shareCardPreview"></div>
+      <div class="field">
+        <label for="duelMode">Формат дуэли</label>
+        <select id="duelMode">
+          <option value="weekly_xp">Weekly XP Race — кто больше XP за 7 дней</option>
+          <option value="course_sprint">Course Sprint — кто больше уроков в курсе</option>
+        </select>
+      </div>
+      <div class="field" id="duelCourseField" hidden>
+        <label for="duelCourse">Курс для спринта</label>
+        <select id="duelCourse"></select>
+      </div>
+      <div class="row">
+        <button class="dbtn" id="shareClose">Закрыть</button>
+        <button class="dbtn primary" id="shareCopy">Скопировать ссылку вызова</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="inviteOverlay">
+    <div class="modal">
+      <h2 id="inviteTitle">Тебя вызывают на дуэль!</h2>
+      <p id="inviteDesc">—</p>
+      <div class="share-card" id="inviteCard"></div>
+      <div class="row">
+        <button class="dbtn" id="inviteDecline">Позже</button>
+        <button class="dbtn primary" id="inviteAccept">Принять вызов</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
 
 <script>
 const COURSES = [
@@ -489,32 +576,32 @@ const SPECIAL = [
 const THEMES = {
   light:{
     brand:"AI University · лист навыков", who:"Игрок: Baruh",
-    tabs:{special:"Характеристики", skills:"Курсы"},
+    tabs:{special:"Характеристики", skills:"Курсы", duels:"Дуэли"},
     ranks:["Новичок","Ученик","Подмастерье","Специалист","Профи","Старший","Эксперт","Мастер","Гуру","Легенда"],
   },
   fallout:{
     brand:"PIP-BOY 3000 · AI UNIVERSITY", who:"VAULT 2026 · DWELLER: BARUH",
-    tabs:{special:"S.P.E.C.I.A.L.", skills:"SKILLS"},
+    tabs:{special:"S.P.E.C.I.A.L.", skills:"SKILLS", duels:"VS DUELS"},
     ranks:["Стажёр убежища","Падаван","Подмастерье","Странник","Искатель","Ветеран","Архитектор","Мастер","Оверсир","Легенда Пустоши"],
   },
   space:{
     brand:"КОСМО-РЕЙНДЖЕР · БОРТОВОЙ ЖУРНАЛ", who:"Рейнджер: Baruh · Сектор 2026",
-    tabs:{special:"Системы корабля", skills:"Курсы"},
+    tabs:{special:"Системы корабля", skills:"Курсы", duels:"Дуэли"},
     ranks:["Кадет","Пилот","Рейнджер","Лейтенант","Капитан","Командор","Ас сектора","Адмирал","Герой галактики","Легенда"],
   },
   wot:{
     brand:"АНГАР · AI UNIVERSITY", who:"Танкист: Baruh · Бой 2026",
-    tabs:{special:"Экипаж", skills:"Курсы"},
+    tabs:{special:"Экипаж", skills:"Курсы", duels:"Поединки"},
     ranks:["Рекрут","Рядовой","Сержант","Мл. лейтенант","Лейтенант","Капитан","Майор","Полковник","Генерал","Маршал"],
   },
   knight:{
     brand:"ЗАМОК · AI UNIVERSITY", who:"Рыцарь: Baruh · Орден 2026",
-    tabs:{special:"Доблесть", skills:"Курсы"},
+    tabs:{special:"Доблесть", skills:"Курсы", duels:"Турнир"},
     ranks:["Оруженосец","Паж","Рыцарь","Баронет","Барон","Виконт","Граф","Герцог","Принц","Король"],
   },
   samurai:{
     brand:"ДОДЗЁ · AI UNIVERSITY", who:"Самурай: Baruh · Путь 2026",
-    tabs:{special:"Бусидо", skills:"Курсы"},
+    tabs:{special:"Бусидо", skills:"Курсы", duels:"Схватки"},
     ranks:["Ученик","Дзёдзё","Самурай","Кэнси","Даймё","Сёгун","Мастер клинка","Легенда","Ками","Император"],
   },
 };
@@ -628,7 +715,8 @@ function applyPortrait(theme, p){
   }
 }
 
-const XP_PER_LESSON=100, XP_PER_LEVEL=300, KEY="aiuni_pipboy_v1", THEME_KEY="aiuni_theme", PROFILE_KEY="aiuni_profile_v1", AUTH_KEY="aiuni_auth_v1";
+const XP_PER_LESSON=100, XP_PER_LEVEL=300, KEY="aiuni_pipboy_v1", THEME_KEY="aiuni_theme", PROFILE_KEY="aiuni_profile_v1", AUTH_KEY="aiuni_auth_v1", DUEL_KEY="aiuni_duel_v1";
+const DUEL_DAYS=7;
 const AUTH_USER="user", AUTH_PASS="baklajan2025";
 const isAuthed=()=>localStorage.getItem(AUTH_KEY)==="1";
 const setAuthed=()=>{ localStorage.setItem(AUTH_KEY,"1"); document.documentElement.classList.add("authed"); };
@@ -672,6 +760,314 @@ if(isAuthed() && (store.meta.progressVer||0)<1){
   ["chtenie/0001","chtenie/0002","chtenie/0003"].forEach(k=>{store.lessons[k]=true;});
   store.meta.progressVer=1; touchStreak(); save();
 }
+if(!store.meta.completedAt) store.meta.completedAt={};
+Object.keys(store.lessons).forEach(k=>{
+  if(store.lessons[k] && !store.meta.completedAt[k]) store.meta.completedAt[k]="2020-01-01";
+});
+if(Object.keys(store.meta.completedAt).length) save();
+
+const duelStore=JSON.parse(localStorage.getItem(DUEL_KEY)||"{}");
+if(!duelStore.active) duelStore.active=null;
+const saveDuel=()=>localStorage.setItem(DUEL_KEY,JSON.stringify(duelStore));
+let pendingInvite=null;
+
+function addDaysStr(base,days){
+  const d=new Date(base); d.setDate(d.getDate()+days); return dstr(d);
+}
+function duelCutoff(){const d=new Date(); d.setDate(d.getDate()-DUEL_DAYS); return d;}
+function lessonCompletedAt(key){
+  const raw=store.meta.completedAt&&store.meta.completedAt[key];
+  return raw?new Date(raw):null;
+}
+function weeklyXp(){
+  const cutoff=duelCutoff(); let xp=0;
+  Object.keys(store.lessons).forEach(k=>{
+    if(!store.lessons[k]) return;
+    const at=lessonCompletedAt(k);
+    if(at && at>=cutoff) xp+=XP_PER_LESSON;
+  });
+  return xp;
+}
+function courseDoneCount(courseId){
+  const c=COURSES.find(x=>x.id===courseId); if(!c) return 0;
+  return c.lessons.filter(l=>store.lessons[lk(courseId,l.n)]).length;
+}
+function courseLessonsSince(sinceStr,courseId){
+  const c=COURSES.find(x=>x.id===courseId); if(!c) return 0;
+  const since=new Date(sinceStr+"T00:00:00");
+  return c.lessons.filter(l=>{
+    const k=lk(courseId,l.n);
+    if(!store.lessons[k]) return false;
+    const at=lessonCompletedAt(k);
+    return at && at>=since;
+  }).length;
+}
+function topStatLabel(){
+  const vals=SPECIAL.map(s=>({k:s.k,ru:s.ru,v:statValue(s.src)}));
+  const best=vals.reduce((a,b)=>b.v>a.v?b:a,vals[0]);
+  return `${best.k} · ${best.ru} (${best.v})`;
+}
+function shareStats(){
+  const totalDone=totalDoneCount();
+  const xp=totalDone*XP_PER_LESSON;
+  const level=Math.floor(xp/XP_PER_LEVEL)+1;
+  return {level, weeklyXp:weeklyXp(), streak:currentStreak(), topStat:topStatLabel(), totalDone};
+}
+function randCode(len=6){
+  const abc="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let s=""; for(let i=0;i<len;i++) s+=abc[Math.floor(Math.random()*abc.length)];
+  return s;
+}
+function encodeInvite(payload){
+  const json=JSON.stringify(payload);
+  return btoa(unescape(encodeURIComponent(json))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function decodeInvite(token){
+  try{
+    const json=decodeURIComponent(escape(atob(token.replace(/-/g,"+").replace(/_/g,"/"))));
+    return JSON.parse(json);
+  }catch{return null;}
+}
+function buildInvitePayload(mode,courseId){
+  const st=shareStats();
+  return {
+    v:1, code:randCode(), from:(profile&&profile.name)||"Герой",
+    level:st.level, weeklyXp:st.weeklyXp, streak:st.streak, topStat:st.topStat,
+    mode, courseId:courseId||null,
+    courseDone:courseId?courseDoneCount(courseId):0,
+    at:dstr(new Date()),
+  };
+}
+function inviteUrl(payload){
+  const base=location.href.split("?")[0].split("#")[0];
+  return `${base}?duel=${encodeInvite(payload)}`;
+}
+function duelModeLabel(mode,courseId){
+  if(mode==="course_sprint"){
+    const c=COURSES.find(x=>x.id===courseId);
+    return `Course Sprint · ${c?c.title:courseId}`;
+  }
+  return "Weekly XP Race";
+}
+function myDuelScore(duel){
+  if(duel.mode==="course_sprint" && duel.courseId)
+    return courseDoneCount(duel.courseId);
+  return weeklyXp();
+}
+function duelMetricLabel(duel){
+  return duel.mode==="course_sprint"?"уроков":"XP";
+}
+function opponentDuelScore(duel){
+  return duel.mode==="course_sprint"?(duel.opponent.courseDone||0):(duel.opponent.weeklyXp||0);
+}
+function isDuelExpired(duel){ return dstr(new Date())>duel.endsAt; }
+function normalizeActiveDuel(){
+  if(duelStore.active && isDuelExpired(duelStore.active)){ duelStore.active=null; saveDuel(); }
+}
+function acceptInvite(payload){
+  const startedAt=dstr(new Date());
+  duelStore.active={
+    id:payload.code||randCode(),
+    mode:payload.mode||"weekly_xp",
+    courseId:payload.courseId||null,
+    startedAt,
+    endsAt:addDaysStr(startedAt,DUEL_DAYS),
+    opponent:{
+      name:payload.from||"Друг",
+      level:payload.level||1,
+      weeklyXp:payload.weeklyXp||0,
+      streak:payload.streak||0,
+      courseDone:payload.courseDone||0,
+      topStat:payload.topStat||"—",
+    },
+  };
+  saveDuel();
+}
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  clearTimeout(showToast._tm);
+  showToast._tm=setTimeout(()=>t.classList.remove("show"),2400);
+}
+function renderShareCard(el,stats,heroName,extra){
+  el.innerHTML=`<div class="tag">AI University · Share Card</div>
+    <div class="hero">${heroName}</div>
+    <div class="share-stats">
+      <div class="share-stat"><b>Lv ${stats.level}</b><span>уровень</span></div>
+      <div class="share-stat"><b>${stats.weeklyXp}</b><span>XP / 7 дн</span></div>
+      <div class="share-stat"><b>${stats.streak}</b><span>серия</span></div>
+    </div>
+    <div class="share-top">Топ-стат: <b>${stats.topStat}</b></div>
+    ${extra||""}`;
+}
+function renderDuelPanel(){
+  const panel=document.getElementById("duelPanel");
+  normalizeActiveDuel();
+  const duel=duelStore.active;
+  if(!duel){
+    panel.innerHTML=`<div class="duel-box">
+      <h3>Дуэли с друзьями</h3>
+      <p>Соревнуйтесь по учебным метрикам: кто больше XP за неделю или кто быстрее пройдёт уроки в выбранном курсе.</p>
+      <div class="duel-actions">
+        <button class="dbtn primary" id="duelShareBtn">📤 Бросить вызов</button>
+      </div>
+      <label class="duel-hint" for="duelPaste">Получил ссылку от друга? Вставь её сюда:</label>
+      <input class="duel-paste" id="duelPaste" type="text" placeholder="https://...?duel=...">
+      <div class="duel-actions">
+        <button class="dbtn" id="duelPasteBtn">Принять по ссылке</button>
+      </div>
+      <p class="duel-hint">Без сервера счёт соперника — снимок на момент вызова. Чтобы соревноваться вдвоём, обменяйтесь ссылками.</p>
+    </div>`;
+    renderDuelBadge(null);
+    return;
+  }
+  const mine=myDuelScore(duel), theirs=opponentDuelScore(duel), metric=duelMetricLabel(duel);
+  const leadMine=mine>theirs, tie=mine===theirs;
+  const daysLeft=Math.max(0,Math.ceil((new Date(duel.endsAt+"T23:59:59")-new Date())/86400000));
+  const courseLine=duel.mode==="course_sprint"&&duel.courseId
+    ? `<p>Курс: <b>${(COURSES.find(c=>c.id===duel.courseId)||{}).title||duel.courseId}</b></p>`:"";
+  const hint=tie?"Ничья по снимку — жми уроки!":leadMine?`Ты впереди на ${mine-theirs} ${metric}`:`Отстаёшь на ${theirs-mine} ${metric} от снимка соперника`;
+  panel.innerHTML=`<div class="duel-box">
+    <h3>${duelModeLabel(duel.mode,duel.courseId)}</h3>
+    <p>Дуэль с <b>${duel.opponent.name}</b> · осталось <b data-duel-days>${daysLeft}</b> дн.</p>
+    ${courseLine}
+    <div class="duel-score">
+      <div class="duel-side" data-duel-mine-side>
+        <b data-duel-mine>${mine}</b><span>ты · ${metric}</span>
+      </div>
+      <div class="duel-vs">VS</div>
+      <div class="duel-side" data-duel-theirs-side>
+        <b>${theirs}</b><span>${duel.opponent.name} · снимок</span>
+      </div>
+    </div>
+    <div class="duel-meta">Соперник на вызове: ур. ${duel.opponent.level}, серия ${duel.opponent.streak}, ${duel.opponent.topStat}</div>
+    <div class="duel-actions">
+      <button class="dbtn primary" id="duelShareBtn">📤 Ответный вызов</button>
+      <button class="dbtn" id="duelEndBtn">Завершить дуэль</button>
+    </div>
+    <p class="duel-hint" data-duel-hint>${hint}</p>
+  </div>`;
+  const mineSide=panel.querySelector("[data-duel-mine-side]");
+  const theirsSide=panel.querySelector("[data-duel-theirs-side]");
+  mineSide.classList.toggle("lead",leadMine&&!tie);
+  theirsSide.classList.toggle("lead",!leadMine&&!tie);
+  renderDuelBadge(duel, mine, theirs, metric, leadMine, tie, daysLeft);
+}
+function updateDuelUI(){
+  normalizeActiveDuel();
+  const duel=duelStore.active;
+  if(!duel){
+    if(!document.getElementById("duelPaste")) renderDuelPanel();
+    else renderDuelBadge(null);
+    return;
+  }
+  if(!document.querySelector("[data-duel-mine]")){ renderDuelPanel(); return; }
+  const mine=myDuelScore(duel), theirs=opponentDuelScore(duel), metric=duelMetricLabel(duel);
+  const leadMine=mine>theirs, tie=mine===theirs;
+  const daysLeft=Math.max(0,Math.ceil((new Date(duel.endsAt+"T23:59:59")-new Date())/86400000));
+  const hint=tie?"Ничья по снимку — жми уроки!":leadMine?`Ты впереди на ${mine-theirs} ${metric}`:`Отстаёшь на ${theirs-mine} ${metric} от снимка соперника`;
+  document.querySelector("[data-duel-mine]").textContent=mine;
+  document.querySelector("[data-duel-days]").textContent=daysLeft;
+  document.querySelector("[data-duel-hint]").textContent=hint;
+  document.querySelector("[data-duel-mine-side]").classList.toggle("lead",leadMine&&!tie);
+  document.querySelector("[data-duel-theirs-side]").classList.toggle("lead",!leadMine&&!tie);
+  renderDuelBadge(duel, mine, theirs, metric, leadMine, tie, daysLeft);
+}
+function renderDuelBadge(duel,mine,theirs,metric,leadMine,tie,daysLeft){
+  const el=document.getElementById("duelBadge");
+  if(!duel){ el.hidden=true; el.innerHTML=""; return; }
+  el.hidden=false;
+  const status=tie?"ничья":leadMine?"лидируешь":"догоняй";
+  el.innerHTML=`<b>⚔️ Дуэль:</b> ${duel.opponent.name} · ${mine} vs ${theirs} ${metric} · ${daysLeft} дн. · <b>${status}</b>`;
+}
+function openShareModal(){
+  const st=shareStats();
+  const hero=(profile&&profile.name)||"Герой";
+  renderShareCard(document.getElementById("shareCardPreview"),st,hero);
+  const courseSel=document.getElementById("duelCourse");
+  courseSel.innerHTML=COURSES.map(c=>`<option value="${c.id}">${c.emoji} ${c.title}</option>`).join("");
+  document.getElementById("shareOverlay").classList.add("show");
+}
+function closeShareModal(){ document.getElementById("shareOverlay").classList.remove("show"); }
+function showInviteModal(payload){
+  pendingInvite=payload;
+  const mode=duelModeLabel(payload.mode,payload.courseId);
+  document.getElementById("inviteTitle").textContent=`${payload.from} вызывает на дуэль!`;
+  document.getElementById("inviteDesc").textContent=`Формат: ${mode}. Дуэль на ${DUEL_DAYS} дней.`;
+  renderShareCard(document.getElementById("inviteCard"),{
+    level:payload.level, weeklyXp:payload.weeklyXp, streak:payload.streak, topStat:payload.topStat,
+  }, payload.from, `<div class="share-top">Код вызова: <b>${payload.code||"—"}</b></div>`);
+  document.getElementById("inviteOverlay").classList.add("show");
+}
+function closeInviteModal(){ document.getElementById("inviteOverlay").classList.remove("show"); pendingInvite=null; }
+function parseInviteFromUrl(){
+  const token=new URLSearchParams(location.search).get("duel");
+  if(!token) return;
+  const payload=decodeInvite(token);
+  if(!payload||!payload.from) return;
+  history.replaceState({}, "", location.pathname+location.hash);
+  if(duelStore.active && !isDuelExpired(duelStore.active)){
+    showToast(`${payload.from} вызывает, но у тебя уже есть дуэль`);
+    return;
+  }
+  showInviteModal(payload);
+}
+function initSocial(){
+  const modeSel=document.getElementById("duelMode");
+  const courseField=document.getElementById("duelCourseField");
+  modeSel.addEventListener("change",()=>{
+    courseField.hidden=modeSel.value!=="course_sprint";
+  });
+  document.getElementById("shareBtn").addEventListener("click",openShareModal);
+  document.getElementById("shareClose").addEventListener("click",closeShareModal);
+  document.getElementById("shareOverlay").addEventListener("click",e=>{
+    if(e.target.id==="shareOverlay") closeShareModal();
+  });
+  document.getElementById("shareCopy").addEventListener("click",async()=>{
+    const mode=modeSel.value;
+    const courseId=mode==="course_sprint"?document.getElementById("duelCourse").value:null;
+    const payload=buildInvitePayload(mode,courseId);
+    const url=inviteUrl(payload);
+    try{
+      await navigator.clipboard.writeText(url);
+      showToast("Ссылка вызова скопирована");
+    }catch{
+      prompt("Скопируй ссылку:", url);
+    }
+  });
+  document.getElementById("inviteDecline").addEventListener("click",closeInviteModal);
+  document.getElementById("inviteAccept").addEventListener("click",()=>{
+    if(!pendingInvite) return;
+    acceptInvite(pendingInvite);
+    closeInviteModal();
+    renderDuelPanel();
+    showToast("Дуэль началась! Удачи.");
+  });
+  document.getElementById("inviteOverlay").addEventListener("click",e=>{
+    if(e.target.id==="inviteOverlay") closeInviteModal();
+  });
+  document.getElementById("duelPanel").addEventListener("click",e=>{
+    const id=e.target.id;
+    if(id==="duelShareBtn") openShareModal();
+    if(id==="duelEndBtn" && confirm("Завершить текущую дуэль?")){
+      duelStore.active=null; saveDuel(); renderDuelPanel();
+    }
+    if(id==="duelPasteBtn"){
+      const raw=(document.getElementById("duelPaste")?.value||"").trim();
+      if(!raw) return showToast("Вставь ссылку с ?duel=");
+      try{
+        const u=new URL(raw, location.href);
+        const token=u.searchParams.get("duel");
+        if(!token) return showToast("В ссылке нет параметра duel");
+        const payload=decodeInvite(token);
+        if(!payload) return showToast("Ссылка повреждена");
+        showInviteModal(payload);
+      }catch{ showToast("Не удалось разобрать ссылку"); }
+    }
+  });
+  renderDuelPanel();
+  parseInviteFromUrl();
+}
 
 // ---- tabs ----
 document.querySelectorAll(".tab").forEach(t=>{
@@ -700,7 +1096,12 @@ COURSES.forEach(c=>{
     if(cb.checked) sp.classList.add("done");
     cb.addEventListener("change",()=>{
       store.lessons[k]=cb.checked; sp.classList.toggle("done",cb.checked);
-      if(cb.checked) touchStreak(); save(); refresh();
+      if(cb.checked){
+        if(!store.meta.completedAt) store.meta.completedAt={};
+        store.meta.completedAt[k]=new Date().toISOString();
+        touchStreak();
+      }else if(store.meta.completedAt) delete store.meta.completedAt[k];
+      save(); refresh();
     });
     row.appendChild(cb); row.appendChild(sp); lwrap.appendChild(row);
   });
@@ -821,6 +1222,7 @@ function refresh(){
   document.getElementById("archetype").textContent=p.label;
   document.getElementById("vTier").textContent="T"+p.tier;
   drawLifeRadar(lifeScores());
+  updateDuelUI();
 }
 
 // ---- theme switching ----
@@ -843,6 +1245,7 @@ function applyTheme(t){
   document.getElementById("sysWho").textContent=whoMap[t]||cfg.who;
   document.querySelector('[data-tab="special"]').textContent=cfg.tabs.special;
   document.querySelector('[data-tab="skills"]').textContent=cfg.tabs.skills;
+  document.querySelector('[data-tab="duels"]').textContent=cfg.tabs.duels;
   refresh();
 }
 document.querySelectorAll("[data-theme-btn]").forEach(b=>{
@@ -857,6 +1260,7 @@ document.getElementById("reset").addEventListener("click",()=>{
     localStorage.removeItem(KEY);
     localStorage.removeItem(PROFILE_KEY);
     localStorage.removeItem(THEME_KEY);
+    localStorage.removeItem(DUEL_KEY);
     location.reload();
   }
 });
@@ -958,6 +1362,7 @@ function initOnboarding(){
 
 if(isAuthed()){
   document.getElementById("logoutBtn").hidden=false;
+  initSocial();
   const isFirstRun=initOnboarding();
   if(!isFirstRun){
     showApp();
