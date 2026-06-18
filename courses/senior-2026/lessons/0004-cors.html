@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 0004 · CORS и credentials</title>
+<style>
+  :root{--ink:#1a1a1a;--muted:#666;--line:#e2e2e2;--accent:#7a4f9e;--accent2:#2e6e8e;
+    --bg:#fbfbf9;--card:#fff;--ok:#2e7d32;--bad:#c0392b;--code:#f4f2ef}
+  *{box-sizing:border-box}
+  body{font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:var(--bg);
+    max-width:780px;margin:0 auto;padding:44px 22px 110px;line-height:1.55;font-size:18px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 4px}
+  .meta{color:var(--muted);font-style:italic;margin:0 0 24px;font-size:16px}
+  h2{font-size:22px;margin:34px 0 8px;border-bottom:2px solid var(--line);padding-bottom:6px}
+  h3{font-size:18px;margin:18px 0 4px}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;background:var(--code);
+    padding:1px 6px;border-radius:4px}
+  pre{background:#2b2b2b;color:#eaeaea;padding:14px 16px;border-radius:8px;overflow:auto;font-size:13.5px;line-height:1.5}
+  pre code{background:none;color:inherit;padding:0}
+  .win{background:#f3eff8;border-left:5px solid var(--accent);border-radius:8px;padding:12px 16px;margin:16px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:18px 0}
+  .q{margin:14px 0;padding-bottom:12px;border-bottom:1px solid #f0f0f0}
+  .q:last-child{border-bottom:none}
+  .q p{margin:0 0 8px;font-weight:bold}
+  .opt{display:block;padding:8px 12px;margin:6px 0;border:1px solid var(--line);border-radius:8px;cursor:pointer;
+    font-size:16px;background:#fff;transition:.15s}
+  .opt:hover{background:#faf7fd}
+  .opt.correct{border-color:var(--ok);background:#f0f8f0}
+  .opt.wrong{border-color:var(--bad);background:#fcf0ef}
+  .opt input{margin-right:8px}
+  .fb{font-size:15px;margin-top:6px;min-height:20px}
+  .fb.ok{color:var(--ok)} .fb.no{color:var(--bad)}
+  button{font-family:inherit;font-size:15px;background:var(--accent);color:#fff;border:none;
+    border-radius:8px;padding:9px 16px;cursor:pointer}
+  button.ghost{background:#fff;color:var(--accent2);border:1px solid var(--line)}
+  button:hover{filter:brightness(1.05)}
+  input.txt{font-family:ui-monospace,monospace;font-size:15px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;width:160px}
+  label.ck{display:flex;gap:10px;align-items:flex-start;padding:6px 0;cursor:pointer;font-size:16px}
+  label.ck input{margin-top:5px;width:18px;height:18px;accent-color:var(--accent)}
+  .res{font-size:15px;margin-top:8px;font-weight:bold}
+  textarea{width:100%;min-height:70px;font-family:inherit;font-size:15px;padding:10px;border:1px solid var(--line);border-radius:8px}
+  .report{background:#1f2733;color:#e8eef5;border-radius:10px;padding:18px 20px;margin-top:14px;font-size:14px}
+  a{color:var(--accent2)}
+  .small{font-size:15px;color:var(--muted)}
+  .note{background:#fffaf0;border:1px solid #f0e2c0;border-radius:8px;padding:10px 14px;margin:14px 0;font-size:16px}
+  table.cmp{width:100%;border-collapse:collapse;margin:10px 0;font-size:15px}
+  table.cmp th,table.cmp td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  table.cmp th{background:#f3eff8}
+  @media print{body{background:#fff}}
+</style>
+</head>
+<body>
+
+<h1>Урок 0004 · CORS и <code>credentials</code></h1>
+<p class="meta">Курс «Senior 2026» · Фаза 0 · ~15 мин · <code>fullstack-lab</code> (CORS в <code>main.go</code> + proxy Vite)</p>
+
+<div class="win">
+  <b>Сегодняшняя победа.</b> Поймёшь, почему браузер иногда блокирует запрос <i>до</i> того, как он дойдёт до сервера;
+  чем CORS-ошибка отличается от <code>401</code>; зачем <code>credentials: 'include'</code> и preflight
+  <code>OPTIONS</code>; и почему UI lab на <code>:5173</code> «магически» работает без CORS-ада.
+</div>
+
+<h2>1. Теория (коротко)</h2>
+
+<h3>Same-origin и зачем CORS</h3>
+<p><b>Origin</b> = схема + хост + порт. <code>http://localhost:5173</code> и <code>http://localhost:8080</code> —
+<b>разные origin</b> (порты разные). Браузер по умолчанию не даёт JS на странице с :5173 читать ответ с :8080 —
+это <b>same-origin policy</b>.</p>
+<p><b>CORS</b> (Cross-Origin Resource Sharing) — механизм, при котором <b>сервер</b> явно разрешает другому origin
+читать ответ через заголовки вроде <code>Access-Control-Allow-Origin</code>.</p>
+
+<h3>CORS ≠ 401</h3>
+<table class="cmp">
+  <tr><th>Ситуация</th><th>Где видишь</th><th>Смысл</th></tr>
+  <tr><td><b>CORS block</b></td><td>Красная ошибка в Console, в Network запрос может быть «failed»</td><td>Браузер <b>запретил</b> JS прочитать ответ. До бизнес-логики может дойти, но фронт ответ не увидит.</td></tr>
+  <tr><td><b>401</b></td><td>HTTP 401, JSON <code>{"data":{},"status":401,...}</code></td><td>Запрос <b>дошёл</b> до API, middleware отклонил — нет/битый токен.</td></tr>
+</table>
+<p class="small">На собесе: «CORS — защита браузера; 401 — решение приложения».</p>
+
+<h3><code>credentials: 'include'</code> и cookie</h3>
+<p>Чтобы браузер слал cookie на другой origin, нужно <b>два</b> условия:</p>
+<ul>
+  <li>на фронте: <code>fetch(..., { credentials: 'include' })</code> — так в lab;</li>
+  <li>на бэке: <code>Access-Control-Allow-Credentials: true</code> и <code>Allow-Origin</code> = <b>конкретный</b> URL
+  (не <code>*</code>).</li>
+</ul>
+<p>В lab (<code>main.go</code>): <code>AllowCredentials: true</code>, origins из <code>CORS_ORIGINS</code>
+(по умолчанию <code>http://localhost:5173</code>).</p>
+
+<h3>Preflight — запрос OPTIONS</h3>
+<p>Для «непростых» cross-origin запросов (например <code>POST</code> с <code>Content-Type: application/json</code>)
+браузер сначала шлёт <b>OPTIONS</b> — «можно ли?». Сервер отвечает разрешёнными методами и заголовками.
+Только потом идёт настоящий <code>POST</code>. <code>curl</code> preflight не делает — только браузер.</p>
+
+<h3>Почему UI lab «не ломается» на CORS</h3>
+<p>Vite проксирует API:</p>
+<pre><code>// apps/web/vite.config.ts
+proxy: { '/api': { target: 'http://localhost:8080' } }</code></pre>
+<p>Браузер видит запрос на <code>http://localhost:5173/api/v1/notes</code> — <b>тот же origin</b>, что и страница.
+Vite на сервере пересылает на :8080. CORS для UI в dev не нужен. CORS на API всё равно настроен — для прода,
+когда фронт и API на разных хостах, или если бьёшь в :8080 из консоли браузера.</p>
+
+<div class="note"><b>Связь с yamal.</b> Gateway тоже включает CORS с <code>AllowCredentials</code> — иначе админка
+на одном домене не прочитает API на другом.</div>
+
+<h2>2. Проверь себя (автопроверка)</h2>
+<div class="card" id="quiz">
+  <div class="q" data-correct="b">
+    <p>1. <code>:5173</code> и <code>:8080</code> на localhost — это…</p>
+    <label class="opt"><input type="radio" name="q1" value="a">Один и тот же origin</label>
+    <label class="opt"><input type="radio" name="q1" value="b">Разные origin (порт входит в origin)</label>
+    <label class="opt"><input type="radio" name="q1" value="c">Разные origin только если разный хост</label>
+    <label class="opt"><input type="radio" name="q1" value="d">CORS не применяется на localhost</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="a">
+    <p>2. Ошибка CORS в Console — это прежде всего…</p>
+    <label class="opt"><input type="radio" name="q2" value="a">Браузер запретил JS прочитать ответ</label>
+    <label class="opt"><input type="radio" name="q2" value="b">Сервер вернул HTTP 401</label>
+    <label class="opt"><input type="radio" name="q2" value="c">Неверный пароль при логине</label>
+    <label class="opt"><input type="radio" name="q2" value="d">Сломался JSON в теле ответа</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="c">
+    <p>3. С <code>credentials: 'include'</code> сервер НЕ может ответить…</p>
+    <label class="opt"><input type="radio" name="q3" value="a"><code>Access-Control-Allow-Origin: http://localhost:5173</code></label>
+    <label class="opt"><input type="radio" name="q3" value="b"><code>Access-Control-Allow-Credentials: true</code></label>
+    <label class="opt"><input type="radio" name="q3" value="c"><code>Access-Control-Allow-Origin: *</code></label>
+    <label class="opt"><input type="radio" name="q3" value="d"><code>Access-Control-Allow-Methods: POST</code></label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="b">
+    <p>4. Preflight — это обычно запрос…</p>
+    <label class="opt"><input type="radio" name="q4" value="a">GET с cookie перед каждым GET</label>
+    <label class="opt"><input type="radio" name="q4" value="b">OPTIONS перед «сложным» cross-origin запросом</label>
+    <label class="opt"><input type="radio" name="q4" value="c">POST /auth/logout после выхода</label>
+    <label class="opt"><input type="radio" name="q4" value="d">HEAD для проверки JWT в токене</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="a">
+    <p>5. Почему fetch в UI lab на :5173 не ловит CORS на API :8080?</p>
+    <label class="opt"><input type="radio" name="q5" value="a">Vite прокси: браузер бьёт в :5173/api (same-origin)</label>
+    <label class="opt"><input type="radio" name="q5" value="b">CORS отключён в Chrome на localhost</label>
+    <label class="opt"><input type="radio" name="q5" value="c">JWT отменяет необходимость CORS</label>
+    <label class="opt"><input type="radio" name="q5" value="d">Cookie никогда не участвуют в CORS</label>
+    <div class="fb"></div>
+  </div>
+</div>
+
+<h2>3. Практика на полигоне</h2>
+<pre><code># 1. Preflight руками (curl имитирует браузер)
+curl -i -X OPTIONS http://localhost:8080/api/v1/notes \
+  -H "Origin: http://localhost:5173" \
+  -H "Access-Control-Request-Method: POST" \
+  -H "Access-Control-Request-Headers: Content-Type, Authorization"
+
+# Ищи в ответе: Access-Control-Allow-Origin, Allow-Credentials, Allow-Methods
+
+# 2. В Chrome на http://localhost:5173 — открой Console (F12) и выполни:
+
+# 2a. Cross-origin напрямую на :8080 (часто CORS error в консоли)
+fetch("http://localhost:8080/api/v1/notes", { credentials: "include" })
+
+# 2b. Через proxy Vite (same-origin) — увидишь 401 JSON, не CORS
+fetch("/api/v1/notes", { credentials: "include" }).then(r => r.json()).then(console.log)</code></pre>
+
+<div class="card">
+  <label class="ck"><input type="checkbox" id="p1">OPTIONS показал заголовки Access-Control-Allow-*</label>
+  <label class="ck"><input type="checkbox" id="p2">fetch на :8080 из консоли — CORS или сетевая ошибка</label>
+  <label class="ck"><input type="checkbox" id="p3">fetch на /api/v1/notes — 401 JSON (запрос дошёл до API)</label>
+  <div style="margin-top:12px">
+    <span>Какой метод у preflight? </span>
+    <input class="txt" id="methIn" placeholder="OPTIONS" style="width:120px">
+    <button class="ghost" id="checkMeth">Проверить</button>
+    <span class="res" id="methRes"></span>
+  </div>
+</div>
+
+<h2>4. Первоисточник</h2>
+<p><a href="https://developer.mozilla.org/ru/docs/Web/HTTP/CORS" target="_blank">MDN: CORS</a> ·
+<a href="https://developer.mozilla.org/ru/docs/Web/API/Fetch_API/Using_Fetch#supplying_request_options" target="_blank">MDN: credentials</a></p>
+
+<h2>5. Отчёт для агента</h2>
+<textarea id="issues" placeholder="Что непонятно? (необязательно)"></textarea>
+<div style="margin-top:10px">
+  <button id="copyBtn">Скопировать отчёт</button>
+  <span class="res" id="copyRes"></span>
+</div>
+<div class="report" id="reportView" style="display:none"></div>
+
+<script>
+const quizState={};
+const QN=5;
+document.querySelectorAll("#quiz .q").forEach((q,i)=>{
+  const correct=q.dataset.correct;
+  q.querySelectorAll(".opt").forEach(opt=>{
+    opt.addEventListener("click",()=>{
+      const val=opt.querySelector("input").value;
+      q.querySelectorAll(".opt").forEach(o=>o.classList.remove("correct","wrong"));
+      const fb=q.querySelector(".fb");
+      quizState["q"+(i+1)]={chosen:val,ok:val===correct};
+      if(val===correct){opt.classList.add("correct");fb.textContent="Верно ✓";fb.className="fb ok";}
+      else{opt.classList.add("wrong");fb.textContent="Не то";fb.className="fb no";}
+    });
+  });
+});
+let methOk=false;
+document.getElementById("checkMeth").addEventListener("click",()=>{
+  const v=document.getElementById("methIn").value.trim().toUpperCase();
+  const res=document.getElementById("methRes");
+  if(v==="OPTIONS"){res.textContent="Верно ✓";res.style.color="var(--ok)";methOk=true;}
+  else{res.textContent="Это preflight";res.style.color="var(--bad)";methOk=false;}
+});
+function buildReport(){
+  const qLines=[];let qScore=0;
+  for(let i=1;i<=QN;i++){const s=quizState["q"+i];if(s){if(s.ok)qScore++;qLines.push(`  Q${i}: ${s.chosen} ${s.ok?"OK":"WRONG"}`);}else qLines.push(`  Q${i}: (не отвечено)`);}
+  const p=id=>document.getElementById(id).checked?"да":"нет";
+  const issues=document.getElementById("issues").value.trim()||"(нет)";
+  return [
+"=== ОТЧЁТ · Курс Senior 2026 · Урок 0004 «CORS и credentials» ===",
+`Квиз: ${qScore}/${QN}`,...qLines,
+"Практика:",
+`  OPTIONS заголовки: ${p("p1")}`,
+`  fetch :8080 CORS: ${p("p2")}`,
+`  fetch /api 401 JSON: ${p("p3")}`,
+`  Preflight метод OPTIONS: ${methOk?"да":"нет"}`,
+`Что непонятно: ${issues}`,
+"=== конец отчёта ==="
+  ].join("\n");
+}
+document.getElementById("copyBtn").addEventListener("click",async()=>{
+  const text=buildReport();
+  document.getElementById("reportView").style.display="block";
+  document.getElementById("reportView").textContent=text;
+  const res=document.getElementById("copyRes");
+  try{await navigator.clipboard.writeText(text);res.textContent="Скопировано ✓";res.style.color="var(--ok)";}
+  catch(e){res.textContent="Скопируй блок ниже";res.style.color="var(--bad)";}
+});
+</script>
+</body>
+</html>

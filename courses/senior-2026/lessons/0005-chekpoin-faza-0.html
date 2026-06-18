@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 0005 · Чекпоинт Фазы 0: полный путь запроса</title>
+<style>
+  :root{--ink:#1a1a1a;--muted:#666;--line:#e2e2e2;--accent:#7a4f9e;--accent2:#2e6e8e;
+    --bg:#fbfbf9;--card:#fff;--ok:#2e7d32;--bad:#c0392b;--code:#f4f2ef}
+  *{box-sizing:border-box}
+  body{font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:var(--bg);
+    max-width:780px;margin:0 auto;padding:44px 22px 110px;line-height:1.55;font-size:18px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 4px}
+  .meta{color:var(--muted);font-style:italic;margin:0 0 24px;font-size:16px}
+  h2{font-size:22px;margin:34px 0 8px;border-bottom:2px solid var(--line);padding-bottom:6px}
+  h3{font-size:18px;margin:18px 0 4px}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;background:var(--code);
+    padding:1px 6px;border-radius:4px}
+  pre{background:#2b2b2b;color:#eaeaea;padding:14px 16px;border-radius:8px;overflow:auto;font-size:13px;line-height:1.45}
+  pre code{background:none;color:inherit;padding:0}
+  .win{background:#f3eff8;border-left:5px solid var(--accent);border-radius:8px;padding:12px 16px;margin:16px 0}
+  .checkpoint{background:#f0f8f0;border:2px solid var(--ok);border-radius:10px;padding:16px 20px;margin:20px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:18px 0}
+  .q{margin:14px 0;padding-bottom:12px;border-bottom:1px solid #f0f0f0}
+  .q p{margin:0 0 8px;font-weight:bold}
+  .opt{display:block;padding:8px 12px;margin:6px 0;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:16px;background:#fff}
+  .opt.correct{border-color:var(--ok);background:#f0f8f0}
+  .opt.wrong{border-color:var(--bad);background:#fcf0ef}
+  .opt input{margin-right:8px}
+  .fb{font-size:15px;margin-top:6px;min-height:20px}
+  .fb.ok{color:var(--ok)} .fb.no{color:var(--bad)}
+  .order-row{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap}
+  .order-row select{font-family:inherit;font-size:15px;padding:5px 8px;border:1px solid var(--line);border-radius:6px}
+  button{font-family:inherit;font-size:15px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:9px 16px;cursor:pointer}
+  button.ghost{background:#fff;color:var(--accent2);border:1px solid var(--line)}
+  input.txt{font-family:ui-monospace,monospace;font-size:15px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;width:80px}
+  label.ck{display:flex;gap:10px;align-items:flex-start;padding:6px 0;cursor:pointer;font-size:16px}
+  label.ck input{margin-top:5px;width:18px;height:18px}
+  .res{font-size:15px;margin-top:8px;font-weight:bold}
+  textarea{width:100%;min-height:90px;font-family:inherit;font-size:15px;padding:10px;border:1px solid var(--line);border-radius:8px}
+  .report{background:#1f2733;color:#e8eef5;border-radius:10px;padding:18px 20px;margin-top:14px;font-size:14px}
+  a{color:var(--accent2)}
+  .small{font-size:15px;color:var(--muted)}
+  .schema{background:#fff;border:1px dashed var(--line);border-radius:8px;padding:14px;font-size:15px;line-height:1.7}
+  @media print{body{background:#fff}.checkpoint{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<h1>Урок 0005 · Чекпоинт Фазы 0: полный путь запроса</h1>
+<p class="meta">Курс «Senior 2026» · Фаза 0 · финал · <code>curl -v</code> + DevTools + схема «логин → заметки»</p>
+
+<div class="win">
+  <b>Чекпоинт фазы.</b> Собери в голове (и на бумаге) целую картину: клик «Войти» → cookie → список заметок.
+  Умеешь прочитать <code>curl -v</code> и вкладку Network. Назови статус-код на каждом шаге. После этого —
+  Фаза 1 (как устроен бэкенд изнутри).
+</div>
+
+<div class="checkpoint">
+  <b>Критерий «сдал Фазу 0»</b> (из дорожной карты): нарисовать схему пути
+  «клик Войти → cookie → список заметок» и объяснить каждый статус-код. Этот урок — подготовка и самопроверка.
+</div>
+
+<h2>1. Эталонная схема (сверь со своей)</h2>
+<div class="schema">
+  <b>Браузер :5173</b> (через Vite proxy → API :8080)<br>
+  ① POST /api/v1/auth/login + JSON {email, password}<br>
+  ② API: validate → store.FindUser → CheckPassword → jwt.Sign<br>
+  ③ Ответ: HTTP <b>200</b> + Set-Cookie: access_token + body {data:{user, accessToken}, status:200}<br>
+  ④ GET /api/v1/notes + Cookie (credentials: include)<br>
+  ⑤ Middleware IsAuthed: cookie → Parse JWT → userId в context<br>
+  ⑥ Handler list → store.ListNotes(userId) → SQL<br>
+  ⑦ Ответ: HTTP <b>200</b> + {data:{list:[...]}, status:200, message:"ok"}<br>
+  <br>
+  <b>Без cookie:</b> шаг ④ → middleware → HTTP <b>401</b> + {data:{}, status:401, message:"unauthorized"}<br>
+  <b>Неверный пароль:</b> шаг ① → HTTP <b>401</b> + message "invalid credentials"
+</div>
+
+<h2>2. HTTP-методы на полигоне (кратко)</h2>
+<table style="width:100%;border-collapse:collapse;font-size:15px;margin:12px 0">
+  <tr style="background:#f3eff8"><th style="border:1px solid var(--line);padding:8px">Метод</th>
+    <th style="border:1px solid var(--line);padding:8px">В lab</th>
+    <th style="border:1px solid var(--line);padding:8px">Смысл</th></tr>
+  <tr><td style="border:1px solid var(--line);padding:8px"><code>GET</code></td>
+    <td style="border:1px solid var(--line);padding:8px">/notes, /auth/me</td>
+    <td style="border:1px solid var(--line);padding:8px">Прочитать</td></tr>
+  <tr><td style="border:1px solid var(--line);padding:8px"><code>POST</code></td>
+    <td style="border:1px solid var(--line);padding:8px">/auth/login, /notes</td>
+    <td style="border:1px solid var(--line);padding:8px">Создать / действие (логин)</td></tr>
+  <tr><td style="border:1px solid var(--line);padding:8px"><code>PUT</code></td>
+    <td style="border:1px solid var(--line);padding:8px">/notes/:id</td>
+    <td style="border:1px solid var(--line);padding:8px">Обновить целиком</td></tr>
+  <tr><td style="border:1px solid var(--line);padding:8px"><code>DELETE</code></td>
+    <td style="border:1px solid var(--line);padding:8px">/notes/:id</td>
+    <td style="border:1px solid var(--line);padding:8px">Удалить</td></tr>
+  <tr><td style="border:1px solid var(--line);padding:8px"><code>OPTIONS</code></td>
+    <td style="border:1px solid var(--line);padding:8px">CORS preflight</td>
+    <td style="border:1px solid var(--line);padding:8px">«Можно ли cross-origin?»</td></tr>
+</table>
+
+<h2>3. Практика: <code>curl -v</code></h2>
+<p><code>-v</code> (verbose) показывает <b>заголовки запроса и ответа</b> — учись читать их как сеньор.</p>
+<pre><code># Логин — смотри &gt; отправленные заголовки, &lt; HTTP/1.1 200, &lt; Set-Cookie
+curl -v -c /tmp/lab.jar -X POST http://localhost:8080/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"editor@lab.local","password":"lab12345"}' 2>&1 | less
+
+# Заметки с cookie — &lt; HTTP/1.1 200, тело с data.list
+curl -v -b /tmp/lab.jar http://localhost:8080/api/v1/notes 2>&1 | less
+
+# Без cookie — &lt; HTTP/1.1 401
+curl -v http://localhost:8080/api/v1/notes 2>&1 | less</code></pre>
+
+<h2>4. DevTools → Network (UI)</h2>
+<ol>
+  <li>Открой <code>http://localhost:5173</code>, F12 → Network, галочка <b>Preserve log</b>.</li>
+  <li>Войди — найди <code>login</code>: Request Headers, Response Headers (<code>set-cookie</code>), Preview → <code>data.user</code>.</li>
+  <li>Страница заметок — запрос <code>notes</code>: Request Cookie, статус 200, <code>data.list</code>.</li>
+  <li>Выйди — снова <code>notes</code> → 401 (или редирект на login).</li>
+</ol>
+
+<h2>5. Проверь себя</h2>
+
+<div class="card" id="quiz">
+  <div class="q" data-correct="b">
+    <p>1. Неверный пароль на login — HTTP статус?</p>
+    <label class="opt"><input type="radio" name="q1" value="a">400</label>
+    <label class="opt"><input type="radio" name="q1" value="b">401</label>
+    <label class="opt"><input type="radio" name="q1" value="c">403</label>
+    <label class="opt"><input type="radio" name="q1" value="d">500</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="c">
+    <p>2. Успешное создание заметки POST /notes?</p>
+    <label class="opt"><input type="radio" name="q2" value="a">200</label>
+    <label class="opt"><input type="radio" name="q2" value="b">204</label>
+    <label class="opt"><input type="radio" name="q2" value="c">201</label>
+    <label class="opt"><input type="radio" name="q2" value="d">401</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="a">
+    <p>3. Где middleware проверяет JWT перед /notes?</p>
+    <label class="opt"><input type="radio" name="q3" value="a">До handler list — цепочка Fiber</label>
+    <label class="opt"><input type="radio" name="q3" value="b">Внутри SQL запроса в store</label>
+    <label class="opt"><input type="radio" name="q3" value="c">Только на фронте в React</label>
+    <label class="opt"><input type="radio" name="q3" value="d">В Vite proxy при сборке</label>
+    <div class="fb"></div>
+  </div>
+</div>
+
+<h3>Сопоставь шаг и статус (сценарий «логин → notes»)</h3>
+<div class="card" id="statusMap">
+  <div class="order-row"><span>POST /auth/login, пароль верный</span>
+    <select data-ans="200"><option value="">—</option><option>200</option><option>401</option><option>404</option><option>500</option></select></div>
+  <div class="order-row"><span>GET /notes без cookie</span>
+    <select data-ans="401"><option value="">—</option><option>200</option><option>401</option><option>404</option><option>500</option></select></div>
+  <div class="order-row"><span>GET /notes с валидной cookie</span>
+    <select data-ans="200"><option value="">—</option><option>200</option><option>401</option><option>404</option><option>500</option></select></div>
+  <div class="order-row"><span>GET /notes/99999 (нет такой заметки)</span>
+    <select data-ans="404"><option value="">—</option><option>200</option><option>401</option><option>404</option><option>500</option></select></div>
+  <button id="checkMap" class="ghost" style="margin-top:10px">Проверить статусы</button>
+  <span class="res" id="mapRes"></span>
+</div>
+
+<h3>Твоя схема (чекпоинт)</h3>
+<p>Нарисуй на бумаге или в excalidraw. Кратко опиши путь ниже — для себя и для отчёта (3–5 предложений).</p>
+<textarea id="schemaText" placeholder="Пример: Клик Войти → POST login → сервер проверяет пароль в store → JWT в Set-Cookie → GET notes шлёт cookie → middleware → SQL → 200 + data.list"></textarea>
+
+<div class="card">
+  <label class="ck"><input type="checkbox" id="p1">Прогнал curl -v на login и notes (с cookie и без)</label>
+  <label class="ck"><input type="checkbox" id="p2">В DevTools нашёл Set-Cookie и Request Cookie</label>
+  <label class="ck"><input type="checkbox" id="p3">Нарисовал схему на бумаге / в редакторе</label>
+</div>
+
+<h2>6. Отчёт для агента</h2>
+<textarea id="issues" placeholder="Что непонятно? Готов к Фазе 1?"></textarea>
+<div style="margin-top:10px">
+  <button id="copyBtn">Скопировать отчёт</button>
+  <span class="res" id="copyRes"></span>
+</div>
+<div class="report" id="reportView" style="display:none"></div>
+
+<script>
+const quizState={};
+document.querySelectorAll("#quiz .q").forEach((q,i)=>{
+  const correct=q.dataset.correct;
+  q.querySelectorAll(".opt").forEach(opt=>{
+    opt.addEventListener("click",()=>{
+      const val=opt.querySelector("input").value;
+      q.querySelectorAll(".opt").forEach(o=>o.classList.remove("correct","wrong"));
+      const fb=q.querySelector(".fb");
+      quizState["q"+(i+1)]={chosen:val,ok:val===correct};
+      if(val===correct){opt.classList.add("correct");fb.textContent="Верно ✓";fb.className="fb ok";}
+      else{opt.classList.add("wrong");fb.textContent="Не то";fb.className="fb no";}
+    });
+  });
+});
+let mapOk=false;
+document.getElementById("checkMap").addEventListener("click",()=>{
+  let ok=true;
+  document.querySelectorAll("#statusMap select").forEach(s=>{
+    if(!s.value||s.value!==s.dataset.ans) ok=false;
+  });
+  const res=document.getElementById("mapRes");
+  if(ok){res.textContent="Все статусы верны ✓";res.style.color="var(--ok)";mapOk=true;}
+  else{res.textContent="Перепроверь";res.style.color="var(--bad)";mapOk=false;}
+});
+function buildReport(){
+  const qLines=[];let qScore=0;
+  for(let i=1;i<=3;i++){const s=quizState["q"+i];if(s){if(s.ok)qScore++;qLines.push(`  Q${i}: ${s.chosen} ${s.ok?"OK":"WRONG"}`);}else qLines.push(`  Q${i}: (не отвечено)`);}
+  const p=id=>document.getElementById(id).checked?"да":"нет";
+  const schema=document.getElementById("schemaText").value.trim()||"(не заполнено)";
+  const issues=document.getElementById("issues").value.trim()||"(нет)";
+  return [
+"=== ОТЧЁТ · Курс Senior 2026 · Урок 0005 «Чекпоинт Фазы 0» ===",
+`Квиз: ${qScore}/3`,...qLines,
+`Сопоставление статусов: ${mapOk?"верно":"не подтверждено"}`,
+"Практика:",
+`  curl -v login+notes: ${p("p1")}`,
+`  DevTools Cookie: ${p("p2")}`,
+`  Схема нарисована: ${p("p3")}`,
+`Моя схема (текст): ${schema}`,
+`Что непонятно / готовность к Фазе 1: ${issues}`,
+"=== конец отчёта ==="
+  ].join("\n");
+}
+document.getElementById("copyBtn").addEventListener("click",async()=>{
+  const text=buildReport();
+  document.getElementById("reportView").style.display="block";
+  document.getElementById("reportView").textContent=text;
+  const res=document.getElementById("copyRes");
+  try{await navigator.clipboard.writeText(text);res.textContent="Скопировано ✓";res.style.color="var(--ok)";}
+  catch(e){res.textContent="Скопируй блок ниже";res.style.color="var(--bad)";}
+});
+</script>
+</body>
+</html>

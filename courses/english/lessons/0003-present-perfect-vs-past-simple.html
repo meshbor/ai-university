@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Урок 0003 — Present Perfect vs Past Simple</title>
+<style>
+  :root {
+    --ink: #1a1a1a; --muted: #666; --accent: #8b2500; --rule: #ddd; --bg: #fffff8;
+    --ok: #2e6b30; --bad: #a33; --ok-bg: #e8f0e3; --bad-bg: #f7e6e2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, "Times New Roman", serif; background: var(--bg); color: var(--ink);
+    max-width: 44rem; margin: 0 auto; padding: 3rem 1.5rem 5rem; line-height: 1.65; font-size: 1.05rem;
+  }
+  h1 { font-size: 1.9rem; font-weight: normal; font-style: italic; margin-bottom: .2rem; }
+  .subtitle { color: var(--muted); font-style: italic; margin-top: 0; }
+  h2 { font-size: 1.35rem; font-weight: normal; font-style: italic; margin-top: 2.8rem; border-bottom: 1px solid var(--rule); padding-bottom: .3rem; }
+  .meta { font-size: .9rem; color: var(--muted); margin: 1rem 0 2rem; }
+  .algo { background: #f7f4e9; border-left: 3px solid var(--accent); padding: 1rem 1.3rem; margin: 1.3rem 0; }
+  .algo ol { margin: .5rem 0; padding-left: 1.3rem; }
+  .algo li { margin: .6rem 0; }
+  .gap { margin: 1.1rem 0; font-size: 1.02rem; }
+  .gap select {
+    font-family: inherit; font-size: 1rem; padding: .15rem .3rem;
+    background: #fff; border: 1px solid #aaa; border-radius: 4px;
+  }
+  .gap.ok select { background: var(--ok-bg); border-color: var(--ok); }
+  .gap.bad select { background: var(--bad-bg); border-color: var(--bad); }
+  .feedback { font-size: .88rem; margin-top: .25rem; display: none; }
+  .ok .feedback.good { display: block; color: var(--ok); }
+  .bad .feedback.fix { display: block; color: var(--bad); }
+  .story {
+    background: #f7f4e9; border: 1px solid var(--rule); border-radius: 4px;
+    padding: 1rem 1.3rem; margin: 1.3rem 0; line-height: 2;
+  }
+  .story .gap { margin: 0; display: inline; }
+  button {
+    font-family: inherit; font-size: 1rem; font-style: italic;
+    background: var(--ink); color: var(--bg); border: none;
+    padding: .6rem 1.6rem; border-radius: 4px; cursor: pointer; margin-top: 1.5rem;
+  }
+  button:hover { background: var(--accent); }
+  #result {
+    display: none; margin-top: 1.5rem; padding: 1rem 1.3rem;
+    border: 1px solid var(--rule); border-radius: 4px; background: #f7f4e9;
+  }
+  #result .score { font-size: 1.4rem; font-style: italic; }
+  .note { font-size: .9rem; color: var(--muted); border-left: 3px solid var(--rule); padding-left: 1rem; margin: 1.5rem 0; }
+  a { color: var(--accent); }
+  code, .en-ex { font-family: Consolas, Menlo, monospace; font-size: .9em; background: #f0ede2; padding: .05em .3em; border-radius: 3px; }
+  .en { font-style: normal; }
+  .warmup { font-size: .95rem; color: var(--muted); border: 1px dashed var(--rule); padding: .8rem 1rem; margin: 1rem 0; }
+</style>
+</head>
+<body>
+
+<h1>Урок 0003 — Present Perfect vs Past Simple</h1>
+<p class="subtitle">«Я вчера сделал» и «я уже сделал» — в английском это разные времена, и путаница между ними — вторая по частоте ошибка после артиклей.</p>
+<p class="meta">≈ 12 минут · после <a href="0002-artikli-a-an-the.html">урока 0002</a> · шпаргалка: <a href="../reference/vremena-present-perfect-past-simple.html">Present Perfect vs Past Simple</a></p>
+
+<p>В диагностике была фраза <span class="en-ex">We have fixed the bug yesterday</span> — грамматически невозможная: слово <strong>yesterday</strong> требует Past Simple. В русском «я вчера сделал» и «я уже сделал» звучат похоже, поэтому мозг подставляет Present Perfect там, где его быть не должно.</p>
+
+<h2>Разминка · артикли (2 вопроса)</h2>
+<p class="warmup">Короткая проверка из <a href="0002-artikli-a-an-the.html">урока 0002</a> — чтобы правило не заржавело.</p>
+
+<div class="gap en" lang="en" data-answer="the" id="w1">1. Please review
+  <select><option value="">—?—</option><option value="a">a</option><option value="an">an</option><option value="the">the</option><option value="-">(без артикля)</option></select>
+  pull request I sent this morning.
+  <div class="feedback good">Верно: конкретный PR, о котором оба знают — the.</div>
+  <div class="feedback fix">Нет: конкретный PR → the.</div>
+</div>
+
+<div class="gap en" lang="en" data-answer="-" id="w2">2.
+  <select><option value="">—?—</option><option value="A">A</option><option value="An">An</option><option value="The">The</option><option value="-">(без артикля)</option></select>
+  code reviews help us catch bugs early.
+  <div class="feedback good">Верно: code reviews «вообще», множественное число — без артикля.</div>
+  <div class="feedback fix">Нет: речь о ревью «вообще» → без артикля.</div>
+</div>
+
+<h2>Алгоритм: 3 вопроса</h2>
+<p>Перед каждым глаголом в прошедшем времени (<a href="https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/present-perfect" target="_blank">источник: British Council</a>):</p>
+
+<div class="algo">
+<ol>
+  <li><strong>Есть точное время?</strong> (<code>yesterday</code>, <code>last week</code>, <code>in 2019</code>, <code>two days ago</code>) → <strong>Past Simple</strong>: <span class="en-ex">We fixed the bug yesterday.</span></li>
+  <li><strong>Действие началось в прошлом и продолжается?</strong> (<code>since</code>, <code>for</code>) → <strong>Present Perfect</strong>: <span class="en-ex">I have worked here since 2019.</span></li>
+  <li><strong>Время не указано — важен результат «до сих пор»?</strong> → <strong>Present Perfect</strong>: <span class="en-ex">I have finished the review.</span> · <span class="en-ex">Have you checked the logs yet?</span></li>
+</ol>
+</div>
+
+<p><strong>Железное правило:</strong> если в предложении есть слово «когда» — всегда Past Simple. Present Perfect никогда не сочетается с <code>yesterday</code>, <code>last week</code>, <code>in 2020</code>.</p>
+
+<h2>Практика 1 · Статус-апдейт в Slack</h2>
+<p>Связное сообщение коллегам — как настоящий standup. Выберите форму глагола.</p>
+
+<div class="story en" lang="en">
+  Hi team!<br><br>
+  This week I
+  <span class="gap" data-answer="have completed" id="s1"><select><option value="">—?—</option><option value="completed">completed</option><option value="have completed">have completed</option><option value="was completing">was completing</option></select></span>
+  three tickets.
+  <span class="feedback good">Верно: this week — незаконченный период → Present Perfect.</span>
+  <span class="feedback fix">Нет: this week ещё не закончилась → have completed.</span><br><br>
+
+  I
+  <span class="gap" data-answer="deployed" id="s2"><select><option value="">—?—</option><option value="deployed">deployed</option><option value="have deployed">have deployed</option><option value="was deploying">was deploying</option></select></span>
+  the hotfix yesterday evening.
+  <span class="feedback good">Верно: yesterday → Past Simple.</span>
+  <span class="feedback fix">Нет: yesterday = точное время → deployed.</span><br><br>
+
+  I
+  <span class="gap" data-answer="have been working" id="s3"><select><option value="">—?—</option><option value="worked">worked</option><option value="have worked">have worked</option><option value="have been working">have been working</option></select></span>
+  on the API refactor since Monday.
+  <span class="feedback good">Верно: since Monday — продолжается → have been working.</span>
+  <span class="feedback fix">Нет: since + точка начала → Present Perfect (have been working).</span><br><br>
+
+  We
+  <span class="gap" data-answer="released" id="s4"><select><option value="">—?—</option><option value="released">released</option><option value="have released">have released</option><option value="were releasing">were releasing</option></select></span>
+  version 2.0 last month.
+  <span class="feedback good">Верно: last month — законченный период → Past Simple.</span>
+  <span class="feedback fix">Нет: last month = когда → released.</span><br><br>
+
+  Have you
+  <span class="gap" data-answer="reviewed" id="s5"><select><option value="">—?—</option><option value="review">review</option><option value="reviewed">reviewed</option><option value="were reviewing">were reviewing</option></select></span>
+  my PR yet?
+  <span class="feedback good">Верно: yet + Have you → Present Perfect (reviewed = V3).</span>
+  <span class="feedback fix">Нет: Have you ... yet? → reviewed (третья форма).</span>
+</div>
+
+<h2>Практика 2 · Отдельные предложения</h2>
+
+<div class="gap en" lang="en" data-answer="have fixed" id="g1">1. I
+  <select><option value="">—?—</option><option value="fixed">fixed</option><option value="have fixed">have fixed</option><option value="was fixing">was fixing</option></select>
+  the memory leak — you can test it now.
+  <div class="feedback good">Верно: результат важен сейчас, время не указано → have fixed.</div>
+  <div class="feedback fix">Нет: «можете тестировать сейчас» = результат в настоящем → have fixed.</div>
+</div>
+
+<div class="gap en" lang="en" data-answer="fixed" id="g2">2. We
+  <select><option value="">—?—</option><option value="fixed">fixed</option><option value="have fixed">have fixed</option><option value="were fixing">were fixing</option></select>
+  the bug yesterday.
+  <div class="feedback good">Верно. Та самая ловушка из диагностики: yesterday → fixed.</div>
+  <div class="feedback fix">Нет: yesterday всегда требует Past Simple → fixed.</div>
+</div>
+
+<div class="gap en" lang="en" data-answer="joined" id="g3">3. She
+  <select><option value="">—?—</option><option value="joined">joined</option><option value="has joined">has joined</option><option value="was joining">was joining</option></select>
+  our team in 2022.
+  <div class="feedback good">Верно: in 2022 — точный год → Past Simple.</div>
+  <div class="feedback fix">Нет: in 2022 = когда → joined.</div>
+</div>
+
+<div class="gap en" lang="en" data-answer="haven't seen" id="g4">4. I
+  <select><option value="">—?—</option><option value="didn't see">didn't see</option><option value="haven't seen">haven't seen</option><option value="wasn't seeing">wasn't seeing</option></select>
+  that error before — is it new?
+  <div class="feedback good">Верно: опыт «до этого момента», время не указано → haven't seen.</div>
+  <div class="feedback fix">Нет: «раньше не видел (никогда)» без точного времени → haven't seen.</div>
+</div>
+
+<div class="gap en" lang="en" data-answer="has just pushed" id="g5">5. Alex
+  <select><option value="">—?—</option><option value="just pushed">just pushed</option><option value="has just pushed">has just pushed</option><option value="was just pushing">was just pushing</option></select>
+  a commit — please pull.
+  <div class="feedback good">Верно: just = только что, результат важен сейчас → has just pushed.</div>
+  <div class="feedback fix">Нет: just (только что) + связь с настоящим → has just pushed.</div>
+</div>
+
+<div class="gap en" lang="en" data-answer="met" id="g6">6. We
+  <select><option value="">—?—</option><option value="met">met</option><option value="have met">have met</option><option value="were meeting">were meeting</option></select>
+  with the client two weeks ago.
+  <div class="feedback good">Верно: two weeks ago → Past Simple.</div>
+  <div class="feedback fix">Нет: ago = точное время в прошлом → met.</div>
+</div>
+
+<div class="gap en" lang="en" data-answer="have lived" id="g7">7. I
+  <select><option value="">—?—</option><option value="lived">lived</option><option value="have lived">have lived</option><option value="was living">was living</option></select>
+  in London for ten years.
+  <div class="feedback good">Верно: for ten years — период до сих пор → have lived.</div>
+  <div class="feedback fix">Нет: for + период (продолжается) → have lived.</div>
+</div>
+
+<button id="check">Проверить ответы</button>
+
+<div id="result">
+  <div class="score"></div>
+  <div class="verdict"></div>
+</div>
+
+<h2>Закрепление в реальном мире</h2>
+<p>Откройте <a href="https://writeandimprove.com/" target="_blank">Write &amp; Improve</a> и найдите задание уровня B1–B2 про рабочую переписку (email или message). Напишите 5–7 предложений — статус вашей текущей задачи коллеге. Следите за двумя правилами из последних уроков: артикли перед каждым существительным и Past Simple, если упоминаете «когда».</p>
+
+<h2>Что почитать</h2>
+<p>Главный источник — <a href="https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/present-perfect" target="_blank">British Council: Present perfect</a> (там интерактивные упражнения). Для сравнения двух времён: <a href="https://learnenglish.britishcouncil.org/free-resources/grammar/english-grammar-reference/past-simple" target="_blank">Past simple — справочник</a>.</p>
+
+<p class="note">Если какое-то предложение кажется двусмысленным — «а почему здесь не Past Simple?» — спросите меня в чате с конкретным примером. Граница между временами иногда тонкая, и разбирать её лучше на ваших текстах.</p>
+
+<script>
+document.getElementById('check').addEventListener('click', function () {
+  var total = 0, correct = 0, all = document.querySelectorAll('.gap');
+  all.forEach(function (g) {
+    var sel = g.querySelector('select');
+    g.classList.remove('ok', 'bad');
+    if (!sel.value) return;
+    total++;
+    if (sel.value.toLowerCase() === g.dataset.answer.toLowerCase()) { g.classList.add('ok'); correct++; }
+    else { g.classList.add('bad'); }
+  });
+
+  var unanswered = all.length - total;
+  var res = document.getElementById('result');
+  res.style.display = 'block';
+  res.querySelector('.score').textContent = 'Результат: ' + correct + ' из ' + all.length;
+
+  var verdict;
+  if (unanswered > 0) {
+    verdict = 'Осталось без ответа: ' + unanswered + '. Заполните все пропуски и проверьте снова.';
+  } else if (correct <= 9) {
+    verdict = 'Перечитайте алгоритм: если видите yesterday / last week / ago / in 2020 — это всегда Past Simple. Исправьте красные и проверьте снова.';
+  } else if (correct <= 12) {
+    verdict = 'Хорошо! Посмотрите на красные — скорее всего, один и тот же маркер времени. Ещё одна попытка.';
+  } else {
+    verdict = 'Отлично. Правило усвоено. Попробуйте написать статус-апдейт в Write & Improve — там сразу видно, держится ли уровень в свободном тексте.';
+  }
+  res.querySelector('.verdict').textContent = verdict;
+});
+</script>
+
+</body>
+</html>

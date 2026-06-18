@@ -85,14 +85,46 @@ return ctx.Status(status).JSON(Envelope{
 <div class="json-bad"><b>Ошибка</b> — без cookie:<br>
 <code>{"data":{},"status":401,"message":"unauthorized"}</code></div>
 <p>Обрати внимание: при ошибке <code>data</code> — пустой объект <code>{}</code>, не <code>null</code>.
-Фронт всегда может писать <code>res.data.list</code> только после проверки <code>res.ok</code> / статуса.</p>
+Фронт читает <code>json.data</code> только после проверки успеха — см. блок про <code>res.ok</code> ниже.</p>
 
 <h3>HTTP-статус и <code>body.status</code> — зачем оба?</h3>
 <ul>
-  <li><b>HTTP-статус</b> (первая строка ответа: <code>HTTP/1.1 401</code>) — для браузера, прокси, CDN, <code>fetch</code>.</li>
-  <li><b><code>status</code> в теле</b> — для единообразия в шине сообщений (в yamal тот же DTO уходит через RabbitMQ).</li>
+  <li><b>HTTP-статус</b> (первая строка: <code>HTTP/1.1 401</code>) — для браузера, прокси, CDN, <code>fetch</code>.</li>
+  <li><b><code>status</code> в теле</b> — тот же код, но внутри JSON-конверта.</li>
 </ul>
-<p class="small">В lab они совпадают. На собесе: «дублируем намеренно — один тип ответа и для HTTP, и для очереди».</p>
+
+<h3>Что за «очереди» и почему дублируем (развёрнуто)</h3>
+<p>В <b>yamal-media</b> архитектура не «один сервер отвечает сразу». Есть <b>gateway</b> (Go) и
+<b>микросервисы</b> (Node). Между ними — <b>очередь сообщений RabbitMQ</b>: gateway кладёт задачу
+в очередь, сервис обрабатывает и кладёт ответ обратно. Это не HTTP — у сообщения в очереди
+<b>нет</b> строки <code>HTTP/1.1 200</code>. Есть только JSON-тело.</p>
+<pre><code>Браузер  --HTTP-->  Gateway  --RabbitMQ-->  Сервис (articles, users…)
+                      |                            |
+                      &lt;-------- JSON ответ --------&lt;
+                      |
+              тот же { data, status, message }
+              отдаётся браузеру + HTTP 200/401/…</code></pre>
+<p>Поэтому в yamal один тип ответа — <code>RmqResponseDTO</code> = <code>{ data, status, message }</code>.
+Поле <code>status</code> в теле говорит сервису и gateway: «успех или ошибка», даже когда HTTP ещё не при чём.
+Gateway получает JSON из очереди, смотрит <code>body.status</code> и выставляет <b>тот же</b> код в HTTP-строке
+для браузера. <b>Дублирование намеренное</b> — один DTO на весь стек.</p>
+<p>В <b>fullstack-lab</b> очереди нет (упрощение): handler сразу зовёт <code>store</code>. Но формат ответа
+тот же — чтобы ты учился на том, что увидишь в проде. См. <code>docs/MAPPING-YAMAL.md</code> в lab.</p>
+
+<h3><code>res.ok</code> — что это на фронте</h3>
+<p>В <code>fetch</code> результат делится на два объекта:</p>
+<pre><code>const res = await fetch('/api/v1/notes', { credentials: 'include' })
+// res — Response (обёртка HTTP): res.status, res.ok, res.headers
+const json = await res.json()
+// json — тело: { data, status, message }</code></pre>
+<p><code>res.ok</code> — булево: <b>true</b>, если HTTP-код 200–299; иначе <b>false</b> (401, 404, 500…).
+В lab-клиенте проверка такая:</p>
+<pre><code>if (!res.ok) {
+  throw new Error(json.message || `HTTP ${res.status}`)
+}
+return json  // дальше работаем с json.data</code></pre>
+<p class="small">Не путай: <code>res.ok</code> (HTTP) и <code>json.status</code> (поле в теле). В норме совпадают;
+на фронте обычно сначала <code>res.ok</code>, потом читаем <code>json.data</code>.</p>
 
 <h3>Как фронт lab это типизирует</h3>
 <pre><code>// apps/web/src/api/types.ts
@@ -192,47 +224,85 @@ export type ApiEnvelope&lt;T&gt; = {
 </div>
 
 <h2>4. Практика на полигоне</h2>
-<pre><code># Логин + сохранить cookie
+<pre><code># Логин + сохранить cookie в jar (как браузер)
 curl -c /tmp/lab.jar -s -X POST http://localhost:8080/api/v1/auth/login \
   -H 'Content-Type: application/json' \
   -d '{"email":"editor@lab.local","password":"lab12345"}' | python3 -m json.tool
 
-# Список заметок — смотри структуру data.list
+# Список заметок — только cookie (-b), Bearer НЕ нужен (как UI lab)
 curl -b /tmp/lab.jar -s http://localhost:8080/api/v1/notes | python3 -m json.tool
 
-# Ошибка — та же форма конверта
+# Ошибка — та же форма конверта; запомни message для автопроверки ниже
 curl -s http://localhost:8080/api/v1/notes | python3 -m json.tool
 
-# Создать заметку — обрати внимание на HTTP 201 и message "created"
-curl -b /tmp/lab.jar -s -w "\nHTTP_CODE:%{http_code}\n" -X POST http://localhost:8080/api/v1/notes \
+# Создать заметку — вариант 1: только cookie (рекомендуется)
+curl -b /tmp/lab.jar -s -X POST http://localhost:8080/api/v1/notes \
   -H 'Content-Type: application/json' \
-  -d '{"title":"Контракт API","body":"data status message"}' | python3 -m json.tool</code></pre>
+  -d '{"title":"Контракт API","body":"data status message"}' | python3 -m json.tool
+
+# Увидеть HTTP 201 отдельно (НЕ смешивай -w с json.tool в одной трубе!)
+curl -b /tmp/lab.jar -s -o /tmp/note.json -w "HTTP код: %{http_code}\n" \
+  -X POST http://localhost:8080/api/v1/notes \
+  -H 'Content-Type: application/json' \
+  -d '{"title":"Ещё одна","body":"проверка 201"}'
+python3 -m json.tool /tmp/note.json
+
+# Вариант 2: Bearer вместо cookie (если сохранил TOKEN из login)
+# curl -H "Authorization: Bearer $TOKEN" -s -X POST ...</code></pre>
+<div class="note"><b>Про <code>-w "%{http_code}"</code>.</b> Флаг <code>-w</code> заставляет curl дописать в конец
+вывода строку с HTTP-кодом. Если сразу pipe в <code>python3 -m json.tool</code>, парсер JSON ломается —
+в конце файла не JSON, а <code>HTTP_CODE:201</code>. Решение: сохранить тело в файл (<code>-o</code>),
+код вывести отдельно (<code>-w</code>), JSON форматировать второй командой.</div>
 
 <div class="card">
   <label class="ck"><input type="checkbox" id="p1">Увидел у успешных ответов три поля: data, status, message</label>
   <label class="ck"><input type="checkbox" id="p2">У ошибки 401 поле data — пустой объект</label>
   <label class="ck"><input type="checkbox" id="p3">POST /notes вернул HTTP <b>201</b> и message <code>created</code></label>
   <div style="margin-top:12px">
-    <span>Сколько ключей верхнего уровня в <b>любом</b> ответе lab? </span>
+    <span>Сколько ключей верхнего уровня в JSON-ответе lab? </span>
     <input class="txt" id="keysIn" placeholder="число" inputmode="numeric" style="width:90px">
     <button class="ghost" id="checkKeys">Проверить</button>
     <span class="res" id="keysRes"></span>
+    <span class="small"> (подсказка: data, status, message)</span>
   </div>
   <div style="margin-top:10px">
     <span>Какой <code>message</code> у 401 без cookie? </span>
-    <input class="txt" id="msgIn" placeholder="одно слово" style="width:160px">
+    <input class="txt" id="msgIn" placeholder="unauthorized" style="width:160px">
     <button class="ghost" id="checkMsg">Проверить</button>
     <span class="res" id="msgRes"></span>
+    <span class="small"> (из curl без -b или из блока «Разбор JSON B»)</span>
   </div>
 </div>
 
-<h2>5. Первоисточник</h2>
-<p><a href="https://developer.mozilla.org/ru/docs/Web/HTTP/Status" target="_blank">MDN: HTTP status codes</a> —
-особенно 200 vs 201 vs 204. Контракт envelope — внутренний стандарт проекта (см. комментарий в
-<code>response.go</code> и <code>MAPPING-YAMAL.md</code> в lab).</p>
-<p class="small">Вопросы — в чат: «Урок 0003: почему не GraphQL / почему не чистый REST без обёртки?»</p>
+<h2>5. Почему не GraphQL и не «чистый REST» без обёртки</h2>
 
-<h2>6. Отчёт для агента</h2>
+<h3>Чистый REST без <code>{ data, status, message }</code></h3>
+<p>«Чистый» вариант: <code>GET /notes</code> → тело сразу <code>[{...},{...}]</code>, ошибка →
+<code>{"error":"unauthorized"}</code> или просто HTTP 401 без тела. Так делают многие публичные API.
+<b>Минусы для большой команды / микросервисов:</b></p>
+<ul>
+  <li>у каждого эндпоинта свой shape ошибки — фронт плодит ветки;</li>
+  <li>ответ из очереди (RabbitMQ) не совпадает с тем, что ждёт фронт — нужны адаптеры;</li>
+  <li>сложнее единый перехватчик (interceptor) в клиенте.</li>
+</ul>
+<p><b>Обёртка envelope</b> — внутренний стандарт: один парсер, одна типизация <code>ApiEnvelope&lt;T&gt;</code>,
+один логгер. Цена: лишний уровень вложенности (<code>data.list</code> вместо <code>list</code>).</p>
+
+<h3>GraphQL</h3>
+<p>Один URL, клиент сам описывает, какие поля нужны. Плюсы: гибкость для сложных экранов, меньше overfetching.
+Минусы: другая инфраструктура (схема, резолверы, N+1 на бэке), кэширование HTTP сложнее, learning curve.
+<b>yamal / lab / твой корп</b> — REST + envelope: проще для gateway + микросервисов + классических админок.
+GraphQL имеет смысл, когда много разных клиентов с разными наборами полей (мобилка + веб + партнёры).</p>
+<p class="small">На собесе: «Мы используем envelope для единого DTO между HTTP и RabbitMQ; GraphQL рассмотрели бы,
+если бы…» — показываешь, что выбор осознанный, не «потому что так в туториале».</p>
+
+<h2>6. Первоисточник</h2>
+<p><a href="https://developer.mozilla.org/ru/docs/Web/HTTP/Status" target="_blank">MDN: HTTP status codes</a> —
+особенно 200 vs 201 vs 204.
+<a href="https://developer.mozilla.org/ru/docs/Web/API/Fetch_API/Using_Fetch#checking_that_the_fetch_was_successful" target="_blank">MDN: res.ok</a>.
+Контракт envelope — <code>apps/api/pkg/response/response.go</code> и <code>docs/MAPPING-YAMAL.md</code> в lab.</p>
+
+<h2>7. Отчёт для агента</h2>
 <p class="small">Скопируй отчёт и вставь в чат (<b>Ctrl+V</b>).</p>
 <textarea id="issues" placeholder="Что осталось непонятным? (необязательно)"></textarea>
 <div style="margin-top:10px">
