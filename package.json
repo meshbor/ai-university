@@ -1,0 +1,13 @@
+{
+  "name": "ai-university",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @ai-university/web",
+    "build": "npm run build -w @ai-university/web",
+    "test": "npm run test -w @ai-university/web",
+    "preview": "npm run preview -w @ai-university/web"
+  }
+}

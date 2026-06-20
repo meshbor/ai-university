@@ -13,3 +13,7 @@ VISUAL-TRACK.md
 .DS_Store
 Thumbs.db
 node_modules/
+dist/
+apps/web/dist/
+*.local
+.DS_Store
