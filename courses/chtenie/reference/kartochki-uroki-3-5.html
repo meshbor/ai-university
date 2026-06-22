@@ -5,67 +5,126 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Карточки для вырезания · уроки 3–5</title>
 <style>
-  :root{ --ink:#1f2430; --vowel:#b5402a; --line:#cfcabd; --muted:#5b6472; }
+  :root{ --ink:#1f2430; --vowel:#b5402a; --muted:#5b6472; }
   *{box-sizing:border-box}
   body{margin:0; color:var(--ink); font:13px/1.35 system-ui,sans-serif; padding:10mm}
   h1{font:700 16px/1.2 "Georgia",serif; margin:0 0 2px}
   .sub{color:var(--muted); font-size:11px; margin:0 0 8px}
-  h2{font:700 12px/1.2 system-ui,sans-serif; margin:10px 0 4px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted)}
-  .grid{display:grid; gap:3mm}
+  h2{font:700 13px/1.2 system-ui,sans-serif; margin:0 0 8px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted)}
+  .sheet{margin-bottom:12px}
+  .sheet.new-page{page-break-before:always; padding-top:2mm}
+  .grid{display:grid; gap:4mm}
   .g-syl{grid-template-columns:repeat(6,1fr)}
-  .g-let{grid-template-columns:repeat(8,1fr)}
-  .pc{border:2px solid var(--ink); border-radius:6px; height:24mm;
+  .g-let{grid-template-columns:repeat(6,1fr)}
+  .pc{border:2px solid var(--ink); border-radius:6px;
     display:flex; align-items:center; justify-content:center; background:#fff; position:relative}
-  .pc span{font:800 22px/1 "Georgia",serif}
+  .pc span{font:800 24px/1 "Georgia",serif}
   .pc .v{color:var(--vowel)}
-  .pc.wide{grid-column:span 2}
-  .pc.wide span{font-size:26px}
-  .qty{position:absolute; top:2px; right:4px; font:700 9px/1 system-ui,sans-serif; color:var(--muted)}
+  .pc.wide{grid-column:span 2; height:28mm}
+  .pc.wide span{font-size:28px}
+  .pc.let{height:32mm}
+  .pc.let span{font-size:36px}
+  .qty{position:absolute; top:3px; right:5px; font:700 9px/1 system-ui,sans-serif; color:var(--muted)}
   @media print{
-    body{padding:6mm}
-    @page{margin:6mm; size:A4}
-    h2{page-break-after:avoid}
-    .pc{page-break-inside:avoid}
+    body{padding:8mm}
+    @page{margin:8mm; size:A4}
+    .sheet.new-page{page-break-before:always}
+    h2,.pc{page-break-inside:avoid}
   }
 </style>
 </head>
 <body>
-  <h1>Карточки для вырезания · уроки 3, 4, 5</h1>
-  <p class="sub">Печатать один раз. Уроки 3–5 ссылаются сюда — не дублируют карточки.</p>
 
-  <h2>Слоги (уроки 3–4)</h2>
-  <div class="grid g-syl">
-    <div class="pc wide"><span class="qty">×2</span><span>МА</span></div>
-    <div class="pc wide"><span>ЛУ</span></div>
-    <div class="pc wide"><span>НА</span></div>
-    <div class="pc wide"><span>ЛА</span></div>
-    <div class="pc wide"><span>МЫ</span></div>
-    <div class="pc wide"><span>ЛО</span></div>
-    <div class="pc wide"><span>СА</span></div>
-    <div class="pc wide"><span>НО</span></div>
-    <div class="pc wide"><span>СЫ</span></div>
-    <div class="pc wide"><span>СО</span></div>
-    <div class="pc wide"><span>МО</span></div>
-  </div>
+  <section class="sheet">
+    <h1>Карточки для вырезания · уроки 3, 4, 5</h1>
+    <p class="sub">Печатать один раз. Уроки 3–5 ссылаются сюда.</p>
 
-  <h2>Буквы (уроки 4–5)</h2>
-  <div class="grid g-let">
-    <div class="pc"><span>К</span></div>
-    <div class="pc"><span>Т</span></div>
-    <div class="pc"><span>П</span></div>
-    <div class="pc"><span>Д</span></div>
-    <div class="pc"><span>Б</span></div>
-    <div class="pc"><span class="qty">×2</span><span>М</span></div>
-    <div class="pc"><span class="qty">×2</span><span>С</span></div>
-    <div class="pc"><span class="qty">×2</span><span>Н</span></div>
-    <div class="pc"><span class="qty">×2</span><span>Л</span></div>
-    <div class="pc"><span>Х</span></div>
-    <div class="pc"><span class="v">А</span></div>
-    <div class="pc"><span class="qty">×2</span><span class="v">О</span></div>
-    <div class="pc"><span class="v">У</span></div>
-    <div class="pc"><span class="v">Ы</span></div>
-    <div class="pc"><span class="v">И</span></div>
-  </div>
-  <p class="sub" style="margin-top:6px">×2 — вырежь две одинаковые (нужно для МАМА, ДОМ+СОН и цепочек).</p>
+    <h2>Слоги · базовые (уроки 3–4)</h2>
+    <div class="grid g-syl">
+      <div class="pc wide"><span class="qty">×2</span><span>МА</span></div>
+      <div class="pc wide"><span>ЛУ</span></div>
+      <div class="pc wide"><span>НА</span></div>
+      <div class="pc wide"><span>ЛА</span></div>
+      <div class="pc wide"><span>МЫ</span></div>
+      <div class="pc wide"><span>ЛО</span></div>
+      <div class="pc wide"><span>СА</span></div>
+      <div class="pc wide"><span>НО</span></div>
+      <div class="pc wide"><span>СЫ</span></div>
+      <div class="pc wide"><span>СО</span></div>
+      <div class="pc wide"><span>МО</span></div>
+    </div>
+  </section>
+
+  <section class="sheet new-page">
+    <h2>Слоги · К Т П Д Б (урок 5)</h2>
+    <div class="grid g-syl">
+      <div class="pc wide"><span>КА</span></div>
+      <div class="pc wide"><span>КО</span></div>
+      <div class="pc wide"><span>КУ</span></div>
+      <div class="pc wide"><span>КИ</span></div>
+      <div class="pc wide"><span>ТА</span></div>
+      <div class="pc wide"><span>ТО</span></div>
+      <div class="pc wide"><span>ТУ</span></div>
+      <div class="pc wide"><span>ТИ</span></div>
+      <div class="pc wide"><span>ПА</span></div>
+      <div class="pc wide"><span class="qty">×2</span><span>ПО</span></div>
+      <div class="pc wide"><span>ПУ</span></div>
+      <div class="pc wide"><span>ПИ</span></div>
+      <div class="pc wide"><span>ДА</span></div>
+      <div class="pc wide"><span>ДО</span></div>
+      <div class="pc wide"><span>ДУ</span></div>
+      <div class="pc wide"><span>ДИ</span></div>
+      <div class="pc wide"><span>БА</span></div>
+      <div class="pc wide"><span>БО</span></div>
+      <div class="pc wide"><span>БУ</span></div>
+      <div class="pc wide"><span>БЫ</span></div>
+    </div>
+  </section>
+
+  <section class="sheet new-page">
+    <h2>Слоги · М С Н Л Х (дополнительно)</h2>
+    <div class="grid g-syl">
+      <div class="pc wide"><span>МУ</span></div>
+      <div class="pc wide"><span>МИ</span></div>
+      <div class="pc wide"><span>СУ</span></div>
+      <div class="pc wide"><span>СИ</span></div>
+      <div class="pc wide"><span>НУ</span></div>
+      <div class="pc wide"><span>НИ</span></div>
+      <div class="pc wide"><span>НЫ</span></div>
+      <div class="pc wide"><span>ЛИ</span></div>
+      <div class="pc wide"><span>ЛЫ</span></div>
+      <div class="pc wide"><span>ХА</span></div>
+      <div class="pc wide"><span>ХО</span></div>
+      <div class="pc wide"><span>ХУ</span></div>
+      <div class="pc wide"><span>ХИ</span></div>
+      <div class="pc wide"><span>ТЫ</span></div>
+      <div class="pc wide"><span>ДЫ</span></div>
+      <div class="pc wide"><span>КЫ</span></div>
+    </div>
+    <p class="sub" style="margin-top:8px">ПА-ПА, ЛА-ПА, КО-ТЫ, СУ-П, ДУ-Б, БЫ-К, МЫ-ЛО, СА-МА, ЛУ-НА…</p>
+  </section>
+
+  <section class="sheet new-page">
+    <h2>Буквы (уроки 4–5)</h2>
+    <div class="grid g-let">
+      <div class="pc let"><span>К</span></div>
+      <div class="pc let"><span>Т</span></div>
+      <div class="pc let"><span>П</span></div>
+      <div class="pc let"><span>Д</span></div>
+      <div class="pc let"><span>Б</span></div>
+      <div class="pc let"><span class="qty">×2</span><span>М</span></div>
+      <div class="pc let"><span class="qty">×2</span><span>С</span></div>
+      <div class="pc let"><span class="qty">×2</span><span>Н</span></div>
+      <div class="pc let"><span class="qty">×2</span><span>Л</span></div>
+      <div class="pc let"><span>Х</span></div>
+      <div class="pc let"><span class="v">А</span></div>
+      <div class="pc let"><span class="qty">×2</span><span class="v">О</span></div>
+      <div class="pc let"><span class="v">У</span></div>
+      <div class="pc let"><span class="v">Ы</span></div>
+      <div class="pc let"><span class="v">И</span></div>
+    </div>
+    <p class="sub" style="margin-top:8px">×2 — вырежь две одинаковые (МАМА, ПАПА, ДОМ+СОН, цепочки превращений).</p>
+  </section>
+
 </body>
 </html>

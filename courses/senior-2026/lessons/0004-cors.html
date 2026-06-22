@@ -78,7 +78,25 @@
 </table>
 <p class="small">На собесе: «CORS — защита браузера; 401 — решение приложения».</p>
 
-<h3><code>credentials: 'include'</code> и cookie</h3>
+<h3><code>CORS_ORIGINS</code> на бэке — что это</h3>
+<p>В <code>config.go</code> по умолчанию <code>CORS_ORIGINS = http://localhost:5173</code>. Это whitelist:
+«браузеру со страницы <b>именно этого</b> origin разрешено читать ответ API :8080».
+В <code>main.go</code> Fiber подставляет это в <code>Access-Control-Allow-Origin</code>.
+Если фронт в проде на <code>https://admin.example.com</code> — добавляешь этот URL в env.
+<code>*</code> (все origins) нельзя вместе с cookie (<code>AllowCredentials</code>).</p>
+
+<h3><code>credentials</code> в fetch — три режима</h3>
+<table class="cmp">
+  <tr><th>Значение</th><th>Cookie / Authorization</th><th>Когда</th></tr>
+  <tr><td><code>omit</code></td><td><b>Никогда</b> не шлёт cookie и не принимает Set-Cookie для этого запроса</td><td>Публичные API без логина; сторонние виджеты</td></tr>
+  <tr><td><code>same-origin</code> (дефолт)</td><td>Cookie только если URL страницы и запроса — <b>один origin</b></td><td>Обычный fetch на свой же домен</td></tr>
+  <tr><td><code>include</code></td><td>Шлёт cookie и на <b>другой</b> origin (если CORS разрешил)</td><td>SPA на :5173 → API на :8080 <i>без</i> proxy; lab явно ставит include</td></tr>
+</table>
+<p class="small"><code>omit</code> — «режим инкогнито для credentials»: даже если cookie есть, fetch их не приложит.
+<code>same-origin</code> — cookie на <code>/api</code> через Vite proxy (:5173→:5173) работает.
+<code>include</code> — нужен для cross-origin + cookie (и строгий CORS на бэке).</p>
+
+<h3><code>credentials: 'include'</code> и cookie (lab)</h3>
 <p>Чтобы браузер слал cookie на другой origin, нужно <b>два</b> условия:</p>
 <ul>
   <li>на фронте: <code>fetch(..., { credentials: 'include' })</code> — так в lab;</li>
@@ -88,10 +106,17 @@
 <p>В lab (<code>main.go</code>): <code>AllowCredentials: true</code>, origins из <code>CORS_ORIGINS</code>
 (по умолчанию <code>http://localhost:5173</code>).</p>
 
-<h3>Preflight — запрос OPTIONS</h3>
-<p>Для «непростых» cross-origin запросов (например <code>POST</code> с <code>Content-Type: application/json</code>)
-браузер сначала шлёт <b>OPTIONS</b> — «можно ли?». Сервер отвечает разрешёнными методами и заголовками.
-Только потом идёт настоящий <code>POST</code>. <code>curl</code> preflight не делает — только браузер.</p>
+<h3>Preflight и метод OPTIONS — в чём разница слов</h3>
+<p><b>Preflight</b> — не отдельный HTTP-метод, а <b>название шага</b> в спецификации CORS: «предполётная
+проверка» перед «настоящим» запросом. Браузер реализует preflight запросом с методом <b>OPTIONS</b>.</p>
+<pre><code>Термин (что происходит)     HTTP-метод (как в wire)
+─────────────────────────   ───────────────────────
+preflight-запрос        →   OPTIONS  + заголовки Origin, Access-Control-Request-*
+основной запрос         →   POST / GET / … (тот, что ты хотел)</code></pre>
+<p>Аналогия: «досмотр в аэропорту» (preflight) — процедура; «показать паспорт» (OPTIONS) — конкретное действие.
+На собесе можно сказать: «Preflight — это OPTIONS от браузера перед небезопасным cross-origin запросом».</p>
+<p><code>curl</code> preflight не делает — только браузер. В практике ты имитируешь его вручную:
+<code>curl -X OPTIONS ...</code></p>
 
 <h3>Почему UI lab «не ломается» на CORS</h3>
 <p>Vite проксирует API:</p>
@@ -170,8 +195,8 @@ fetch("/api/v1/notes", { credentials: "include" }).then(r => r.json()).then(cons
   <label class="ck"><input type="checkbox" id="p2">fetch на :8080 из консоли — CORS или сетевая ошибка</label>
   <label class="ck"><input type="checkbox" id="p3">fetch на /api/v1/notes — 401 JSON (запрос дошёл до API)</label>
   <div style="margin-top:12px">
-    <span>Какой метод у preflight? </span>
-    <input class="txt" id="methIn" placeholder="OPTIONS" style="width:120px">
+    <span>Какой <b>HTTP-метод</b> у preflight-запроса? </span>
+    <input class="txt" id="methIn" placeholder="метод HTTP" style="width:120px">
     <button class="ghost" id="checkMeth">Проверить</button>
     <span class="res" id="methRes"></span>
   </div>
