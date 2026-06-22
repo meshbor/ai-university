@@ -1,9 +1,10 @@
 import { XP_PER_LEVEL } from '@/lib/gamification/constants'
 import type { PortraitPick } from '@/lib/gamification/portrait'
+import { DuelBadge } from '@/features/duels/DuelBadge'
+import { cn } from '@/lib/utils'
+import type { ActiveDuel, LifeAxisScore, ProgressStore } from '@/types'
 import { HeroAvatar } from './HeroAvatar'
 import { LifeRadar } from './LifeRadar'
-import type { ActiveDuel, LifeAxisScore, ProgressStore } from '@/types'
-import { DuelBadge } from '@/features/duels/DuelBadge'
 
 export interface HeroPanelStats {
   level: number
@@ -24,11 +25,13 @@ interface HeroPanelProps {
   lifeScores: LifeAxisScore[]
   duel?: ActiveDuel | null
   store: ProgressStore
+  /** Кокпит: герой слева вне «стекла» */
+  dock?: boolean
 }
 
-export function HeroPanel({ portrait, stats, lifeScores, duel, store }: HeroPanelProps) {
+export function HeroPanel({ portrait, stats, lifeScores, duel, store, dock = false }: HeroPanelProps) {
   return (
-    <aside className="rpg-hero-panel">
+    <aside className={cn('rpg-hero-panel', dock && 'rpg-hero-dock')}>
       <HeroAvatar portrait={portrait} level={stats.level} />
 
       <div className="rpg-tt rpg-hero-level text-[22px] font-bold leading-snug">

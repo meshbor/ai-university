@@ -135,11 +135,97 @@
 
 .rpg-shell {
   min-height: 100vh;
-  max-width: 1280px;
+  max-width: 1560px;
   margin: 0 auto;
   padding: 0 16px 80px;
   background: var(--rpg-page-bg);
   transition: background 0.3s;
+}
+
+/* ---- layout B: кокпит (герой слева вне стекла) ---- */
+.rpg-cockpit {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.rpg-hero-dock {
+  position: sticky;
+  top: 68px;
+  flex: 0 0 clamp(260px, 30vw, 400px);
+  z-index: 3;
+  margin-top: 8px;
+  border-radius: var(--rpg-radius);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+.rpg-hero-dock .rpg-avatar {
+  aspect-ratio: 3 / 4;
+  min-height: clamp(280px, 38vh, 420px);
+  margin-bottom: 12px;
+  border-radius: 16px;
+}
+
+.rpg-hero-dock .rpg-avatar img,
+.rpg-hero-dock .rpg-avatar model-viewer {
+  object-position: center top;
+}
+
+.rpg-hero-dock .rpg-hero-level {
+  font-size: 18px;
+}
+
+.rpg-hero-dock .rpg-stat-mini b {
+  font-size: 18px;
+}
+
+.rpg-cockpit .rpg-screen {
+  flex: 1;
+  min-width: 0;
+}
+
+.rpg-main-panel {
+  min-width: 0;
+}
+
+.rpg-course-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rpg-course-list-cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .rpg-course-list-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 960px) {
+  .rpg-cockpit {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .rpg-hero-dock {
+    position: static;
+    flex: none;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .rpg-hero-dock .rpg-avatar {
+    min-height: 280px;
+  }
 }
 
 .rpg-screen {
@@ -221,8 +307,6 @@
 }
 
 .rpg-hero-panel {
-  position: sticky;
-  top: 68px;
   background: var(--rpg-panel);
   border: var(--rpg-frame);
   border-radius: var(--rpg-radius);
@@ -231,8 +315,14 @@
   text-shadow: var(--rpg-glow);
 }
 
+/* legacy sidebar (unused in cockpit, kept for reference) */
+.rpg-hero-panel:not(.rpg-hero-dock) {
+  position: sticky;
+  top: 68px;
+}
+
 @media (max-width: 920px) {
-  .rpg-hero-panel {
+  .rpg-hero-panel:not(.rpg-hero-dock) {
     position: static;
   }
 }

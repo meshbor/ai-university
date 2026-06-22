@@ -11,6 +11,8 @@ const base = import.meta.env.BASE_URL
 interface CourseListProps {
   store: ProgressStore
   onStoreChange: (store: ProgressStore) => void
+  /** Две колонки карточек курсов */
+  columns?: 1 | 2
 }
 
 function courseDoneCount(course: Course, store: ProgressStore): number {
@@ -28,7 +30,7 @@ function defaultExpandedIds(store: ProgressStore): Set<string> {
   return ids
 }
 
-export function CourseList({ store, onStoreChange }: CourseListProps) {
+export function CourseList({ store, onStoreChange, columns = 2 }: CourseListProps) {
   const [expanded, setExpanded] = useState<Set<string>>(() => defaultExpandedIds(store))
 
   const toggleExpanded = (courseId: string) => {
@@ -41,7 +43,7 @@ export function CourseList({ store, onStoreChange }: CourseListProps) {
   }
 
   return (
-    <div className="rpg-course-list space-y-3">
+    <div className={cn('rpg-course-list', columns === 2 && 'rpg-course-list-cols')}>
       {COURSES.map((course) => (
         <CourseCard
           key={course.id}
