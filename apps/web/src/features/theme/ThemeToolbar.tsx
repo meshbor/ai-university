@@ -13,11 +13,12 @@ const LABELS: Record<ThemeId, string> = {
 }
 
 interface ThemeToolbarProps {
+  onShare: () => void
   onNewHero: () => void
   onLogout: () => void
 }
 
-export function ThemeToolbar({ onNewHero, onLogout }: ThemeToolbarProps) {
+export function ThemeToolbar({ onShare, onNewHero, onLogout }: ThemeToolbarProps) {
   const themeId = useAppStore((s) => s.themeId)
   const setTheme = useAppStore((s) => s.setTheme)
 
@@ -41,6 +42,13 @@ export function ThemeToolbar({ onNewHero, onLogout }: ThemeToolbarProps) {
             {LABELS[id]}
           </button>
         ))}
+        <button
+          type="button"
+          onClick={onShare}
+          className="ml-1 rounded-lg border border-[#343852] bg-[#23263a] px-2.5 py-1.5 text-xs hover:bg-[#2c3050]"
+        >
+          📤 Поделиться
+        </button>
         <button
           type="button"
           onClick={onNewHero}

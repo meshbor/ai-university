@@ -537,3 +537,276 @@
     opacity: 0;
   }
 }
+
+/* duels + share */
+.rpg-duel-box {
+  border: var(--rpg-frame);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  background: var(--rpg-panel);
+}
+
+.rpg-duel-box h3 {
+  margin: 0 0 8px;
+  font-size: 17px;
+  text-transform: var(--rpg-tt);
+}
+
+.rpg-duel-box p {
+  margin: 0 0 10px;
+  font-size: 13px;
+  opacity: 0.85;
+  line-height: 1.4;
+}
+
+.rpg-duel-score {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 10px;
+  align-items: center;
+  margin: 12px 0;
+}
+
+.rpg-duel-side {
+  border: var(--rpg-frame);
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  background: var(--rpg-panel2);
+}
+
+.rpg-duel-side b {
+  display: block;
+  font-size: 22px;
+  color: var(--rpg-xp);
+}
+
+.rpg-duel-side span {
+  font-size: 11px;
+  opacity: 0.75;
+  text-transform: var(--rpg-tt);
+}
+
+.rpg-duel-side.lead {
+  border-color: var(--rpg-xp);
+  box-shadow: 0 0 0 1px var(--rpg-xp) inset;
+}
+
+.rpg-duel-vs {
+  font-size: 13px;
+  opacity: 0.6;
+  font-weight: bold;
+}
+
+.rpg-duel-meta {
+  font-size: 12px;
+  opacity: 0.75;
+  margin-top: 8px;
+}
+
+.rpg-duel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.rpg-dbtn {
+  font-family: inherit;
+  border: var(--rpg-frame);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  background: var(--rpg-panel2);
+  color: var(--rpg-ink);
+  font-size: 13px;
+  text-shadow: var(--rpg-glow);
+}
+
+.rpg-dbtn:hover {
+  background: var(--rpg-panel);
+}
+
+.rpg-dbtn.primary {
+  border-color: var(--rpg-accent);
+  background: var(--rpg-accent);
+  color: #fff;
+}
+
+.rpg-duel-paste {
+  width: 100%;
+  padding: 8px 10px;
+  border: var(--rpg-frame);
+  border-radius: 8px;
+  background: var(--rpg-panel2);
+  color: var(--rpg-ink);
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.rpg-duel-hint {
+  font-size: 12px;
+  opacity: 0.7;
+  line-height: 1.4;
+  margin-top: 10px;
+}
+
+.rpg-duel-badge {
+  padding: 10px 12px;
+  border: 1px dashed var(--rpg-accent);
+  border-radius: 10px;
+  background: var(--rpg-panel2);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.rpg-duel-badge b {
+  color: var(--rpg-xp);
+}
+
+.rpg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 320;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 6, 14, 0.78);
+  padding: 16px;
+}
+
+.rpg-modal {
+  width: min(520px, 96vw);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #1e1a2c, #141020);
+  color: #efeafc;
+  padding: 18px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+}
+
+.rpg-modal h2 {
+  margin: 0 0 6px;
+  font-size: 22px;
+}
+
+.rpg-modal > p {
+  margin: 0 0 12px;
+  color: #c8c1dc;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.rpg-modal-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.rpg-modal-row .rpg-dbtn {
+  flex: 1;
+  min-width: 120px;
+}
+
+.rpg-share-card {
+  border: 1px solid #5a4f7f;
+  border-radius: 14px;
+  padding: 14px;
+  background: linear-gradient(135deg, #2a2340, #1a1528);
+  margin: 12px 0;
+}
+
+.rpg-share-tag {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+
+.rpg-share-hero {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 4px 0 10px;
+}
+
+.rpg-share-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.rpg-share-stat {
+  border: 1px solid #4f466d;
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+}
+
+.rpg-share-stat b {
+  display: block;
+  font-size: 18px;
+  color: #c9b4ff;
+}
+
+.rpg-share-stat span {
+  font-size: 10px;
+  opacity: 0.75;
+}
+
+.rpg-share-top {
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.rpg-field {
+  margin-top: 10px;
+}
+
+.rpg-field label {
+  display: block;
+  font-size: 12px;
+  color: #b8b0ce;
+  margin-bottom: 5px;
+}
+
+.rpg-field select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #4f466d;
+  background: #171522;
+  color: #efeafc;
+}
+
+.rpg-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 400;
+  background: #1a1630;
+  color: #fff;
+  border: 1px solid #6f5bdf;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 13px;
+  display: none;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+.rpg-toast.show {
+  display: block;
+  animation: rpg-fade 0.2s;
+}
+
+@keyframes rpg-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

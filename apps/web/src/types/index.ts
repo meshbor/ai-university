@@ -113,3 +113,17 @@ export interface ActiveDuel {
 export interface DuelStore {
   active: ActiveDuel | null
 }
+
+export interface DuelInvitePayload {
+  v: number
+  code: string
+  from: string
+  level: number
+  weeklyXp: number
+  streak: number
+  topStat: string
+  mode: DuelMode
+  courseId: string | null
+  courseDone: number
+  at: string
+}
