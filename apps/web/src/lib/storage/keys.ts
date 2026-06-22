@@ -4,4 +4,5 @@ export const STORAGE_KEYS = {
   profile: 'aiuni_profile_v1',
   auth: 'aiuni_auth_v1',
   duel: 'aiuni_duel_v1',
+  courseColumns: 'aiuni_course_cols_v1',
 } as const
