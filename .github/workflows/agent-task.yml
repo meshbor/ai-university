@@ -76,6 +76,8 @@ jobs:
 
       - name: Open draft PR
         if: steps.skip.outputs.skip != 'true'
+        id: pr
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: ${{ steps.task.outputs.branch }}
@@ -99,6 +101,18 @@ jobs:
         if: steps.skip.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUM: ${{ steps.meta.outputs.number }}
+          BRANCH: ${{ steps.task.outputs.branch }}
         run: |
-          PR_URL=$(gh pr list --head "agent/issue-${{ steps.meta.outputs.number }}" --json url -q '.[0].url')
-          gh issue comment "${{ steps.meta.outputs.number }}" --body "🤖 Draft PR для агента: $PR_URL"
+          PR_URL=$(gh pr list --head "$BRANCH" --json url -q '.[0].url' || true)
+          if [ -n "$PR_URL" ]; then
+            gh issue comment "$NUM" --body "🤖 Draft PR для агента: $PR_URL"
+          else
+            COMPARE="https://github.com/${{ github.repository }}/compare/main...${BRANCH}?expand=1"
+            gh issue comment "$NUM" --body "$(cat <<EOF
+          🤖 Brief готов в ветке \`${BRANCH}\`.
+
+          Draft PR не создан автоматически — включи в Settings → Actions → **Allow GitHub Actions to create and approve pull requests**, либо открой PR вручную: ${COMPARE}
+          EOF
+          )"
+          fi

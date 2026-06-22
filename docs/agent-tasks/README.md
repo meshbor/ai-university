@@ -18,3 +18,12 @@ Issue (#N, labels: feedback, agent)
   → draft PR agent/issue-N
   → Cursor / review → merge
 ```
+
+### Настройка GitHub (один раз)
+
+**Settings → Actions → General → Workflow permissions:**
+
+- ✅ Read and write permissions
+- ✅ **Allow GitHub Actions to create and approve pull requests**
+
+Без второго пункта workflow создаст ветку и brief, но PR придётся открыть вручную (ссылка compare будет в комментарии на issue).
