@@ -4,11 +4,11 @@ Gamified learning dashboard + static course content. Монорепо:
 
 | Путь | Назначение |
 |------|------------|
-| `apps/web` | React + TypeScript + Vite + shadcn (новый фронт) |
+| `apps/web` | React + TypeScript + Vite + shadcn (прод-фронт) |
 | `apps/api` | Go API (заготовка, senior-2026) |
-| `courses/` | HTML-уроки (общие для legacy и v2) |
+| `courses/` | HTML-уроки |
 | `assets/` | Портреты, фоны, 3D-модели |
-| `index.html` | Legacy dashboard (пока в проде на GitHub Pages) |
+| `legacy/` | Архив старого `index.html` dashboard |
 
 ## Быстрый старт (web)
 
@@ -17,31 +17,40 @@ npm install
 npm run dev
 ```
 
-Откроется Vite dev server. `public/` содержит symlink на `assets/` и `courses/` в корне репо.
+Откроется Vite dev server: http://localhost:5173/ai-university/
+
+`apps/web/public/` содержит symlink на `assets/` и `courses/` в корне репо.
 
 ## Скрипты
 
 ```bash
-npm run dev      # apps/web
-npm run build    # tsc + vite build → apps/web/dist
-npm run test     # vitest (gamification)
-npm run preview  # preview production build
+npm run dev          # apps/web dev server
+npm run build        # tsc + vite build → apps/web/dist
+npm run build:pages  # build + legacy/.nojekyll для GH Pages
+npm run test         # vitest (gamification)
+npm run preview      # preview production build
 ```
 
-## Миграция
+## Deploy (GitHub Pages)
 
-1. **Фаза 0 (сейчас)** — каркас, `src/data`, `lib/gamification`, `lib/storage`
-2. **Фаза 1** — auth + onboarding
-3. **Фаза 2** — dashboard UI (hero, courses, stats, radar)
-4. **Фаза 3** — themes + 3D portraits
-5. **Фаза 4** — duels + share
-6. **Cutover** — GitHub Pages → `apps/web/dist`, `index.html` → archive
+**Production:** https://meshbor.github.io/ai-university/
 
-## Deploy (пока legacy)
+При пуше в `main` workflow [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) собирает `apps/web` и публикует `dist/`.
 
-Production: https://meshbor.github.io/ai-university/ — корневой `index.html`.
+### Первичная настройка (один раз)
 
-После cutover: build с `base: /ai-university/` и публикация `dist/`.
+1. Repo → **Settings** → **Pages**
+2. **Build and deployment** → Source: **GitHub Actions**
+3. После мерджа cutover — дождаться зелёного workflow run
+
+Локальная проверка prod-сборки:
+
+```bash
+npm run build:pages
+npm run preview
+```
+
+Legacy dashboard: `/ai-university/legacy/index.html`
 
 ## API (будущее)
 

@@ -31,7 +31,7 @@ export function HeroPanel({ portrait, stats, lifeScores, duel, store }: HeroPane
     <aside className="rpg-hero-panel">
       <HeroAvatar portrait={portrait} level={stats.level} />
 
-      <div className="rpg-tt text-[22px] font-bold leading-tight">
+      <div className="rpg-tt rpg-hero-level text-[22px] font-bold leading-snug">
         Уровень {stats.level} · {stats.rank}
       </div>
 

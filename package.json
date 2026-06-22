@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "npm run dev -w @ai-university/web",
     "build": "npm run build -w @ai-university/web",
+    "build:pages": "npm run build && node scripts/prepare-pages-dist.mjs",
     "test": "npm run test -w @ai-university/web",
     "preview": "npm run preview -w @ai-university/web"
   }
