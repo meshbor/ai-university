@@ -1,0 +1,94 @@
+/* Game lobby — auth + onboarding */
+
+.game-lobby {
+  position: relative;
+  overflow: hidden;
+  color: #efeafc;
+  background: #06050c;
+}
+
+.game-lobby-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(111, 91, 223, 0.35), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255, 120, 60, 0.12), transparent 50%),
+    radial-gradient(ellipse 50% 30% at 10% 90%, rgba(54, 214, 255, 0.1), transparent 45%),
+    linear-gradient(180deg, #0a0814 0%, #06050c 45%, #0d0a18 100%);
+}
+
+.game-lobby-scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.04;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.5) 2px,
+    rgba(0, 0, 0, 0.5) 4px
+  );
+}
+
+.game-lobby-kicker {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #8f7bff;
+  text-shadow: 0 0 20px rgba(143, 123, 255, 0.5);
+}
+
+.game-lobby-title {
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  text-shadow:
+    0 0 40px rgba(143, 123, 255, 0.35),
+    0 2px 0 rgba(0, 0, 0, 0.4);
+}
+
+.game-lobby-panel {
+  border: 1px solid rgba(111, 91, 223, 0.45);
+  border-radius: 16px;
+  background: linear-gradient(165deg, rgba(30, 26, 44, 0.95), rgba(14, 11, 24, 0.98));
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 24px 60px rgba(0, 0, 0, 0.55),
+    0 0 80px rgba(111, 91, 223, 0.12);
+}
+
+.game-lobby-input:focus-visible {
+  border-color: #8f7bff;
+  box-shadow: 0 0 0 3px rgba(143, 123, 255, 0.25);
+}
+
+.game-lobby-cta {
+  background: linear-gradient(180deg, #8f7bff 0%, #6f5bdf 45%, #5a48c4 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 0 24px rgba(111, 91, 223, 0.45),
+    0 4px 0 #3d32a0;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+}
+
+.game-lobby-cta:hover {
+  background: linear-gradient(180deg, #a08fff 0%, #7d6ae8 45%, #6a58d4 100%);
+  box-shadow:
+    0 0 32px rgba(143, 123, 255, 0.55),
+    0 4px 0 #4a3cb0;
+}
+
+.game-lobby-cta:active {
+  transform: translateY(2px);
+  box-shadow:
+    0 0 16px rgba(111, 91, 223, 0.35),
+    0 1px 0 #3d32a0;
+}

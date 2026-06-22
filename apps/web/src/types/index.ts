@@ -88,6 +88,8 @@ export interface OnboardingPreset {
   hero: HeroArchetype
   note: string
   lore: string
+  /** Заглушка без портрета — «просто посмотреть» */
+  placeholder?: boolean
 }
 
 export type DuelMode = 'weekly_xp' | 'course_sprint'
