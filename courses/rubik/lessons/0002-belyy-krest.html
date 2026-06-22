@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Урок 2 · Белый крест</title>
+<style>
+  :root { --ink: #1a1a1a; --paper: #fffff8; --accent: #6b2d8a; --soft: #666; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+    line-height: 1.65;
+  }
+  h1 { font-size: 1.9rem; font-weight: 400; font-style: italic; }
+  h2 { font-size: 1.3rem; font-weight: 400; font-style: italic; margin-top: 2rem; border-bottom: 1px solid #ddd; }
+  .meta { color: var(--soft); font-size: 0.9rem; margin-bottom: 2rem; }
+  .tip { border-left: 3px solid var(--accent); padding: 0.5rem 1rem; background: #f7f0fa; margin: 1rem 0; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<h1>Урок 2 · Белый крест</h1>
+<p class="meta">≈ 15 минут · белая грань сверху</p>
+
+<p>Крест — четыре белых ребра вокруг белого центра. Центр белый уже на месте, его **не двигаем**.</p>
+
+<h2>Алгоритм «вставки ребра»</h2>
+<ol>
+  <li>Найди белое ребро в нижнем слое или на боковой грани.</li>
+  <li>Подведи его под целевое место креста (цвет боковой наклейки совпадает с центром боковой грани).</li>
+  <li>Если ребро «перевёрнуто» — выведи в средний слой формулой <strong>F U' R U</strong> и повтори подводку.</li>
+  <li>Когда ребро смотрит вниз правильно — подними <code>F2</code> или серией <code>F U R U' R' F'</code> для переворота.</li>
+</ol>
+
+<div class="tip">
+  Не ломай уже собранные части креста: после каждого ребра проверяй, что предыдущие на месте.
+</div>
+
+<h2>Чеклист креста</h2>
+<ul>
+  <li>Четыре белых ребра вокруг центра</li>
+  <li>Боковые цвета ребер совпадают с центрами граней</li>
+</ul>
+
+<p>Дальше — <a href="0003-pervyy-sloy.html">первый слой целиком</a>.</p>
+</body>
+</html>
