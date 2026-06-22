@@ -16,9 +16,9 @@ if (!issueNumber) {
 }
 
 const repo = process.env.GITHUB_REPOSITORY
-const token = process.env.GITHUB_TOKEN
+const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN
 if (!repo || !token) {
-  console.error('GITHUB_REPOSITORY and GITHUB_TOKEN required')
+  console.error('GITHUB_REPOSITORY and GITHUB_TOKEN (or GH_TOKEN) required')
   process.exit(1)
 }
 

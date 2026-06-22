@@ -58,6 +58,7 @@ jobs:
         if: steps.skip.outputs.skip != 'true'
         id: task
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/agent-task-from-issue.mjs "${{ steps.meta.outputs.number }}"
 
