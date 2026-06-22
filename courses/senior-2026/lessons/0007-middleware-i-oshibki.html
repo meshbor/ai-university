@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 0007 · Middleware, валидация и ошибки</title>
+<style>
+  :root{--ink:#1a1a1a;--muted:#666;--line:#e2e2e2;--accent:#7a4f9e;--accent2:#2e6e8e;
+    --bg:#fbfbf9;--card:#fff;--ok:#2e7d32;--bad:#c0392b;--code:#f4f2ef}
+  *{box-sizing:border-box}
+  body{font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:var(--bg);
+    max-width:780px;margin:0 auto;padding:44px 22px 110px;line-height:1.55;font-size:18px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 4px}
+  .meta{color:var(--muted);font-style:italic;margin:0 0 24px;font-size:16px}
+  h2{font-size:22px;margin:34px 0 8px;border-bottom:2px solid var(--line);padding-bottom:6px}
+  h3{font-size:18px;margin:18px 0 4px}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;background:var(--code);padding:1px 6px;border-radius:4px}
+  pre{background:#2b2b2b;color:#eaeaea;padding:14px 16px;border-radius:8px;overflow:auto;font-size:13px;line-height:1.45}
+  pre code{background:none;color:inherit;padding:0}
+  .win{background:#f3eff8;border-left:5px solid var(--accent);border-radius:8px;padding:12px 16px;margin:16px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:18px 0}
+  .q{margin:14px 0;padding-bottom:12px;border-bottom:1px solid #f0f0f0}
+  .q p{margin:0 0 8px;font-weight:bold}
+  .opt{display:block;padding:8px 12px;margin:6px 0;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:16px;background:#fff}
+  .opt.correct{border-color:var(--ok);background:#f0f8f0}
+  .opt.wrong{border-color:var(--bad);background:#fcf0ef}
+  .opt input{margin-right:8px}
+  .fb{font-size:15px;margin-top:6px;min-height:20px}
+  .fb.ok{color:var(--ok)} .fb.no{color:var(--bad)}
+  button{font-family:inherit;font-size:15px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:9px 16px;cursor:pointer}
+  button.ghost{background:#fff;color:var(--accent2);border:1px solid var(--line)}
+  input.txt{font-family:ui-monospace,monospace;font-size:15px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;width:100px}
+  label.ck{display:flex;gap:10px;align-items:flex-start;padding:6px 0;cursor:pointer;font-size:16px}
+  label.ck input{margin-top:5px;width:18px;height:18px}
+  .res{font-size:15px;margin-top:8px;font-weight:bold}
+  textarea{width:100%;min-height:70px;font-size:15px;padding:10px;border:1px solid var(--line);border-radius:8px}
+  .report{background:#1f2733;color:#e8eef5;border-radius:10px;padding:18px 20px;margin-top:14px;font-size:14px}
+  a{color:var(--accent2)}
+  .small{font-size:15px;color:var(--muted)}
+  .note{background:#fffaf0;border:1px solid #f0e2c0;border-radius:8px;padding:10px 14px;margin:14px 0;font-size:16px}
+  table.cmp{width:100%;border-collapse:collapse;font-size:15px;margin:10px 0}
+  table.cmp th,table.cmp td{border:1px solid var(--line);padding:8px 10px;text-align:left}
+  table.cmp th{background:#f3eff8}
+  .chain{font-size:15px;line-height:2;margin:12px 0}
+  .chain code{margin:0 4px}
+  @media print{body{background:#fff}}
+</style>
+</head>
+<body>
+
+<h1>Урок 0007 · Middleware, валидация и ошибки</h1>
+<p class="meta">Курс «Senior 2026» · Фаза 1 · <code>main.go</code>, <code>middleware/auth.go</code>, <code>validate</code>, <code>response.Error</code></p>
+
+<div class="win">
+  <b>Сегодняшняя победа.</b> Поймёшь цепочку middleware до handler, как валидируется вход,
+  как handler выбирает статус ошибки — и воспроизведёшь это curl'ом (400, 401, 404).
+</div>
+
+<h2>1. Два вида middleware</h2>
+
+<h3>Глобальные (на всё приложение) — <code>main.go</code></h3>
+<div class="chain">
+  запрос → <code>recover</code> → <code>requestid</code> → <code>logger</code> → <code>cors</code> → маршрут
+</div>
+<ul>
+  <li><b>recover</b> — паника в handler → 500, сервер не падает.</li>
+  <li><b>requestid</b> — уникальный id запроса в логах (сквозная трассировка; в yamal важно между сервисами).</li>
+  <li><b>logger</b> — пишет метод, путь, статус, время.</li>
+  <li><b>cors</b> — заголовки для браузера (Урок 0004).</li>
+</ul>
+
+<h3>На группу маршрутов — <code>IsAuthed</code></h3>
+<pre><code>notes := router.Group("/notes", middleware.IsAuthed(h.cfg))</code></pre>
+<p>Только для <code>/notes</code> и <code>/auth/me</code>, <code>/logout</code>. <code>POST /auth/login</code> — <b>без</b> auth middleware
+(иначе замкнутый круг).</p>
+
+<h2>2. Валидация входа</h2>
+<pre><code>type loginPayload struct {
+  Email    string `json:"email" validate:"required,email"`
+  Password string `json:"password" validate:"required,min=6"`
+}
+// ...
+if err := validate.Struct(body); err != nil {
+  return response.Error(c, 400, err.Error())
+}</code></pre>
+<p>Теги <code>validate:</code> — правила до бизнес-логики. Короткий пароль → <b>400 Bad Request</b>, не 401.
+401 — только когда формат ок, но credentials неверны.</p>
+
+<h2>3. Карта ошибок в lab</h2>
+<table class="cmp">
+  <tr><th>Код</th><th>Когда в lab</th><th>Пример message</th></tr>
+  <tr><td><b>400</b></td><td>Битый JSON, валидация, невалидный id</td><td><code>invalid json</code>, <code>Password: min</code></td></tr>
+  <tr><td><b>401</b></td><td>Нет/битый токен; неверный логин/пароль</td><td><code>unauthorized</code>, <code>invalid credentials</code></td></tr>
+  <tr><td><b>404</b></td><td>Нет маршрута; нет заметки у этого user</td><td><code>not found</code>, <code>note not found</code></td></tr>
+  <tr><td><b>500</b></td><td>Ошибка БД, подписи JWT</td><td><code>list failed</code>, <code>token error</code></td></tr>
+</table>
+<p>Все через <code>response.Error</code> → тот же envelope <code>{data:{}, status, message}</code>.</p>
+
+<div class="note"><b>400 vs 401 на login.</b> Пароль из 3 символов → 400 (валидация). Пароль 8 символов, но неверный → 401.
+Различать на ревью и в support-логах.</div>
+
+<h2>4. Проверь себя</h2>
+<div class="card" id="quiz">
+  <div class="q" data-correct="b">
+    <p>1. Короткий пароль (меньше 6) на login — статус?</p>
+    <label class="opt"><input type="radio" name="q1" value="a">401</label>
+    <label class="opt"><input type="radio" name="q1" value="b">400</label>
+    <label class="opt"><input type="radio" name="q1" value="c">403</label>
+    <label class="opt"><input type="radio" name="q1" value="d">500</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="a">
+    <p>2. Зачем requestid в цепочке?</p>
+    <label class="opt"><input type="radio" name="q2" value="a">Связать логи одного запроса по id</label>
+    <label class="opt"><input type="radio" name="q2" value="b">Заменить JWT в cookie</label>
+    <label class="opt"><input type="radio" name="q2" value="c">Ускорить SQL-запросы</label>
+    <label class="opt"><input type="radio" name="q2" value="d">Отключить CORS в dev</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="c">
+    <p>3. GET /notes/99999 (нет такой заметки) — для авторизованного user?</p>
+    <label class="opt"><input type="radio" name="q3" value="a">401</label>
+    <label class="opt"><input type="radio" name="q3" value="b">403</label>
+    <label class="opt"><input type="radio" name="q3" value="c">404</label>
+    <label class="opt"><input type="radio" name="q3" value="d">400</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="b">
+    <p>4. Login без auth middleware потому что…</p>
+    <label class="opt"><input type="radio" name="q4" value="a">Login не использует HTTP</label>
+    <label class="opt"><input type="radio" name="q4" value="b">Токена ещё нет — его здесь выдают</label>
+    <label class="opt"><input type="radio" name="q4" value="c">SQLite блокирует middleware</label>
+    <label class="opt"><input type="radio" name="q4" value="d">CORS запрещает auth на POST</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="a">
+    <p>5. В Spring аналог глобального middleware/logger…</p>
+    <label class="opt"><input type="radio" name="q5" value="a">Filter / Interceptor в цепочке</label>
+    <label class="opt"><input type="radio" name="q5" value="b">Только @Transactional</label>
+    <label class="opt"><input type="radio" name="q5" value="c">React ErrorBoundary</label>
+    <label class="opt"><input type="radio" name="q5" value="d">Prisma migrate</label>
+    <div class="fb"></div>
+  </div>
+</div>
+
+<h3>Сопоставь ситуацию и код</h3>
+<div class="card" id="map">
+  <div class="order-row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <span style="min-width:200px">Нет cookie на GET /notes</span>
+    <select data-ans="401"><option value="">—</option><option>400</option><option>401</option><option>404</option><option>500</option></select>
+  </div>
+  <div class="order-row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <span style="min-width:200px">POST login, password: "abc"</span>
+    <select data-ans="400"><option value="">—</option><option>400</option><option>401</option><option>404</option><option>500</option></select>
+  </div>
+  <div class="order-row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <span style="min-width:200px">POST login, верный email, неверный пароль</span>
+    <select data-ans="401"><option value="">—</option><option>400</option><option>401</option><option>404</option><option>500</option></select>
+  </div>
+  <button id="checkMap" class="ghost" style="margin-top:10px">Проверить</button>
+  <span class="res" id="mapRes"></span>
+</div>
+
+<h2>5. Практика: вызови ошибки curl'ом</h2>
+<pre><code># 400 — пароль короче 6 (валидация)
+curl -s -X POST http://localhost:8080/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"editor@lab.local","password":"abc"}' | python3 -m json.tool
+
+# 401 — формат ок, пароль неверный
+curl -s -X POST http://localhost:8080/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"editor@lab.local","password":"wrongpass"}' | python3 -m json.tool
+
+# 404 — заметка не существует (сначала login -c jar)
+curl -c /tmp/lab.jar -s -X POST http://localhost:8080/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"editor@lab.local","password":"lab12345"}' > /dev/null
+curl -b /tmp/lab.jar -s http://localhost:8080/api/v1/notes/99999 | python3 -m json.tool
+
+# requestid — смотри логи сервера в терминале при любом запросе</code></pre>
+
+<div class="card">
+  <label class="ck"><input type="checkbox" id="p1">Увидел 400 на коротком пароле</label>
+  <label class="ck"><input type="checkbox" id="p2">Увидел 401 на неверном пароле</label>
+  <label class="ck"><input type="checkbox" id="p3">Увидел 404 на /notes/99999</label>
+  <div style="margin-top:10px">
+    <span>Статус при password "abc"? </span>
+    <input class="txt" id="statIn" placeholder="число" inputmode="numeric">
+    <button class="ghost" id="checkStat">Проверить</button>
+    <span class="res" id="statRes"></span>
+  </div>
+</div>
+
+<h2>6. Введение: идемпотентность (на будущее)</h2>
+<p class="small"><b>Идемпотентный</b> метод — повторили запрос N раз → тот же эффект, что один раз.
+<code>GET</code> — идемпотентен. <code>POST /notes</code> — нет (каждый раз новая заметка).
+<code>PUT</code> одного id — обычно да. Подробнее в Фазе 3 (API-дизайн). Пока — знай термин.</p>
+
+<h2>7. Отчёт для агента</h2>
+<textarea id="issues" placeholder="Что непонятно?"></textarea>
+<div style="margin-top:10px"><button id="copyBtn">Скопировать отчёт</button> <span class="res" id="copyRes"></span></div>
+<div class="report" id="reportView" style="display:none"></div>
+
+<script>
+const quizState={};
+document.querySelectorAll("#quiz .q").forEach((q,i)=>{
+  const correct=q.dataset.correct;
+  q.querySelectorAll(".opt").forEach(opt=>{
+    opt.addEventListener("click",()=>{
+      const val=opt.querySelector("input").value;
+      q.querySelectorAll(".opt").forEach(o=>o.classList.remove("correct","wrong"));
+      const fb=q.querySelector(".fb");
+      quizState["q"+(i+1)]={chosen:val,ok:val===correct};
+      opt.classList.add(val===correct?"correct":"wrong");
+      fb.textContent=val===correct?"Верно ✓":"Не то"; fb.className="fb "+(val===correct?"ok":"no");
+    });
+  });
+});
+let mapOk=false;
+document.getElementById("checkMap").addEventListener("click",()=>{
+  let ok=true;
+  document.querySelectorAll("#map select").forEach(s=>{
+    if(!s.value||s.value!==s.dataset.ans) ok=false;
+  });
+  mapOk=ok;
+  const res=document.getElementById("mapRes");
+  res.textContent=ok?"Верно ✓":"Перепроверь"; res.style.color=ok?"var(--ok)":"var(--bad)";
+});
+let statOk=false;
+document.getElementById("checkStat").addEventListener("click",()=>{
+  statOk=document.getElementById("statIn").value.trim()==="400";
+  const res=document.getElementById("statRes");
+  res.textContent=statOk?"Верно ✓":"Это валидация, не 401"; res.style.color=statOk?"var(--ok)":"var(--bad)";
+});
+function buildReport(){
+  let qScore=0; const qLines=[];
+  for(let i=1;i<=5;i++){const s=quizState["q"+i];if(s){if(s.ok)qScore++;qLines.push(`  Q${i}: ${s.chosen} ${s.ok?"OK":"WRONG"}`);}else qLines.push(`  Q${i}: (не отвечено)`);}
+  const p=id=>document.getElementById(id).checked?"да":"нет";
+  return ["=== ОТЧЁТ · Курс Senior 2026 · Урок 0007 «Middleware и ошибки» ===",
+`Квиз: ${qScore}/5`,...qLines,`Карта статусов: ${mapOk?"верно":"нет"}`,
+`Практика 400/401/404: ${p("p1")} / ${p("p2")} / ${p("p3")}, статус abc→400: ${statOk?"да":"нет"}`,
+`Что непонятно: ${document.getElementById("issues").value.trim()||"(нет)"}`,"=== конец отчёта ==="].join("\n");
+}
+document.getElementById("copyBtn").addEventListener("click",async()=>{
+  document.getElementById("reportView").style.display="block";
+  document.getElementById("reportView").textContent=buildReport();
+  try{await navigator.clipboard.writeText(buildReport());document.getElementById("copyRes").textContent="Скопировано ✓";}
+  catch(e){document.getElementById("copyRes").textContent="Скопируй вручную";}
+});
+</script>
+</body>
+</html>

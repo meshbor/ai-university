@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 0006 · Слои бэкенда: main → handler → store</title>
+<style>
+  :root{--ink:#1a1a1a;--muted:#666;--line:#e2e2e2;--accent:#7a4f9e;--accent2:#2e6e8e;
+    --bg:#fbfbf9;--card:#fff;--ok:#2e7d32;--bad:#c0392b;--code:#f4f2ef}
+  *{box-sizing:border-box}
+  body{font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:var(--bg);
+    max-width:780px;margin:0 auto;padding:44px 22px 110px;line-height:1.55;font-size:18px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 4px}
+  .meta{color:var(--muted);font-style:italic;margin:0 0 24px;font-size:16px}
+  h2{font-size:22px;margin:34px 0 8px;border-bottom:2px solid var(--line);padding-bottom:6px}
+  h3{font-size:18px;margin:18px 0 4px}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;background:var(--code);padding:1px 6px;border-radius:4px}
+  pre{background:#2b2b2b;color:#eaeaea;padding:14px 16px;border-radius:8px;overflow:auto;font-size:13px;line-height:1.45}
+  pre code{background:none;color:inherit;padding:0}
+  .win{background:#f3eff8;border-left:5px solid var(--accent);border-radius:8px;padding:12px 16px;margin:16px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:18px 0}
+  .q{margin:14px 0;padding-bottom:12px;border-bottom:1px solid #f0f0f0}
+  .q p{margin:0 0 8px;font-weight:bold}
+  .opt{display:block;padding:8px 12px;margin:6px 0;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:16px;background:#fff}
+  .opt.correct{border-color:var(--ok);background:#f0f8f0}
+  .opt.wrong{border-color:var(--bad);background:#fcf0ef}
+  .opt input{margin-right:8px}
+  .fb{font-size:15px;margin-top:6px;min-height:20px}
+  .fb.ok{color:var(--ok)} .fb.no{color:var(--bad)}
+  .layer{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0;font-size:15px}
+  .layer span{background:#efeaf5;border:1px solid #d8cce8;border-radius:6px;padding:6px 12px}
+  .layer .arr{color:var(--muted)}
+  button{font-family:inherit;font-size:15px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:9px 16px;cursor:pointer}
+  button.ghost{background:#fff;color:var(--accent2);border:1px solid var(--line)}
+  label.ck{display:flex;gap:10px;align-items:flex-start;padding:6px 0;cursor:pointer;font-size:16px}
+  label.ck input{margin-top:5px;width:18px;height:18px}
+  .order-row{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap}
+  .order-row select{font-size:15px;padding:5px 8px;border:1px solid var(--line);border-radius:6px}
+  .res{font-size:15px;margin-top:8px;font-weight:bold}
+  textarea{width:100%;min-height:70px;font-size:15px;padding:10px;border:1px solid var(--line);border-radius:8px}
+  .report{background:#1f2733;color:#e8eef5;border-radius:10px;padding:18px 20px;margin-top:14px;font-size:14px}
+  a{color:var(--accent2)}
+  .small{font-size:15px;color:var(--muted)}
+  .note{background:#fffaf0;border:1px solid #f0e2c0;border-radius:8px;padding:10px 14px;margin:14px 0;font-size:16px}
+  table.cmp{width:100%;border-collapse:collapse;font-size:15px;margin:10px 0}
+  table.cmp th,table.cmp td{border:1px solid var(--line);padding:8px 10px;text-align:left}
+  table.cmp th{background:#f3eff8}
+  @media print{body{background:#fff}}
+</style>
+</head>
+<body>
+
+<h1>Урок 0006 · Слои бэкенда: <code>main</code> → <code>handler</code> → <code>store</code></h1>
+<p class="meta">Курс «Senior 2026» · Фаза 1 · читаем Go-код lab · кейс <code>GET /api/v1/notes</code></p>
+
+<div class="win">
+  <b>Сегодняшняя победа.</b> Откроешь реальный бэкенд и пройдёшь путь «от маршрута до SQL» по файлам.
+  Не учим писать Go с нуля — учим <b>читать слои</b>, как сеньор на ревью. То же самое потом увидишь
+  в Java: Controller → Service → Repository.
+</div>
+
+<h2>1. Три слоя (ментальная модель)</h2>
+<div class="layer">
+  <span><b>main</b> — старт, middleware, роуты</span>
+  <span class="arr">→</span>
+  <span><b>handler</b> — HTTP: разобрать запрос, вызвать данные, ответ</span>
+  <span class="arr">→</span>
+  <span><b>store</b> — БД: SQL, bcrypt, без HTTP</span>
+</div>
+
+<table class="cmp">
+  <tr><th>Lab (Go)</th><th>Spring (корп, позже)</th><th>Зона ответственности</th></tr>
+  <tr><td><code>cmd/server/main.go</code></td><td><code>Application</code> + конфиг</td><td>Собрать приложение</td></tr>
+  <tr><td><code>internal/handler/*.go</code></td><td><code>@RestController</code></td><td>HTTP-контракт</td></tr>
+  <tr><td><code>internal/store/*.go</code></td><td><code>@Repository</code></td><td>Данные, SQL</td></tr>
+  <tr><td><i>(нет в lab)</i></td><td><code>@Service</code></td><td>Бизнес-логика между controller и repo</td></tr>
+</table>
+
+<div class="note">В lab слой <b>service</b> намеренно пропущен — handler сразу зовёт store. В проде сложную логику
+выносят в service. На собесе: «В lab два слоя, в Spring — три, роли те же».</div>
+
+<h2>2. Разбор по файлам: <code>GET /notes</code></h2>
+
+<h3>① <code>main.go</code> — кто принимает порт</h3>
+<pre><code>st, _ := store.Open(cfg.DatabasePath)     // один Store на всё приложение
+api := app.Group("/api/v1")
+handler.NewNotes(cfg, st).Register(api)   // передаём store в handler</code></pre>
+<p>Создаётся <b>один</b> store (подключение к SQLite), передаётся в handlers через конструктор
+<code>NewNotes(cfg, st)</code> — это <b>dependency injection</b> вручную (в Spring — автоматически).</p>
+
+<h3>② <code>notes.go</code> — Register и middleware на группе</h3>
+<pre><code>notes := router.Group("/notes", middleware.IsAuthed(h.cfg))
+notes.Get("/", h.list)</code></pre>
+<p>Все <code>/notes/*</code> сначала проходят <code>IsAuthed</code> (Урок 0002). Потом — метод <code>list</code>.</p>
+
+<h3>③ <code>list</code> — handler тонкий</h3>
+<pre><code>func (h *NotesHandler) list(c *fiber.Ctx) error {
+  list, err := h.store.ListNotes(middleware.UserID(c))
+  if err != nil { return response.Error(c, 500, "list failed") }
+  return response.JSON(c, 200, "ok", fiber.Map{"list": list})
+}</code></pre>
+<p>Handler <b>не пишет SQL</b>. Он: достал <code>userId</code> из context (положил middleware) → позвал store →
+обернул в envelope. Это хороший handler.</p>
+
+<h3>④ <code>store.go</code> — SQL</h3>
+<pre><code>func (s *Store) ListNotes(userID uint) ([]model.Note, error) {
+  rows, err := s.db.Query(
+    `SELECT id, user_id, title, body, created_at, updated_at
+     FROM notes WHERE user_id = ? ORDER BY id DESC`, userID)
+  // ... scan rows в слайс
+}</code></pre>
+<p>Store не знает про HTTP, JWT, JSON. Только: «дай заметки этого user_id». Фильтрация по пользователю —
+<b>в SQL</b>, не на фронте (иначе утечка чужих данных).</p>
+
+<h2>3. Проверь себя</h2>
+<div class="card" id="quiz">
+  <div class="q" data-correct="c">
+    <p>1. Кто выполняет SQL <code>SELECT ... FROM notes WHERE user_id = ?</code>?</p>
+    <label class="opt"><input type="radio" name="q1" value="a">handler.list в notes.go</label>
+    <label class="opt"><input type="radio" name="q1" value="b">middleware.IsAuthed</label>
+    <label class="opt"><input type="radio" name="q1" value="c">store.ListNotes в store.go</label>
+    <label class="opt"><input type="radio" name="q1" value="d">main.go при Listen</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="b">
+    <p>2. Откуда handler.list узнаёт userId?</p>
+    <label class="opt"><input type="radio" name="q2" value="a">Парсит JWT заново в list()</label>
+    <label class="opt"><input type="radio" name="q2" value="b">middleware.UserID(c) из context</label>
+    <label class="opt"><input type="radio" name="q2" value="c">Из query-параметра ?userId=</label>
+    <label class="opt"><input type="radio" name="q2" value="d">Из тела GET-запроса</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="a">
+    <p>3. В Spring ближе всего к <code>store.ListNotes</code>…</p>
+    <label class="opt"><input type="radio" name="q3" value="a">Repository (доступ к БД)</label>
+    <label class="opt"><input type="radio" name="q3" value="b">RestController (HTTP)</label>
+    <label class="opt"><input type="radio" name="q3" value="c">FilterChain (безопасность)</label>
+    <label class="opt"><input type="radio" name="q3" value="d">DTO mapper на фронте</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="c">
+    <p>4. Почему в lab нет отдельного service-слоя?</p>
+    <label class="opt"><input type="radio" name="q4" value="a">Go не поддерживает сервисы</label>
+    <label class="opt"><input type="radio" name="q4" value="b">Store запрещён в Fiber</label>
+    <label class="opt"><input type="radio" name="q4" value="c">Учебное упрощение: логика пока простая</label>
+    <label class="opt"><input type="radio" name="q4" value="d">Service заменён Vite proxy</label>
+    <div class="fb"></div>
+  </div>
+</div>
+
+<h3>Расставь слои по порядку (1–4) для GET /notes</h3>
+<div class="card" id="order">
+  <div class="order-row"><select data-step="1"><option value="">№</option><option>1</option><option>2</option><option>3</option><option>4</option></select>
+    <span>main: маршрут <code>GET /api/v1/notes</code> → NotesHandler.list</span></div>
+  <div class="order-row"><select data-step="3"><option value="">№</option><option>1</option><option>2</option><option>3</option><option>4</option></select>
+    <span>store.ListNotes: SQL по user_id</span></div>
+  <div class="order-row"><select data-step="2"><option value="">№</option><option>1</option><option>2</option><option>3</option><option>4</option></select>
+    <span>middleware IsAuthed: JWT → userId в context</span></div>
+  <div class="order-row"><select data-step="4"><option value="">№</option><option>1</option><option>2</option><option>3</option><option>4</option></select>
+    <span>handler.list: response.JSON с data.list</span></div>
+  <button id="checkOrder" class="ghost" style="margin-top:10px">Проверить порядок</button>
+  <span class="res" id="orderRes"></span>
+</div>
+
+<h2>4. Практика: пройди глазами по коду</h2>
+<p>Открой в редакторе (пути от корня lab):</p>
+<pre><code>apps/api/cmd/server/main.go          — строки 46–48
+apps/api/internal/handler/notes.go   — Register + list
+apps/api/internal/store/store.go     — ListNotes</code></pre>
+<div class="card">
+  <label class="ck"><input type="checkbox" id="p1">Нашёл Register: группа /notes + IsAuthed</label>
+  <label class="ck"><input type="checkbox" id="p2">В list() нет SQL — только вызов store</label>
+  <label class="ck"><input type="checkbox" id="p3">В ListNotes есть WHERE user_id = ?</label>
+  <div style="margin-top:10px">
+    <span>В каком <b>файле</b> лежит SQL для списка? </span>
+    <input class="txt" id="fileIn" placeholder="имя файла" style="width:200px;font-family:monospace;font-size:14px;padding:7px;border:1px solid var(--line);border-radius:6px">
+    <button class="ghost" id="checkFile">Проверить</button>
+    <span class="res" id="fileRes"></span>
+  </div>
+</div>
+
+<h2>5. Первоисточник</h2>
+<p><code>docs/MAPPING-YAMAL.md</code> в lab — таблица «lab ↔ gateway». Сравни
+<code>store.ListNotes</code> с тем, что yamal делает через RabbitMQ.</p>
+
+<h2>6. Отчёт для агента</h2>
+<textarea id="issues" placeholder="Что непонятно?"></textarea>
+<div style="margin-top:10px"><button id="copyBtn">Скопировать отчёт</button> <span class="res" id="copyRes"></span></div>
+<div class="report" id="reportView" style="display:none"></div>
+
+<script>
+const quizState={};
+document.querySelectorAll("#quiz .q").forEach((q,i)=>{
+  const correct=q.dataset.correct;
+  q.querySelectorAll(".opt").forEach(opt=>{
+    opt.addEventListener("click",()=>{
+      const val=opt.querySelector("input").value;
+      q.querySelectorAll(".opt").forEach(o=>o.classList.remove("correct","wrong"));
+      const fb=q.querySelector(".fb");
+      quizState["q"+(i+1)]={chosen:val,ok:val===correct};
+      opt.classList.add(val===correct?"correct":"wrong");
+      fb.textContent=val===correct?"Верно ✓":"Не то"; fb.className="fb "+(val===correct?"ok":"no");
+    });
+  });
+});
+let orderOk=false;
+document.getElementById("checkOrder").addEventListener("click",()=>{
+  let ok=true;
+  document.querySelectorAll("#order select").forEach(s=>{
+    if(!s.value||s.value!==s.dataset.step) ok=false;
+  });
+  const res=document.getElementById("orderRes");
+  orderOk=ok;
+  res.textContent=ok?"Порядок верный ✓":"Есть ошибки"; res.style.color=ok?"var(--ok)":"var(--bad)";
+});
+let fileOk=false;
+document.getElementById("checkFile").addEventListener("click",()=>{
+  const v=document.getElementById("fileIn").value.trim().toLowerCase();
+  fileOk=v==="store.go"||v.includes("store");
+  const res=document.getElementById("fileRes");
+  res.textContent=fileOk?"Верно ✓":"Подсказка: internal/store/..."; res.style.color=fileOk?"var(--ok)":"var(--bad)";
+});
+function buildReport(){
+  let qScore=0; const qLines=[];
+  for(let i=1;i<=4;i++){const s=quizState["q"+i];if(s){if(s.ok)qScore++;qLines.push(`  Q${i}: ${s.chosen} ${s.ok?"OK":"WRONG"}`);}else qLines.push(`  Q${i}: (не отвечено)`);}
+  const p=id=>document.getElementById(id).checked?"да":"нет";
+  return ["=== ОТЧЁТ · Курс Senior 2026 · Урок 0006 «Слои бэкенда» ===",
+`Квиз: ${qScore}/4`,...qLines,`Порядок слоёв: ${orderOk?"верно":"нет"}`,
+`Практика: Register ${p("p1")}, list без SQL ${p("p2")}, WHERE user_id ${p("p3")}, файл store ${fileOk?"да":"нет"}`,
+`Что непонятно: ${document.getElementById("issues").value.trim()||"(нет)"}`,"=== конец отчёта ==="].join("\n");
+}
+document.getElementById("copyBtn").addEventListener("click",async()=>{
+  const text=buildReport();
+  document.getElementById("reportView").style.display="block";
+  document.getElementById("reportView").textContent=text;
+  try{await navigator.clipboard.writeText(text);document.getElementById("copyRes").textContent="Скопировано ✓";}
+  catch(e){document.getElementById("copyRes").textContent="Скопируй вручную";}
+});
+</script>
+</body>
+</html>
