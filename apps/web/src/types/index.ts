@@ -53,6 +53,8 @@ export interface LifeAxis {
   src: StatSource
 }
 
+export type LifeAxisScore = LifeAxis & { val: number }
+
 export interface ThemeConfig {
   brand: string
   who: string

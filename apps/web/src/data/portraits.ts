@@ -51,3 +51,12 @@ export const ARCH_LABELS: Record<HeroArchetype, string> = {
   knight: 'Рыцарь ⚔️',
   samurai: 'Самурай 🗡️',
 }
+
+export const TIER_NAMES: Record<string, string[]> = {
+  light: ['Стажёр', 'Специалист', 'Мастер'],
+  fallout: ['Убежище', 'Пустошь', 'Братство'],
+  space: ['Модуль', 'Усилен', 'Флагман'],
+  wot: ['Сток', 'Топ', 'Асс'],
+  knight: ['Оруженосец', 'Рыцарь', 'Паладин'],
+  samurai: ['Ученик', 'Ронин', 'Кэнси'],
+}

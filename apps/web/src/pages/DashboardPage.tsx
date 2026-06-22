@@ -1,15 +1,19 @@
-import { useMemo, useState } from 'react'
-import { COURSES } from '@/data/courses'
-import { THEMES } from '@/data/themes'
+import { useState } from 'react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CourseList } from '@/features/courses/CourseList'
+import { DuelsPlaceholder } from '@/features/dashboard/DuelsPlaceholder'
+import { HeroPanel } from '@/features/dashboard/HeroPanel'
+import { SpecialGrid } from '@/features/dashboard/SpecialGrid'
+import { useDashboardStats } from '@/features/dashboard/use-dashboard-stats'
 import { OnboardingPage } from '@/features/onboarding/OnboardingPage'
-import { levelFromXp, totalDoneCount, totalXp, weeklyXp } from '@/lib/gamification/progress'
+import { ThemeBackgrounds } from '@/features/theme/ThemeBackgrounds'
+import { ThemeToolbar } from '@/features/theme/ThemeToolbar'
+import { themeWhoLine } from '@/features/theme/theme-who'
+import { THEMES } from '@/data/themes'
 import { localRepositories } from '@/lib/storage/local-repositories'
 import { useAppStore } from '@/stores/use-app-store'
 import type { ProgressStore } from '@/types'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import '@/styles/rpg-themes.css'
 
 export function DashboardPage() {
   const profile = useAppStore((s) => s.profile)
@@ -20,78 +24,82 @@ export function DashboardPage() {
 
   const theme = THEMES[themeId]
   const heroName = profile?.name ?? 'Baruh'
+  const dash = useDashboardStats(store, profile, themeId)
 
-  const stats = useMemo(() => {
-    const done = totalDoneCount(store)
-    const xp = totalXp(store)
-    return {
-      done,
-      xp,
-      level: levelFromXp(xp),
-      weekXp: weeklyXp(store),
-    }
-  }, [store])
+  const sysDate = new Date().toLocaleDateString('ru-RU', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
 
   if (rematch) {
     return <OnboardingPage rematch onDone={() => setRematch(false)} />
   }
 
-  return (
-    <div className="mx-auto min-h-screen max-w-5xl px-4 py-8">
-      <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <Badge variant="secondary" className="mb-2">
-            v2 · auth + onboarding
-          </Badge>
-          <h1 className="text-3xl font-bold tracking-tight">{theme.brand}</h1>
-          <p className="mt-1 text-muted-foreground">
-            {theme.who.replace('Baruh', heroName)}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={() => setRematch(true)}>
-            🎭 Новый герой
-          </Button>
-          <Button variant="outline" size="sm" onClick={logout}>
-            🔒 Выйти
-          </Button>
-        </div>
-      </header>
+  const resetProgress = () => {
+    if (!window.confirm('Сбросить весь прогресс уроков? Профиль героя останется.')) return
+    const empty = { lessons: {}, meta: {} }
+    localRepositories.progress.save(empty)
+    setStore(empty)
+  }
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          label="Уровень"
-          value={String(stats.level)}
-          hint={theme.ranks[Math.min(stats.level - 1, theme.ranks.length - 1)]}
-        />
-        <StatCard label="XP всего" value={String(stats.xp)} hint={`${stats.done} уроков`} />
-        <StatCard label="XP / 7 дн" value={String(stats.weekXp)} hint="weekly race" />
-        <StatCard label="Герой" value={heroName} hint={profile?.hero ?? '—'} />
+  return (
+    <div className="rpg-shell" data-theme={themeId}>
+      <ThemeBackgrounds themeId={themeId} />
+      <ThemeToolbar onNewHero={() => setRematch(true)} onLogout={logout} />
+
+      <div className="rpg-screen">
+        <div className="rpg-scanlines" aria-hidden />
+        <div className="rpg-starfield" aria-hidden />
+
+        <header className="rpg-tt mb-3.5 flex items-end justify-between border-b border-[var(--rpg-line)] pb-2 text-[13px]">
+          <div className="text-lg font-bold">{theme.brand}</div>
+          <div className="text-right leading-snug opacity-85">
+            <div>{sysDate}</div>
+            <div>{themeWhoLine(themeId, heroName)}</div>
+          </div>
+        </header>
+
+        <div className="rpg-dashboard">
+          <HeroPanel portrait={dash.portrait} stats={dash.heroPanel} lifeScores={dash.life} />
+
+          <div className="min-w-0">
+            <Tabs defaultValue="skills" className="gap-0">
+              <TabsList variant="line" className="rpg-tabs-list w-full justify-start rounded-none">
+                <TabsTrigger value="special" className="rpg-tabs-trigger">
+                  {theme.tabs.special}
+                </TabsTrigger>
+                <TabsTrigger value="skills" className="rpg-tabs-trigger">
+                  {theme.tabs.skills}
+                </TabsTrigger>
+                <TabsTrigger value="duels" className="rpg-tabs-trigger">
+                  {theme.tabs.duels}
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="special" className="mt-0">
+                <SpecialGrid store={store} />
+              </TabsContent>
+
+              <TabsContent value="skills" className="rpg-course mt-0">
+                <CourseList store={store} onStoreChange={setStore} />
+              </TabsContent>
+
+              <TabsContent value="duels" className="mt-0">
+                <DuelsPlaceholder />
+              </TabsContent>
+            </Tabs>
+
+            <footer className="rpg-tt mt-4 flex flex-wrap items-center justify-between gap-2 text-xs opacity-70">
+              <span>1 урок = 100 XP · уровень каждые 300 XP · прогресс в браузере</span>
+              <button type="button" className="rpg-reset-btn" onClick={resetProgress}>
+                Сбросить прогресс
+              </button>
+            </footer>
+          </div>
+        </div>
       </div>
-
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Курсы ({COURSES.length})</CardTitle>
-          <CardDescription>Контент в public/courses — ссылки как в legacy</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <CourseList store={store} onStoreChange={setStore} />
-        </CardContent>
-      </Card>
     </div>
-  )
-}
-
-function StatCard({ label, value, hint }: { label: string; value: string; hint: string }) {
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardDescription>{label}</CardDescription>
-        <CardTitle className="text-2xl">{value}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-xs text-muted-foreground">{hint}</p>
-      </CardContent>
-    </Card>
   )
 }
