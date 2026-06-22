@@ -121,28 +121,29 @@ export function DashboardPage() {
         onLogout={logout}
       />
 
-      <div className="rpg-screen">
-        <div className="rpg-scanlines" aria-hidden />
-        <div className="rpg-starfield" aria-hidden />
+      <div className="rpg-cockpit">
+        <HeroPanel
+          dock
+          portrait={dash.portrait}
+          stats={dash.heroPanel}
+          lifeScores={dash.life}
+          duel={activeDuel}
+          store={store}
+        />
 
-        <header className="rpg-tt mb-3.5 flex items-end justify-between border-b border-[var(--rpg-line)] pb-2 text-[13px]">
-          <div className="text-lg font-bold">{theme.brand}</div>
-          <div className="text-right leading-snug opacity-85">
-            <div>{sysDate}</div>
-            <div>{themeWhoLine(themeId, heroName)}</div>
-          </div>
-        </header>
+        <div className="rpg-screen">
+          <div className="rpg-scanlines" aria-hidden />
+          <div className="rpg-starfield" aria-hidden />
 
-        <div className="rpg-dashboard">
-          <HeroPanel
-            portrait={dash.portrait}
-            stats={dash.heroPanel}
-            lifeScores={dash.life}
-            duel={activeDuel}
-            store={store}
-          />
+          <header className="rpg-tt mb-3.5 flex items-end justify-between border-b border-[var(--rpg-line)] pb-2 text-[13px]">
+            <div className="text-lg font-bold">{theme.brand}</div>
+            <div className="text-right leading-snug opacity-85">
+              <div>{sysDate}</div>
+              <div>{themeWhoLine(themeId, heroName)}</div>
+            </div>
+          </header>
 
-          <div className="min-w-0">
+          <div className="rpg-main-panel min-w-0">
             <Tabs defaultValue="skills" className="gap-0">
               <TabsList variant="line" className="rpg-tabs-list w-full justify-start rounded-none">
                 <TabsTrigger value="special" className="rpg-tabs-trigger">
@@ -161,7 +162,7 @@ export function DashboardPage() {
               </TabsContent>
 
               <TabsContent value="skills" className="rpg-course mt-0">
-                <CourseList store={store} onStoreChange={setStore} />
+                <CourseList store={store} onStoreChange={setStore} columns={2} />
               </TabsContent>
 
               <TabsContent value="duels" className="mt-0">

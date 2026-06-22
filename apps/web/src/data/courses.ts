@@ -19,7 +19,7 @@ export const COURSES: Course[] = [
     ],
     refs: [
       { t: 'Дорожная карта', href: 'courses/senior-2026/reference/dorozhnaya-karta-2026.html' },
-      { t: 'Расписание дня', href: 'courses/senior-2026/reference/raspisanie-dnya.html' },
+      // { t: 'Расписание дня', href: 'courses/senior-2026/reference/raspisanie-dnya.html' },
       { t: 'Трекер фаз', href: 'courses/senior-2026/reference/progress-tracker.html' },
       { t: 'Глоссарий', href: 'courses/senior-2026/reference/glossary.html' },
     ],
