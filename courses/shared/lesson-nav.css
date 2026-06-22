@@ -1,0 +1,73 @@
+.lesson-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 0 28px;
+  padding: 12px 16px;
+  border: 1px solid #e2e2e2;
+  border-radius: 10px;
+  background: #fff;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.lesson-nav--bottom {
+  margin: 48px 0 0;
+}
+
+.lesson-nav a {
+  color: #2e6e8e;
+  text-decoration: none;
+  max-width: min(100%, 320px);
+}
+
+.lesson-nav a:hover {
+  text-decoration: underline;
+}
+
+.lesson-nav .nav-dashboard {
+  font-weight: 600;
+  color: #5a4a7a;
+  flex: 1 1 auto;
+  text-align: center;
+}
+
+.lesson-nav .nav-prev,
+.lesson-nav .nav-next {
+  flex: 1 1 140px;
+}
+
+.lesson-nav .nav-next {
+  text-align: right;
+}
+
+.lesson-nav .nav-label {
+  display: block;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 2px;
+}
+
+.lesson-nav .nav-disabled {
+  color: #aaa;
+  flex: 1 1 140px;
+}
+
+.lesson-nav .nav-next.nav-disabled {
+  text-align: right;
+}
+
+@media (max-width: 520px) {
+  .lesson-nav .nav-dashboard {
+    order: -1;
+    flex-basis: 100%;
+    text-align: left;
+  }
+
+  .lesson-nav .nav-next {
+    text-align: left;
+  }
+}
