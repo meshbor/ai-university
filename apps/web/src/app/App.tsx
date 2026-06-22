@@ -1,12 +1,5 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { HomePage } from '@/pages/HomePage'
+import { AppGate } from '@/app/AppGate'
 
 export function App() {
-  return (
-    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '') || '/'}>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-      </Routes>
-    </BrowserRouter>
-  )
+  return <AppGate />
 }
