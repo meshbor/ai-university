@@ -175,7 +175,7 @@ export function DashboardPage() {
               </TabsContent>
 
               <TabsContent value="skills" className="rpg-course mt-0">
-                <CourseList store={store} onStoreChange={setStore} columns={2} />
+                <CourseList store={store} onStoreChange={setStore} />
               </TabsContent>
 
               <TabsContent value="duels" className="mt-0">

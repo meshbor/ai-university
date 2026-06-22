@@ -2,6 +2,12 @@ import { useId, useMemo, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { COURSES } from '@/data/courses'
 import { lessonKey, setLessonDone } from '@/lib/gamification/progress'
+import {
+  COURSE_COLUMN_OPTIONS,
+  loadCourseColumns,
+  saveCourseColumns,
+  type CourseColumnCount,
+} from '@/lib/storage/course-columns'
 import { localRepositories } from '@/lib/storage/local-repositories'
 import type { Course, ProgressStore } from '@/types'
 import { cn } from '@/lib/utils'
@@ -11,8 +17,6 @@ const base = import.meta.env.BASE_URL
 interface CourseListProps {
   store: ProgressStore
   onStoreChange: (store: ProgressStore) => void
-  /** Две колонки карточек курсов */
-  columns?: 1 | 2
 }
 
 function courseDoneCount(course: Course, store: ProgressStore): number {
@@ -30,8 +34,10 @@ function defaultExpandedIds(store: ProgressStore): Set<string> {
   return ids
 }
 
-export function CourseList({ store, onStoreChange, columns = 2 }: CourseListProps) {
+export function CourseList({ store, onStoreChange }: CourseListProps) {
   const [expanded, setExpanded] = useState<Set<string>>(() => defaultExpandedIds(store))
+  const [columns, setColumns] = useState<CourseColumnCount>(() => loadCourseColumns())
+  const columnsSelectId = useId()
 
   const toggleExpanded = (courseId: string) => {
     setExpanded((prev) => {
@@ -42,25 +48,50 @@ export function CourseList({ store, onStoreChange, columns = 2 }: CourseListProp
     })
   }
 
+  const onColumnsChange = (value: CourseColumnCount) => {
+    setColumns(value)
+    saveCourseColumns(value)
+  }
+
   return (
-    <div className={cn('rpg-course-list', columns === 2 && 'rpg-course-list-cols')}>
-      {COURSES.map((course) => (
-        <CourseCard
-          key={course.id}
-          course={course}
-          store={store}
-          open={expanded.has(course.id)}
-          onOpenChange={() => toggleExpanded(course.id)}
-          onToggle={(key, done) => {
-            const next = setLessonDone(store, key, done)
-            localRepositories.progress.save(next)
-            onStoreChange(next)
-            if (done) {
-              setExpanded((prev) => new Set(prev).add(course.id))
-            }
-          }}
-        />
-      ))}
+    <div className="rpg-course-panel">
+      <div className="rpg-course-toolbar">
+        <label htmlFor={columnsSelectId} className="rpg-course-toolbar-label">
+          Колонки:
+        </label>
+        <select
+          id={columnsSelectId}
+          className="rpg-course-columns-select"
+          value={columns}
+          onChange={(e) => onColumnsChange(Number(e.target.value) as CourseColumnCount)}
+        >
+          {COURSE_COLUMN_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className={cn('rpg-course-list', `rpg-course-list-cols-${columns}`)}>
+        {COURSES.map((course) => (
+          <CourseCard
+            key={course.id}
+            course={course}
+            store={store}
+            open={expanded.has(course.id)}
+            onOpenChange={() => toggleExpanded(course.id)}
+            onToggle={(key, done) => {
+              const next = setLessonDone(store, key, done)
+              localRepositories.progress.save(next)
+              onStoreChange(next)
+              if (done) {
+                setExpanded((prev) => new Set(prev).add(course.id))
+              }
+            }}
+          />
+        ))}
+      </div>
     </div>
   )
 }
