@@ -82,4 +82,20 @@ export const COURSES: Course[] = [
       { t: 'Карточки уроки 3–5', href: 'courses/chtenie/reference/kartochki-uroki-3-5.html' },
     ],
   },
+  {
+    id: 'rubik',
+    emoji: '🧩',
+    title: 'Кубик Рубика',
+    sub: 'Сборка 3×3 слой за слоем',
+    primary: {
+      label: 'Открыть последний урок',
+      href: 'courses/rubik/lessons/0003-pervyy-sloy.html',
+    },
+    lessons: [
+      { n: '0001', t: 'Знакомство и нотация', href: 'courses/rubik/lessons/0001-znakomstvo-i-notaciya.html' },
+      { n: '0002', t: 'Белый крест', href: 'courses/rubik/lessons/0002-belyy-krest.html' },
+      { n: '0003', t: 'Первый слой целиком', href: 'courses/rubik/lessons/0003-pervyy-sloy.html' },
+    ],
+    refs: [{ t: 'Нотация 3×3', href: 'courses/rubik/reference/notaciya.html' }],
+  },
 ]
