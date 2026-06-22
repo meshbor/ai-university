@@ -53,7 +53,7 @@ export function OnboardingPage({
       <div className="game-lobby-bg" aria-hidden />
       <div className="game-lobby-scanlines" aria-hidden />
 
-      <header className="relative z-10 flex flex-col items-center px-4 pb-2 pt-8 text-center sm:pt-10">
+      <header className="relative z-10 flex shrink-0 flex-col items-center px-4 pb-2 pt-6 text-center sm:pt-8">
         <p className="game-lobby-kicker">AI University · character select</p>
         <h1 className="game-lobby-title mt-2">
           {rematch ? 'Новый герой' : 'Выбери героя и мир'}
@@ -78,7 +78,7 @@ export function OnboardingPage({
         </div>
       </header>
 
-      <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-6">
+      <main className="relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-2 py-4 sm:px-4 sm:py-5">
         <HeroPickerGrid selectedId={selectedId} onSelect={(p) => setSelectedId(p.id)} />
         <p className="mt-6 max-w-lg text-center text-sm text-[#b8b0ce]">
           <strong className="text-[#efeafc]">{preset.name}</strong>

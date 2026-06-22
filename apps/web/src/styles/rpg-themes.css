@@ -28,10 +28,10 @@
 }
 
 .rpg-shell[data-theme='fallout'] {
-  --rpg-page-bg: #020805;
-  --rpg-bg: radial-gradient(120% 90% at 50% 0%, #0c2417 0%, #06120c 70%);
-  --rpg-panel: #0a1c12;
-  --rpg-panel2: #0e2417;
+  --rpg-page-bg: transparent;
+  --rpg-bg: linear-gradient(180deg, rgba(6, 24, 14, 0.9), rgba(3, 14, 8, 0.94));
+  --rpg-panel: rgba(8, 28, 18, 0.9);
+  --rpg-panel2: rgba(10, 36, 22, 0.78);
   --rpg-ink: #21ff9a;
   --rpg-muted: #15aa66;
   --rpg-line: #1c6b45;
@@ -41,11 +41,11 @@
   --rpg-xp2: #15aa66;
   --rpg-on: #21ff9a;
   --rpg-font: 'Courier New', ui-monospace, Menlo, Consolas, monospace;
-  --rpg-radius: 14px;
-  --rpg-glow: 0 0 6px rgba(33, 255, 154, 0.5);
+  --rpg-radius: 12px;
+  --rpg-glow: 0 0 6px rgba(33, 255, 154, 0.45);
   --rpg-tt: uppercase;
-  --rpg-shadow: 0 0 40px rgba(33, 255, 154, 0.1) inset, 0 0 0 4px #04140c;
-  --rpg-frame: 2px solid var(--rpg-line);
+  --rpg-shadow: 0 0 0 1px rgba(33, 255, 154, 0.22), 0 12px 40px rgba(0, 0, 0, 0.55);
+  --rpg-frame: 1px solid var(--rpg-line);
 }
 
 .rpg-shell[data-theme='space'] {
@@ -156,17 +156,19 @@
 .rpg-shell[data-theme='space'] .rpg-screen,
 .rpg-shell[data-theme='wot'] .rpg-screen,
 .rpg-shell[data-theme='knight'] .rpg-screen,
-.rpg-shell[data-theme='samurai'] .rpg-screen {
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+.rpg-shell[data-theme='samurai'] .rpg-screen,
+.rpg-shell[data-theme='fallout'] .rpg-screen {
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 
 .rpg-shell[data-theme='space'] .rpg-hero-panel,
 .rpg-shell[data-theme='wot'] .rpg-hero-panel,
 .rpg-shell[data-theme='knight'] .rpg-hero-panel,
-.rpg-shell[data-theme='samurai'] .rpg-hero-panel {
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+.rpg-shell[data-theme='samurai'] .rpg-hero-panel,
+.rpg-shell[data-theme='fallout'] .rpg-hero-panel {
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 
 .rpg-screen > * {
@@ -481,6 +483,204 @@
   color: var(--rpg-ink);
   border-radius: 12px;
   box-shadow: none;
+}
+
+/* ---- course cards (native RPG, not shadcn) ---- */
+.rpg-course-card {
+  background: var(--rpg-panel);
+  border: var(--rpg-frame);
+  border-radius: 12px;
+  color: var(--rpg-ink);
+  overflow: hidden;
+}
+
+.rpg-course-head {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.rpg-course-head:hover {
+  background: var(--rpg-panel2);
+}
+
+.rpg-course-head-open {
+  border-bottom: var(--rpg-frame);
+}
+
+.rpg-course-emoji {
+  font-size: 1.625rem;
+  line-height: 1;
+}
+
+.rpg-course-title {
+  font-size: 1.05rem;
+}
+
+.rpg-course-badge {
+  border: var(--rpg-frame);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 12px;
+  color: var(--rpg-xp);
+}
+
+.rpg-course-status,
+.rpg-course-sub,
+.rpg-course-meta,
+.rpg-course-pct {
+  font-size: 12px;
+  color: var(--rpg-muted);
+}
+
+.rpg-course-track {
+  height: 8px;
+  overflow: hidden;
+  border: var(--rpg-frame);
+  border-radius: 5px;
+  background: var(--rpg-panel2);
+}
+
+.rpg-course-track-lg {
+  height: 10px;
+}
+
+.rpg-course-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--rpg-accent), var(--rpg-accent2));
+  transition: width 0.35s;
+}
+
+.rpg-course-chevron {
+  color: var(--rpg-muted);
+  transition: transform 0.2s;
+}
+
+.rpg-course-body {
+  padding: 12px 16px 16px;
+}
+
+.rpg-course-lessons {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rpg-course-lesson {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.rpg-course-check {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: var(--rpg-accent);
+}
+
+.rpg-course-lesson-label a {
+  color: var(--rpg-accent);
+  text-decoration: none;
+  text-shadow: var(--rpg-glow);
+}
+
+.rpg-course-lesson-label a:hover {
+  text-decoration: underline;
+}
+
+.rpg-course-lesson-label.done a {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+.rpg-course-refs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.rpg-course-ref {
+  font-size: 12px;
+  border: var(--rpg-frame);
+  border-radius: 6px;
+  padding: 4px 10px;
+  color: var(--rpg-accent);
+  text-decoration: none;
+  text-transform: var(--rpg-tt);
+  text-shadow: var(--rpg-glow);
+}
+
+.rpg-course-ref:hover {
+  background: var(--rpg-panel2);
+}
+
+.rpg-course-open {
+  display: inline-block;
+  margin-top: 14px;
+  border: 1px solid var(--rpg-accent);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  text-transform: var(--rpg-tt);
+  color: var(--rpg-accent);
+  background: var(--rpg-panel2);
+  text-decoration: none;
+  text-shadow: var(--rpg-glow);
+}
+
+.rpg-course-open:hover {
+  background: var(--rpg-accent);
+  color: #04140c;
+  text-shadow: none;
+}
+
+/* fallout tweaks */
+.rpg-shell[data-theme='fallout'] .rpg-hero-level {
+  font-size: 17px;
+  line-height: 1.35;
+  letter-spacing: 0.03em;
+}
+
+.rpg-shell[data-theme='fallout'] .rpg-tabs-trigger {
+  font-size: 11px !important;
+  padding: 7px 10px !important;
+  letter-spacing: 0.08em;
+}
+
+.rpg-shell[data-theme='fallout'] .rpg-screen {
+  padding: 16px 18px 22px;
+}
+
+.rpg-shell[data-theme='fallout'] .rpg-dashboard {
+  gap: 16px;
+}
+
+.rpg-shell[data-theme='fallout'] .rpg-course-title {
+  font-size: 1rem;
+}
+
+.rpg-shell[data-theme='fallout'] .rpg-course-lesson {
+  font-size: 13px;
+}
+
+.rpg-shell[data-theme='fallout'] .rpg-radar .lbl {
+  font-size: 10px;
 }
 
 .rpg-shell .rpg-course .text-muted-foreground {

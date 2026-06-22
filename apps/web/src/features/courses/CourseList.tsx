@@ -4,7 +4,6 @@ import { COURSES } from '@/data/courses'
 import { lessonKey, setLessonDone } from '@/lib/gamification/progress'
 import { localRepositories } from '@/lib/storage/local-repositories'
 import type { Course, ProgressStore } from '@/types'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 const base = import.meta.env.BASE_URL
@@ -42,7 +41,7 @@ export function CourseList({ store, onStoreChange }: CourseListProps) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="rpg-course-list space-y-3">
       {COURSES.map((course) => (
         <CourseCard
           key={course.id}
@@ -86,85 +85,70 @@ function CourseCard({
     done === 0 ? 'не начат' : done === total && total > 0 ? 'пройден' : 'в процессе'
 
   return (
-    <article className="rounded-xl border bg-card shadow-sm">
+    <article className="rpg-course-card">
       <button
         type="button"
         id={headingId}
         aria-expanded={open}
         aria-controls={panelId}
         onClick={onOpenChange}
-        className={cn(
-          'flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/40',
-          open ? 'rounded-t-xl' : 'rounded-xl',
-        )}
+        className={cn('rpg-course-head', open && 'rpg-course-head-open')}
       >
-        <span className="text-2xl shrink-0" aria-hidden>
+        <span className="rpg-course-emoji shrink-0" aria-hidden>
           {course.emoji}
         </span>
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-semibold">{course.title}</span>
-            <span className="rounded-md border px-2 py-0.5 text-xs text-primary">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="rpg-course-title font-semibold">{course.title}</span>
+            <span className="rpg-course-badge">
               {done === total && total > 0 ? '✓' : `${done}/${total}`}
             </span>
-            {!open && (
-              <span className="text-xs text-muted-foreground capitalize">{status}</span>
-            )}
+            {!open && <span className="rpg-course-status capitalize">{status}</span>}
           </div>
           {!open && (
             <div className="mt-2 flex items-center gap-2">
-              <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full bg-primary/80 transition-[width]"
-                  style={{ width: `${pct}%` }}
-                />
+              <div className="rpg-course-track min-w-0 flex-1">
+                <div className="rpg-course-fill" style={{ width: `${pct}%` }} />
               </div>
-              <span className="shrink-0 text-xs text-muted-foreground">{pct}%</span>
+              <span className="rpg-course-pct shrink-0">{pct}%</span>
             </div>
           )}
-          {open && <p className="mt-0.5 text-sm text-muted-foreground">{course.sub}</p>}
+          {open && <p className="rpg-course-sub mt-1">{course.sub}</p>}
         </div>
         <ChevronDown
-          className={cn('size-5 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180')}
+          className={cn('rpg-course-chevron size-5 shrink-0', open && 'rotate-180')}
           aria-hidden
         />
       </button>
 
       {open && (
-        <div id={panelId} role="region" aria-labelledby={headingId} className="border-t px-4 pb-4 pt-3">
-          <div className="h-2 overflow-hidden rounded-full border bg-muted">
-            <div
-              className="h-full bg-gradient-to-r from-primary to-primary/70 transition-[width]"
-              style={{ width: `${pct}%` }}
-            />
+        <div id={panelId} role="region" aria-labelledby={headingId} className="rpg-course-body">
+          <div className="rpg-course-track rpg-course-track-lg">
+            <div className="rpg-course-fill" style={{ width: `${pct}%` }} />
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="rpg-course-meta">
             {done}/{total} уроков · {pct}%
           </p>
 
-          <ul className="mt-3 space-y-1">
+          <ul className="rpg-course-lessons">
             {course.lessons.map((lesson) => {
               const key = lessonKey(course.id, lesson.n)
               const checked = !!store.lessons[key]
               const inputId = `${course.id}-${lesson.n}`
               return (
-                <li key={key} className="flex items-center gap-2 py-1 text-sm">
+                <li key={key} className="rpg-course-lesson">
                   <input
                     id={inputId}
                     type="checkbox"
                     checked={checked}
                     onChange={(e) => onToggle(key, e.target.checked)}
-                    className="size-4 shrink-0 cursor-pointer accent-primary"
+                    className="rpg-course-check"
                   />
-                  <label
-                    htmlFor={inputId}
-                    className={cn('cursor-pointer', checked && 'text-muted-foreground line-through')}
-                  >
+                  <label htmlFor={inputId} className={cn('rpg-course-lesson-label', checked && 'done')}>
                     <a
                       href={`${base}${lesson.href}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-primary hover:underline"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {lesson.n} · {lesson.t}
@@ -176,14 +160,14 @@ function CourseCard({
           </ul>
 
           {course.refs && course.refs.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
+            <div className="rpg-course-refs">
               {course.refs.map((ref) => (
                 <a
                   key={ref.href}
                   href={`${base}${ref.href}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-md border px-2 py-1 text-xs hover:bg-muted"
+                  className="rpg-course-ref"
                 >
                   {ref.t}
                 </a>
@@ -191,11 +175,14 @@ function CourseCard({
             </div>
           )}
 
-          <Button variant="outline" size="sm" className="mt-4" asChild>
-            <a href={`${base}${course.primary.href}`} target="_blank" rel="noreferrer">
-              ▶ {course.primary.label}
-            </a>
-          </Button>
+          <a
+            href={`${base}${course.primary.href}`}
+            target="_blank"
+            rel="noreferrer"
+            className="rpg-course-open"
+          >
+            ▶ {course.primary.label}
+          </a>
         </div>
       )}
     </article>
