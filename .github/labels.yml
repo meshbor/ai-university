@@ -1,0 +1,10 @@
+# Agent labels for in-app feedback queue (Phase 4)
+# Create in GitHub: Settings → Labels
+
+- name: feedback
+  color: '6c8cff'
+  description: In-app feedback from AI University
+
+- name: agent
+  color: 'f9d71c'
+  description: Queue for Cursor agent / draft PR workflow
