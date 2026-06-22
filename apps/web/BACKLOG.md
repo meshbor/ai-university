@@ -8,31 +8,35 @@
 - [x] Превью 2D / 3D (model-viewer) для knight/samurai
 - [x] «Новый герой» без сброса прогресса
 
-### PR dashboard UI (текущий)
+### PR dashboard UI
 - [x] Боковая рубка: портрет, уровень, XP, серия, мини-статы
 - [x] Эволюция портрета по tier (pickPortrait из legacy)
 - [x] Радар баланса жизни (4 оси)
 - [x] SPECIAL grid с пипами
 - [x] 6 RPG-тем (CSS variables + фоны cockpit/hangar/knight/dojo)
-- [x] Табы: Special / Курсы / Дуэли (заглушка)
+- [x] Табы: Special / Курсы / Дуэли
 - [x] Сброс прогресса
 
-## Следующие PR
+### PR duels (текущий)
+- [x] Weekly XP Race + Course Sprint
+- [x] Share-card + копирование invite URL (`?duel=`)
+- [x] Принятие вызова по ссылке / paste
+- [x] Бейдж дуэли в рубке героя
+- [x] Совместимость `aiuni_duel_v1` с legacy
 
-- [ ] **MR3 · Дуэли + share-card** — порт логики из `index.html` (~769–1070)
-- [ ] **MR4 · Cutover legacy** — см. ниже
+## Следующий PR
+
+- [ ] **MR4 · Cutover legacy** — GH Actions → `apps/web/dist`, `index.html` → `legacy/index.html`
 
 ## Когда убираем `index.html`?
 
-**Не в этом MR.** Legacy остаётся prod на GitHub Pages, пока v2 не догонит дуэли.
+**В MR4 cutover**, после мерджа дуэлей — v2 догнал legacy по функциям MVP.
 
-| MR | Содержание | Legacy |
-|----|------------|--------|
-| MR2 (этот) | Dashboard UI + темы | `index.html` в корне, prod как сейчас |
-| MR3 | Дуэли + share + invite URL | то же |
-| **MR4 cutover** | GH Actions → `apps/web/dist`, `index.html` → `legacy/index.html`, README | **v2 = prod** |
-
-После MR4 корневой `index.html` — либо редирект на SPA, либо только `legacy/` для архива.
+| Шаг | Действие |
+|-----|----------|
+| GH Actions | build `apps/web`, deploy `dist/` на GitHub Pages |
+| Архив | `index.html` → `legacy/index.html` |
+| Корень | редирект или SPA `index.html` из dist |
 
 ## Мелочи
 
