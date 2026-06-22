@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { FeedbackModal } from '@/features/feedback/FeedbackModal'
+import { HelpChatPanel } from '@/features/help/HelpChatPanel'
 import { CourseList } from '@/features/courses/CourseList'
 import { HeroPanel } from '@/features/dashboard/HeroPanel'
 import { SpecialGrid } from '@/features/dashboard/SpecialGrid'
@@ -34,6 +36,8 @@ export function DashboardPage() {
     normalizeDuelStore(localRepositories.duel.load()),
   )
   const [shareOpen, setShareOpen] = useState(false)
+  const [feedbackOpen, setFeedbackOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState<'special' | 'skills' | 'duels' | 'help'>('skills')
   const [inviteOpen, setInviteOpen] = useState(false)
   const [pendingInvite, setPendingInvite] = useState<DuelInvitePayload | null>(null)
   const [toast, setToast] = useState<string | null>(null)
@@ -117,6 +121,8 @@ export function DashboardPage() {
       <ThemeBackgrounds themeId={themeId} />
       <ThemeToolbar
         onShare={() => setShareOpen(true)}
+        onFeedback={() => setFeedbackOpen(true)}
+        onHelp={() => setActiveTab('help')}
         onNewHero={() => setRematch(true)}
         onLogout={logout}
       />
@@ -144,7 +150,11 @@ export function DashboardPage() {
           </header>
 
           <div className="rpg-main-panel min-w-0">
-            <Tabs defaultValue="skills" className="gap-0">
+            <Tabs
+              value={activeTab}
+              onValueChange={(v) => setActiveTab(v as 'special' | 'skills' | 'duels' | 'help')}
+              className="gap-0"
+            >
               <TabsList variant="line" className="rpg-tabs-list w-full justify-start rounded-none">
                 <TabsTrigger value="special" className="rpg-tabs-trigger">
                   {theme.tabs.special}
@@ -154,6 +164,9 @@ export function DashboardPage() {
                 </TabsTrigger>
                 <TabsTrigger value="duels" className="rpg-tabs-trigger">
                   {theme.tabs.duels}
+                </TabsTrigger>
+                <TabsTrigger value="help" className="rpg-tabs-trigger">
+                  {theme.tabs.help}
                 </TabsTrigger>
               </TabsList>
 
@@ -182,17 +195,55 @@ export function DashboardPage() {
                   onToast={showToast}
                 />
               </TabsContent>
+
+              <TabsContent value="help" className="mt-0">
+                <HelpChatPanel
+                  themeId={themeId}
+                  profile={profile}
+                  stats={{
+                    level: dash.level,
+                    doneLessons: dash.done,
+                    xp: dash.xp,
+                    streak: dash.streak,
+                  }}
+                  onOpenFeedback={() => setFeedbackOpen(true)}
+                />
+              </TabsContent>
             </Tabs>
 
             <footer className="rpg-tt mt-4 flex flex-wrap items-center justify-between gap-2 text-xs opacity-70">
               <span>1 урок = 100 XP · уровень каждые 300 XP · прогресс в браузере</span>
-              <button type="button" className="rpg-reset-btn" onClick={resetProgress}>
-                Сбросить прогресс
-              </button>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  className="rpg-reset-btn"
+                  onClick={() => setFeedbackOpen(true)}
+                >
+                  🛠 Сообщить о проблеме
+                </button>
+                <button type="button" className="rpg-reset-btn" onClick={resetProgress}>
+                  Сбросить прогресс
+                </button>
+              </div>
             </footer>
           </div>
         </div>
       </div>
+
+      <FeedbackModal
+        open={feedbackOpen}
+        themeId={themeId}
+        activeTab={activeTab}
+        profile={profile}
+        stats={{
+          level: dash.level,
+          doneLessons: dash.done,
+          xp: dash.xp,
+          streak: dash.streak,
+        }}
+        onClose={() => setFeedbackOpen(false)}
+        onSubmitted={(msg) => showToast(msg)}
+      />
 
       <ShareModal
         open={shareOpen}

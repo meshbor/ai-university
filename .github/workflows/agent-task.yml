@@ -1,0 +1,103 @@
+name: Agent task queue
+
+# Phase 4: issue с label `agent` → brief для агента + draft PR.
+# Триггеры:
+#   - repository_dispatch (agent-task) из Go API после feedback
+#   - issues.labeled (ручной triage: добавить label agent)
+
+on:
+  repository_dispatch:
+    types: [agent-task]
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: agent-task-${{ github.event.issue.number || github.event.client_payload.issue_number }}
+  cancel-in-progress: false
+
+jobs:
+  queue:
+    if: >-
+      github.event_name == 'repository_dispatch' ||
+      (github.event_name == 'issues' && github.event.label.name == 'agent')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve issue number
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "number=${{ github.event.client_payload.issue_number }}" >> "$GITHUB_OUTPUT"
+            echo "url=${{ github.event.client_payload.issue_url }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "number=${{ github.event.issue.number }}" >> "$GITHUB_OUTPUT"
+            echo "url=${{ github.event.issue.html_url }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip if draft PR already exists
+        id: skip
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NUM="${{ steps.meta.outputs.number }}"
+          BRANCH="agent/issue-${NUM}"
+          if gh pr list --head "$BRANCH" --state all --json number -q '.[0].number' | grep -qE '^[0-9]+$'; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "PR already exists for $BRANCH"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate agent task brief
+        if: steps.skip.outputs.skip != 'true'
+        id: task
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/agent-task-from-issue.mjs "${{ steps.meta.outputs.number }}"
+
+      - name: Create branch and commit task
+        if: steps.skip.outputs.skip != 'true'
+        env:
+          BRANCH: ${{ steps.task.outputs.branch }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add docs/agent-tasks/
+          git commit -m "agent: task brief for issue #${{ steps.meta.outputs.number }}"
+          git push origin "$BRANCH"
+
+      - name: Open draft PR
+        if: steps.skip.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ steps.task.outputs.branch }}
+          NUM: ${{ steps.meta.outputs.number }}
+          URL: ${{ steps.meta.outputs.url }}
+        run: |
+          gh pr create \
+            --draft \
+            --base main \
+            --head "$BRANCH" \
+            --title "agent: issue #${NUM}" \
+            --body "## Agent task
+
+          Автоматически создано из [issue #${NUM}](${URL}).
+
+          Brief: \`docs/agent-tasks/issue-${NUM}.md\`
+
+          **Cursor / человек:** реализуй изменения по brief, затем сними draft и запроси review."
+
+      - name: Comment on issue
+        if: steps.skip.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_URL=$(gh pr list --head "agent/issue-${{ steps.meta.outputs.number }}" --json url -q '.[0].url')
+          gh issue comment "${{ steps.meta.outputs.number }}" --body "🤖 Draft PR для агента: $PR_URL"

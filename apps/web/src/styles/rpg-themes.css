@@ -1071,6 +1071,156 @@
   color: #efeafc;
 }
 
+.rpg-field textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #4f466d;
+  background: #171522;
+  color: #efeafc;
+  resize: vertical;
+  min-height: 96px;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.rpg-check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: #c8c0dc;
+  cursor: pointer;
+}
+
+.rpg-check-row input {
+  margin-top: 2px;
+}
+
+.rpg-check-hint {
+  opacity: 0.75;
+  font-size: 11px;
+}
+
+.rpg-check-hint code {
+  font-size: 10px;
+}
+
+.rpg-field-error {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #ff8a8a;
+}
+
+.rpg-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 320px;
+}
+
+.rpg-chat-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.rpg-chat-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.rpg-chat-sub {
+  margin: 4px 0 0;
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.rpg-chat-messages {
+  flex: 1;
+  min-height: 180px;
+  max-height: 340px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--rpg-line, #343852);
+  background: rgba(10, 8, 20, 0.35);
+}
+
+.rpg-chat-bubble {
+  max-width: 92%;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.rpg-chat-bubble--user {
+  align-self: flex-end;
+  background: #3d4f8a;
+  color: #eef2ff;
+}
+
+.rpg-chat-bubble--assistant {
+  align-self: flex-start;
+  background: #1f1c30;
+  border: 1px solid #4f466d;
+  color: #e8e4f8;
+}
+
+.rpg-chat-typing {
+  opacity: 0.6;
+}
+
+.rpg-chat-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rpg-chat-chip {
+  border: 1px solid #4f466d;
+  background: #171522;
+  color: #cfc8e8;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.rpg-chat-chip:hover:not(:disabled) {
+  background: #252038;
+}
+
+.rpg-chat-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rpg-chat-form {
+  display: flex;
+  gap: 8px;
+}
+
+.rpg-chat-input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #4f466d;
+  background: #171522;
+  color: #efeafc;
+  font-size: 13px;
+}
+
 .rpg-toast {
   position: fixed;
   bottom: 24px;

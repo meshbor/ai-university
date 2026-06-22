@@ -58,7 +58,7 @@ export type LifeAxisScore = LifeAxis & { val: number }
 export interface ThemeConfig {
   brand: string
   who: string
-  tabs: { special: string; skills: string; duels: string }
+  tabs: { special: string; skills: string; duels: string; help: string }
   ranks: string[]
 }
 

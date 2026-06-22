@@ -14,11 +14,13 @@ const LABELS: Record<ThemeId, string> = {
 
 interface ThemeToolbarProps {
   onShare: () => void
+  onFeedback: () => void
+  onHelp: () => void
   onNewHero: () => void
   onLogout: () => void
 }
 
-export function ThemeToolbar({ onShare, onNewHero, onLogout }: ThemeToolbarProps) {
+export function ThemeToolbar({ onShare, onFeedback, onHelp, onNewHero, onLogout }: ThemeToolbarProps) {
   const themeId = useAppStore((s) => s.themeId)
   const setTheme = useAppStore((s) => s.setTheme)
 
@@ -48,6 +50,22 @@ export function ThemeToolbar({ onShare, onNewHero, onLogout }: ThemeToolbarProps
           className="ml-1 rounded-lg border border-[#343852] bg-[#23263a] px-2.5 py-1.5 text-xs hover:bg-[#2c3050]"
         >
           📤 Поделиться
+        </button>
+        <button
+          type="button"
+          onClick={onHelp}
+          className="ml-1 rounded-lg border border-[#343852] bg-[#23263a] px-2.5 py-1.5 text-xs hover:bg-[#2c3050]"
+          title="Помощник — вопросы про курсы и XP"
+        >
+          💬 Помощь
+        </button>
+        <button
+          type="button"
+          onClick={onFeedback}
+          className="ml-1 rounded-lg border border-[#343852] bg-[#23263a] px-2.5 py-1.5 text-xs hover:bg-[#2c3050]"
+          title="Сообщить о проблеме или предложить правку"
+        >
+          🛠 Сообщить
         </button>
         <button
           type="button"
