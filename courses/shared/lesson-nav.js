@@ -10,6 +10,7 @@
         { file: '0005-chekpoin-faza-0.html', label: '0005 · Чекпоинт Фазы 0' },
         { file: '0006-sloi-bekenda.html', label: '0006 · Слои бэкенда' },
         { file: '0007-middleware-i-oshibki.html', label: '0007 · Middleware и ошибки' },
+        { file: '0008-login-postrochno.html', label: '0008 · Login построчно' },
       ],
     },
     english: {

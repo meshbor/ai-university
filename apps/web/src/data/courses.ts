@@ -8,7 +8,7 @@ export const COURSES: Course[] = [
     sub: 'Системный дизайн и архитектура',
     primary: {
       label: 'Открыть последний урок',
-      href: 'courses/senior-2026/lessons/0007-middleware-i-oshibki.html',
+      href: 'courses/senior-2026/lessons/0008-login-postrochno.html',
     },
     lessons: [
       { n: '0001', t: 'Путь запроса: от логина до списка', href: 'courses/senior-2026/lessons/0001-put-zaprosa.html' },
@@ -18,6 +18,7 @@ export const COURSES: Course[] = [
       { n: '0005', t: 'Чекпоинт Фазы 0: полный путь запроса', href: 'courses/senior-2026/lessons/0005-chekpoin-faza-0.html' },
       { n: '0006', t: 'Слои бэкенда: main → handler → store', href: 'courses/senior-2026/lessons/0006-sloi-bekenda.html' },
       { n: '0007', t: 'Middleware, валидация и ошибки', href: 'courses/senior-2026/lessons/0007-middleware-i-oshibki.html' },
+      { n: '0008', t: 'Login построчно: auth → store → JWT', href: 'courses/senior-2026/lessons/0008-login-postrochno.html' },
     ],
     refs: [
       { t: 'Дорожная карта', href: 'courses/senior-2026/reference/dorozhnaya-karta-2026.html' },

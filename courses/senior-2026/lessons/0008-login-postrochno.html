@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок 0008 · Login построчно: auth → store → JWT</title>
+<style>
+  :root{--ink:#1a1a1a;--muted:#666;--line:#e2e2e2;--accent:#7a4f9e;--accent2:#2e6e8e;
+    --bg:#fbfbf9;--card:#fff;--ok:#2e7d32;--bad:#c0392b;--code:#f4f2ef}
+  *{box-sizing:border-box}
+  body{font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:var(--bg);
+    max-width:780px;margin:0 auto;padding:44px 22px 110px;line-height:1.55;font-size:18px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 4px}
+  .meta{color:var(--muted);font-style:italic;margin:0 0 24px;font-size:16px}
+  h2{font-size:22px;margin:34px 0 8px;border-bottom:2px solid var(--line);padding-bottom:6px}
+  h3{font-size:18px;margin:18px 0 4px}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;background:var(--code);padding:1px 6px;border-radius:4px}
+  pre{background:#2b2b2b;color:#eaeaea;padding:14px 16px;border-radius:8px;overflow:auto;font-size:12.5px;line-height:1.45}
+  pre code{background:none;color:inherit;padding:0}
+  .win{background:#f3eff8;border-left:5px solid var(--accent);border-radius:8px;padding:12px 16px;margin:16px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:18px 0}
+  .step{border-left:4px solid var(--accent2);padding:8px 14px;margin:12px 0;background:#fff;font-size:16px}
+  .step b{color:var(--accent2)}
+  .q{margin:14px 0;padding-bottom:12px;border-bottom:1px solid #f0f0f0}
+  .q p{margin:0 0 8px;font-weight:bold}
+  .opt{display:block;padding:8px 12px;margin:6px 0;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:16px;background:#fff}
+  .opt.correct{border-color:var(--ok);background:#f0f8f0}
+  .opt.wrong{border-color:var(--bad);background:#fcf0ef}
+  .opt input{margin-right:8px}
+  .fb{font-size:15px;margin-top:6px;min-height:20px}
+  .fb.ok{color:var(--ok)} .fb.no{color:var(--bad)}
+  button{font-family:inherit;font-size:15px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:9px 16px;cursor:pointer}
+  button.ghost{background:#fff;color:var(--accent2);border:1px solid var(--line)}
+  input.txt{font-family:ui-monospace,monospace;font-size:15px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;width:180px}
+  label.ck{display:flex;gap:10px;align-items:flex-start;padding:6px 0;cursor:pointer;font-size:16px}
+  label.ck input{margin-top:5px;width:18px;height:18px}
+  .res{font-size:15px;margin-top:8px;font-weight:bold}
+  textarea{width:100%;min-height:70px;font-size:15px;padding:10px;border:1px solid var(--line);border-radius:8px}
+  .report{background:#1f2733;color:#e8eef5;border-radius:10px;padding:18px 20px;margin-top:14px;font-size:14px}
+  a{color:var(--accent2)}
+  .small{font-size:15px;color:var(--muted)}
+  .note{background:#fffaf0;border:1px solid #f0e2c0;border-radius:8px;padding:10px 14px;margin:14px 0;font-size:16px}
+  @media print{body{background:#fff}.step{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<h1>Урок 0008 · Login построчно: <code>auth</code> → <code>store</code> → <code>JWT</code></h1>
+<p class="meta">Курс «Senior 2026» · Фаза 1 · закрываем дыру «как login на бэке» · файлы в <code>fullstack-lab/apps/api</code></p>
+
+<div class="win">
+  <b>Сегодняшняя победа.</b> Пройдёшь <code>POST /api/v1/auth/login</code> по строкам кода — от JSON в теле до
+  <code>Set-Cookie</code> — и скажешь, какой слой за что отвечает. Это тот же паттерн, что в Spring Security + UserRepository.
+</div>
+
+<h2>1. Карта файлов</h2>
+<pre><code>handler/auth.go     — login(), Register(), cookie, ответ
+store/store.go      — FindUserByEmail, CheckPassword (bcrypt)
+pkg/jwt/jwt.go      — Sign(userId, role, ttl)
+pkg/validate        — правила email/password
+middleware/auth.go  — НЕ на login (токен ещё нет)</code></pre>
+
+<h2>2. <code>login()</code> — семь шагов</h2>
+<p>Держи открытым <code>internal/handler/auth.go</code> и сверяйся.</p>
+
+<div class="step"><b>Шаг 1 — HTTP → struct.</b> <code>BodyParser</code> кладёт JSON в <code>loginPayload{Email, Password}</code>.
+Ошибка парсинга → 400 <code>invalid json</code>.</div>
+
+<div class="step"><b>Шаг 2 — валидация.</b> <code>validate.Struct(body)</code>: email обязателен, пароль ≥ 6.
+Ошибка → 400 (не 401!). См. Урок 0007.</div>
+
+<div class="step"><b>Шаг 3 — найти юзера.</b> <code>h.store.FindUserByEmail(body.Email)</code> → SQL
+<code>SELECT ... FROM users WHERE email = ?</code>. Нет строки → <code>ErrNotFound</code>.</div>
+
+<div class="step"><b>Шаг 4 — проверить пароль.</b> <code>h.store.CheckPassword(user, body.Password)</code> →
+<code>bcrypt.CompareHashAndPassword</code> с хэшем из БД. В БД пароль <b>никогда</b> открытым текстом (см. seed в store).</div>
+
+<div class="step"><b>Шаг 5 — если шаг 3 или 4 не ок.</b> Один ответ: 401 <code>invalid credentials</code>
+(не раскрываем «нет такого email» vs «пароль неверный» — безопасность).</div>
+
+<div class="step"><b>Шаг 6 — выдать JWT.</b> <code>h.jwt.Sign(user.ID, user.Role, 8*time.Hour)</code> → строка токена.
+Подпись секретом <code>JWT_SECRET</code> из config. Ошибка → 500.</div>
+
+<div class="step"><b>Шаг 7 — ответ клиенту.</b> Cookie <code>access_token</code> (HttpOnly, 8ч) +
+<code>response.JSON</code> с <code>data.user</code> и <code>data.accessToken</code> (дубль для curl/мобилки).</div>
+
+<div class="note"><b>Почему handler не пишет SQL и не вызывает bcrypt напрямую?</b> Те же причины, что в Уроке 0006:
+handler = HTTP-оркестратор; store = всё про данные. В Java: <code>AuthController</code> зовёт <code>UserRepository</code>,
+не пишет <code>SELECT</code> сам.</div>
+
+<h2>3. Что внутри <code>jwt.Sign</code> (кратко)</h2>
+<pre><code>// pkg/jwt/jwt.go — claims, которые попадут в payload
+UserID, Role, JTI (uuid), IssuedAt, ExpiresAt
+// Подпись HS256 секретом сервера</code></pre>
+<p>Middleware потом делает обратное: <code>Parse(token)</code> → кладёт userId в <code>c.Locals</code>.</p>
+
+<h2>4. Проверь себя</h2>
+<div class="card" id="quiz">
+  <div class="q" data-correct="b">
+    <p>1. Где сравнивается пароль с хэшем?</p>
+    <label class="opt"><input type="radio" name="q1" value="a">auth.login напрямую</label>
+    <label class="opt"><input type="radio" name="q1" value="b">store.CheckPassword</label>
+    <label class="opt"><input type="radio" name="q1" value="c">jwt.Sign</label>
+    <label class="opt"><input type="radio" name="q1" value="d">middleware.IsAuthed</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="a">
+    <p>2. Почему на <code>POST /login</code> нет IsAuthed?</p>
+    <label class="opt"><input type="radio" name="q2" value="a">Токена ещё нет — его выдают здесь</label>
+    <label class="opt"><input type="radio" name="q2" value="b">Login идёт мимо HTTP</label>
+    <label class="opt"><input type="radio" name="q2" value="c">SQLite не поддерживает middleware</label>
+    <label class="opt"><input type="radio" name="q2" value="d">CORS блокирует auth на POST</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="c">
+    <p>3. Пароль из 5 символов на login — статус?</p>
+    <label class="opt"><input type="radio" name="q3" value="a">401</label>
+    <label class="opt"><input type="radio" name="q3" value="b">403</label>
+    <label class="opt"><input type="radio" name="q3" value="c">400</label>
+    <label class="opt"><input type="radio" name="q3" value="d">500</label>
+    <div class="fb"></div>
+  </div>
+  <div class="q" data-correct="b">
+    <p>4. После успешного login cookie называется…</p>
+    <label class="opt"><input type="radio" name="q4" value="a">session_id</label>
+    <label class="opt"><input type="radio" name="q4" value="b">access_token</label>
+    <label class="opt"><input type="radio" name="q4" value="c">jwt_secret</label>
+    <label class="opt"><input type="radio" name="q4" value="d">authorization</label>
+    <div class="fb"></div>
+  </div>
+</div>
+
+<h3>Кто делает работу? (handler / store / jwt)</h3>
+<div class="card" id="who">
+  <div style="display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap">
+    <span style="min-width:220px">SQL SELECT по email</span>
+    <select data-ans="store"><option value="">—</option><option value="handler">handler</option><option value="store">store</option><option value="jwt">jwt</option></select>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap">
+    <span style="min-width:220px">Подписать токен HS256</span>
+    <select data-ans="jwt"><option value="">—</option><option value="handler">handler</option><option value="store">store</option><option value="jwt">jwt</option></select>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap">
+    <span style="min-width:220px">Set-Cookie в ответе</span>
+    <select data-ans="handler"><option value="">—</option><option value="handler">handler</option><option value="store">store</option><option value="jwt">jwt</option></select>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap">
+    <span style="min-width:220px">Правило min=6 для password</span>
+    <select data-ans="handler"><option value="">—</option><option value="handler">handler</option><option value="store">store</option><option value="jwt">jwt</option></select>
+  </div>
+  <button id="checkWho" class="ghost" style="margin-top:10px">Проверить</button>
+  <span class="res" id="whoRes"></span>
+  <p class="small">Подсказка: validate вызывается из handler; теги на struct — часть handler-слоя.</p>
+</div>
+
+<h2>5. Практика</h2>
+<p>Пройди глазами + один curl с <code>-v</code>:</p>
+<pre><code># Открой параллельно:
+#   handler/auth.go (login)
+#   store/store.go (FindUserByEmail, CheckPassword, seed — откуда lab12345)
+#   pkg/jwt/jwt.go (Sign)
+
+curl -v -c /tmp/lab.jar -X POST http://localhost:8080/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"editor@lab.local","password":"lab12345"}' 2>&1 | less
+# Найди: &lt; HTTP/1.1 200, &lt; Set-Cookie: access_token=...</code></pre>
+
+<div class="card">
+  <label class="ck"><input type="checkbox" id="p1">Прочитал login() и нашёл все 7 шагов</label>
+  <label class="ck"><input type="checkbox" id="p2">В store увидел bcrypt в CheckPassword</label>
+  <label class="ck"><input type="checkbox" id="p3">В curl -v увидел Set-Cookie: access_token</label>
+  <div style="margin-top:10px">
+    <span>В каком пакете лежит Sign? </span>
+    <input class="txt" id="pkgIn" placeholder="путь/пакет">
+    <button class="ghost" id="checkPkg">Проверить</button>
+    <span class="res" id="pkgRes"></span>
+  </div>
+</div>
+
+<h2>6. Дальше по курсу</h2>
+<p class="small">Урок 0009 — практика с ИИ: поле <code>pinned</code> и фильтр <code>?pinned=true</code>
+(первое осмысленное изменение бэка руками). Сейчас — только читаем.</p>
+
+<h2>7. Отчёт для агента</h2>
+<textarea id="issues" placeholder="Что непонятно?"></textarea>
+<div style="margin-top:10px"><button id="copyBtn">Скопировать отчёт</button> <span class="res" id="copyRes"></span></div>
+<div class="report" id="reportView" style="display:none"></div>
+
+<script>
+const quizState={};
+document.querySelectorAll("#quiz .q").forEach((q,i)=>{
+  const correct=q.dataset.correct;
+  q.querySelectorAll(".opt").forEach(opt=>{
+    opt.addEventListener("click",()=>{
+      const val=opt.querySelector("input").value;
+      q.querySelectorAll(".opt").forEach(o=>o.classList.remove("correct","wrong"));
+      const fb=q.querySelector(".fb");
+      quizState["q"+(i+1)]={chosen:val,ok:val===correct};
+      opt.classList.add(val===correct?"correct":"wrong");
+      fb.textContent=val===correct?"Верно ✓":"Не то"; fb.className="fb "+(val===correct?"ok":"no");
+    });
+  });
+});
+let whoOk=false;
+document.getElementById("checkWho").addEventListener("click",()=>{
+  let ok=true;
+  document.querySelectorAll("#who select").forEach(s=>{
+    if(!s.value||s.value!==s.dataset.ans) ok=false;
+  });
+  whoOk=ok;
+  const r=document.getElementById("whoRes");
+  r.textContent=ok?"Верно ✓":"Есть ошибки"; r.style.color=ok?"var(--ok)":"var(--bad)";
+});
+let pkgOk=false;
+document.getElementById("checkPkg").addEventListener("click",()=>{
+  const v=document.getElementById("pkgIn").value.trim().toLowerCase();
+  pkgOk=v.includes("jwt")||v.includes("pkg/jwt");
+  const r=document.getElementById("pkgRes");
+  r.textContent=pkgOk?"Верно ✓ pkg/jwt":"Подсказка: pkg/..."; r.style.color=pkgOk?"var(--ok)":"var(--bad)";
+});
+function buildReport(){
+  let qScore=0; const qLines=[];
+  for(let i=1;i<=4;i++){const s=quizState["q"+i];if(s){if(s.ok)qScore++;qLines.push(`  Q${i}: ${s.chosen} ${s.ok?"OK":"WRONG"}`);}else qLines.push(`  Q${i}: (не отвечено)`);}
+  const p=id=>document.getElementById(id).checked?"да":"нет";
+  return ["=== ОТЧЁТ · Курс Senior 2026 · Урок 0008 «Login построчно» ===",
+`Квиз: ${qScore}/4`,...qLines,`Кто делает работу: ${whoOk?"верно":"нет"}`,
+`Практика: 7 шагов ${p("p1")}, bcrypt ${p("p2")}, Set-Cookie ${p("p3")}, пакет jwt ${pkgOk?"да":"нет"}`,
+`Что непонятно: ${document.getElementById("issues").value.trim()||"(нет)"}`,"=== конец отчёта ==="].join("\n");
+}
+document.getElementById("copyBtn").addEventListener("click",async()=>{
+  document.getElementById("reportView").style.display="block";
+  document.getElementById("reportView").textContent=buildReport();
+  try{await navigator.clipboard.writeText(buildReport());document.getElementById("copyRes").textContent="Скопировано ✓";}
+  catch(e){document.getElementById("copyRes").textContent="Скопируй вручную";}
+});
+</script>
+  <script src="../../shared/lesson-nav.js" defer></script>
+</body>
+</html>

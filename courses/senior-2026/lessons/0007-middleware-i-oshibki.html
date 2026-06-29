@@ -74,6 +74,47 @@
 <p>Только для <code>/notes</code> и <code>/auth/me</code>, <code>/logout</code>. <code>POST /auth/login</code> — <b>без</b> auth middleware
 (иначе замкнутый круг).</p>
 
+<h3>Это не магия: как устроена цепочка (Go по минимуму)</h3>
+<p>В <code>main.go</code> четыре строки <code>app.Use(...)</code> — это <b>регистрация функций</b>, которые Fiber
+вызывает <b>до</b> твоего handler. Порядок регистрации = порядок прохода запроса.</p>
+<pre><code>app.Use(recover.New())    // 1-й слой
+app.Use(requestid.New())  // 2-й
+app.Use(logger.New())     // 3-й
+app.Use(cors.New(...))    // 4-й</code></pre>
+<p><b>Модель «луковица».</b> Запрос входит в recover → тот зовёт следующий слой → … → handler → ответ
+идёт обратно. Каждый слой в конце (если всё ок) делает <code>return c.Next()</code> — «передай дальше».
+Пример в нашем коде — <code>middleware/auth.go</code>, строка <code>return c.Next()</code> после проверки JWT.</p>
+<p><b>Мини-синтаксис Go, который встречаешь здесь:</b></p>
+<ul>
+  <li><code>package main</code> — точка входа программы.</li>
+  <li><code>func (h *AuthHandler) login(c *fiber.Ctx) error</code> — метод: получатель <code>h</code>, аргумент <code>c</code>, возвращает <code>error</code>.</li>
+  <li><code>:=</code> — объявить переменную и присвоить (<code>st, err := store.Open(...)</code>).</li>
+  <li><code>if err != nil { ... }</code> — идиома Go: почти всегда проверяют ошибку сразу.</li>
+  <li><code>*Store</code> — указатель на struct (передаём без копирования всего объекта).</li>
+  <li>Теги в struct: <code>`json:"email"`</code> — подсказка парсеру JSON, не «магия компилятора».</li>
+</ul>
+<p class="small">Полный Go-курс не цель трека. В каждом уроке Фазы 1 — ровно столько синтаксиса, сколько нужно
+прочитать <b>этот</b> файл. Спроси в чате по любой строке — разберём.</p>
+
+<h3>Твои строки в терминале — это и есть logger</h3>
+<p>Ты <b>уже видишь логи</b>. Их пишет <code>logger.New()</code> после каждого запроса. Разбор одной строки:</p>
+<pre><code>19:58:41 | 200 | 49.214403ms | 127.0.0.1 | POST | /api/v1/auth/login | -
+   ↑       ↑        ↑            ↑          ↑              ↑            ↑
+ время  статус  длительность    IP клиента  метод         путь      ошибка (часто «-»)</code></pre>
+<ul>
+  <li><code>400</code> за ~31µs на login с <code>abc</code> — быстро: валидация отсекла до БД.</li>
+  <li><code>200</code> за ~50ms на login — дольше: bcrypt + SQL.</li>
+  <li><code>404</code> за ~300µs на <code>/notes/99999</code> — нашли маршрут, в store нет записи.</li>
+</ul>
+<p><b>requestid</b> в этой строке не виден — дефолтный Fiber-logger его не печатает. ID есть в заголовке ответа.
+Проверь:</p>
+<pre><code>curl -v -X POST http://localhost:8080/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"editor@lab.local","password":"lab12345"}' 2>&1 | grep -i request
+# Ищи: X-Request-Id: ...</code></pre>
+<p><b>recover</b> срабатывает только при панике (непойманный crash в handler). В обычных 400/401/404 ты его
+не «видишь» — он молча пропускает запрос дальше.</p>
+
 <h2>2. Валидация входа</h2>
 <pre><code>type loginPayload struct {
   Email    string `json:"email" validate:"required,email"`
@@ -162,6 +203,35 @@ if err := validate.Struct(body); err != nil {
 </div>
 
 <h2>5. Практика: вызови ошибки curl'ом</h2>
+
+<div class="note"><b>Шпаргалка curl</b> (чтобы не было «магии»):
+<table style="width:100%;border-collapse:collapse;font-size:14.5px;margin:8px 0">
+<tr style="background:#f3eff8"><th style="border:1px solid var(--line);padding:6px">Флаг / символ</th>
+<th style="border:1px solid var(--line);padding:6px">Что делает</th></tr>
+<tr><td style="border:1px solid var(--line);padding:6px"><code>-X POST</code></td>
+<td style="border:1px solid var(--line);padding:6px">HTTP-метод (GET по умолчанию, если не указан)</td></tr>
+<tr><td style="border:1px solid var(--line);padding:6px"><code>-H '...'</code></td>
+<td style="border:1px solid var(--line);padding:6px">Заголовок запроса (как headers в fetch)</td></tr>
+<tr><td style="border:1px solid var(--line);padding:6px"><code>-d '{...}'</code></td>
+<td style="border:1px solid var(--line);padding:6px">Тело запроса (как body в fetch)</td></tr>
+<tr><td style="border:1px solid var(--line);padding:6px"><code>-c /tmp/lab.jar</code></td>
+<td style="border:1px solid var(--line);padding:6px"><b>C</b>ookie jar — <b>сохранить</b> cookie из ответа в файл</td></tr>
+<tr><td style="border:1px solid var(--line);padding:6px"><code>-b /tmp/lab.jar</code></td>
+<td style="border:1px solid var(--line);padding:6px"><b>B</b>rowser cookie — <b>прочитать</b> cookie из файла и отправить</td></tr>
+<tr><td style="border:1px solid var(--line);padding:6px"><code>-s</code></td>
+<td style="border:1px solid var(--line);padding:6px"><b>S</b>ilent — без полоски прогресса; тело ответа всё равно в stdout</td></tr>
+<tr><td style="border:1px solid var(--line);padding:6px"><code>-i</code></td>
+<td style="border:1px solid var(--line);padding:6px"><b>I</b>nclude — показать заголовки ответа + тело</td></tr>
+<tr><td style="border:1px solid var(--line);padding:6px"><code>-v</code></td>
+<td style="border:1px solid var(--line);padding:6px"><b>V</b>erbose — запрос и ответ целиком (учебный режим)</td></tr>
+<tr><td style="border:1px solid var(--line);padding:6px"><code>&gt; /dev/null</code></td>
+<td style="border:1px solid var(--line);padding:6px">Не curl, а <b>shell</b>: выбросить тело ответа в мусор (cookie уже сохранены через <code>-c</code>)</td></tr>
+<tr><td style="border:1px solid var(--line);padding:6px"><code>| python3 -m json.tool</code></td>
+<td style="border:1px solid var(--line);padding:6px">Pipe: передать stdout curl в программу, которая красиво форматирует JSON</td></tr>
+<tr><td style="border:1px solid var(--line);padding:6px"><code>\</code> в конце строки</td>
+<td style="border:1px solid var(--line);padding:6px">Перенос команды на следующую строку в bash (одна команда)</td></tr>
+</table></div>
+
 <pre><code># 400 — пароль короче 6 (валидация)
 curl -s -X POST http://localhost:8080/api/v1/auth/login \
   -H 'Content-Type: application/json' \
@@ -172,13 +242,19 @@ curl -s -X POST http://localhost:8080/api/v1/auth/login \
   -H 'Content-Type: application/json' \
   -d '{"email":"editor@lab.local","password":"wrongpass"}' | python3 -m json.tool
 
-# 404 — заметка не существует (сначала login -c jar)
+# 404 — заметка не существует
+# Шаг A: логин, сохранить cookie в jar (-c). &gt; /dev/null — тело ответа не нужно, cookie уже в файле
 curl -c /tmp/lab.jar -s -X POST http://localhost:8080/api/v1/auth/login \
   -H 'Content-Type: application/json' \
-  -d '{"email":"editor@lab.local","password":"lab12345"}' > /dev/null
+  -d '{"email":"editor@lab.local","password":"lab12345"}' &gt; /dev/null
+# Шаг B: GET с cookie из jar (-b)
 curl -b /tmp/lab.jar -s http://localhost:8080/api/v1/notes/99999 | python3 -m json.tool
 
-# requestid — смотри логи сервера в терминале при любом запросе</code></pre>
+# requestid — смотри логи сервера в терминале go run ИЛИ:
+curl -s -D - -o /dev/null -X POST http://localhost:8080/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"editor@lab.local","password":"lab12345"}' | grep -i request</code></pre>
+<p class="small"><code>-D -</code> = вывести заголовки ответа в stdout; <code>-o /dev/null</code> = тело ответа выбросить.</p>
 
 <div class="card">
   <label class="ck"><input type="checkbox" id="p1">Увидел 400 на коротком пароле</label>
